@@ -1,4 +1,5 @@
 ﻿using LMSCourse.Models;
+using LMSCourse.Repositories.Interfaces;
 using LMSCourse.Services.Interfaces;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
@@ -13,17 +14,20 @@ namespace LMSCourse.Services
     {
         private readonly IConfiguration _config;
         private readonly IUserService _userService;
+        private readonly IUserRepository _userRepository;
 
-        public TokenService(IConfiguration config, IUserService userService)
+        public TokenService(IConfiguration config, IUserService userService, IUserRepository userRepository)
         {
             _config = config;
             _userService = userService;
+            _userRepository = userRepository;
         }
 
         public async Task<string> GenerateAccessToken(User user)
         {
             var claims = new List<Claim>
             {
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim("type", "access")
             };
@@ -54,7 +58,7 @@ namespace LMSCourse.Services
         {
             var claims = new List<Claim>
             {
-                new Claim(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim("type", "refresh")
             };
 
@@ -71,5 +75,55 @@ namespace LMSCourse.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        public async Task<(string accessToken, string refreshToken)> RefreshAsync(string refreshToken)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_config["Jwt:Key"]);
+
+            try
+            {
+                Console.WriteLine("=== Refresh Debug ===");
+                Console.WriteLine($"Token: {refreshToken}");
+
+                var principal = tokenHandler.ValidateToken(refreshToken, new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = _config["Jwt:Issuer"],
+                    ValidAudience = _config["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(key)
+                }, out SecurityToken validatedToken);
+
+                Console.WriteLine("Claims:");
+                foreach (var c in principal.Claims)
+                {
+                    Console.WriteLine($"  {c.Type}: {c.Value}");
+                }
+
+                if (principal.FindFirst("type")?.Value != "refresh")
+                    throw new SecurityTokenException("Invalid refresh token type");
+
+                var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    throw new SecurityTokenException("Invalid refresh token payload");
+
+                var user = await _userRepository.GetByIdAsync(int.Parse(userId));
+                if (user == null)
+                    throw new SecurityTokenException("User not found");
+
+                var newAccessToken = await GenerateAccessToken(user);
+                var newRefreshToken = GenerateRefreshToken(user);
+
+                return (newAccessToken, newRefreshToken);
+            }
+            catch (Exception ex)
+            {
+                throw new SecurityTokenException("Invalid refresh token", ex);
+            }
+        }
+
     }
 }
