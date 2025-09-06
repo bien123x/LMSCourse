@@ -1,4 +1,4 @@
-using LMSCourse.Data;
+﻿using LMSCourse.Data;
 using LMSCourse.Models;
 using LMSCourse.Repositories;
 using LMSCourse.Repositories.Interfaces;
@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using OnlineCourseConstants;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -49,12 +50,86 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-//Th�m DbContext (SQL Server)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngular",
+        policy => policy.WithOrigins("http://localhost:4200") // Angular chạy ở 4200
+                        .AllowAnyHeader()
+                        .AllowAnyMethod());
+});
+
+builder.Services.AddAuthorization(options =>
+{
+    // User
+    options.AddPolicy(PERMISSION.ViewUsers, policy =>
+        policy.RequireClaim("Permission", PERMISSION.ViewUsers));
+    options.AddPolicy(PERMISSION.CreateUsers, policy =>
+        policy.RequireClaim("Permission", PERMISSION.CreateUsers));
+    options.AddPolicy(PERMISSION.EditUsers, policy =>
+        policy.RequireClaim("Permission", PERMISSION.EditUsers));
+    options.AddPolicy(PERMISSION.DeleteUsers, policy =>
+        policy.RequireClaim("Permission", PERMISSION.DeleteUsers));
+
+    // Roles
+    options.AddPolicy(PERMISSION.ViewRoles, policy =>
+        policy.RequireClaim("Permission", PERMISSION.ViewRoles));
+    options.AddPolicy(PERMISSION.CreateRoles, policy =>
+        policy.RequireClaim("Permission", PERMISSION.CreateRoles));
+    options.AddPolicy(PERMISSION.EditRoles, policy =>
+        policy.RequireClaim("Permission", PERMISSION.EditRoles));
+    options.AddPolicy(PERMISSION.DeleteRoles, policy =>
+        policy.RequireClaim("Permission", PERMISSION.DeleteRoles));
+
+    // Courses
+    options.AddPolicy(PERMISSION.ViewCourses, policy =>
+        policy.RequireClaim("Permission", PERMISSION.ViewCourses));
+    options.AddPolicy(PERMISSION.CreateCourses, policy =>
+        policy.RequireClaim("Permission", PERMISSION.CreateCourses));
+    options.AddPolicy(PERMISSION.EditCourses, policy =>
+        policy.RequireClaim("Permission", PERMISSION.EditCourses));
+    options.AddPolicy(PERMISSION.DeleteCourses, policy =>
+        policy.RequireClaim("Permission", PERMISSION.DeleteCourses));
+
+    // Lessons
+    options.AddPolicy(PERMISSION.ViewLessons, policy =>
+        policy.RequireClaim("Permission", PERMISSION.ViewLessons));
+    options.AddPolicy(PERMISSION.CreateLessons, policy =>
+        policy.RequireClaim("Permission", PERMISSION.CreateLessons));
+    options.AddPolicy(PERMISSION.EditLessons, policy =>
+        policy.RequireClaim("Permission", PERMISSION.EditLessons));
+    options.AddPolicy(PERMISSION.DeleteLessons, policy =>
+        policy.RequireClaim("Permission", PERMISSION.DeleteLessons));
+
+    // Enrollments
+    options.AddPolicy(PERMISSION.ViewEnrollments, policy =>
+        policy.RequireClaim("Permission", PERMISSION.ViewEnrollments));
+    options.AddPolicy(PERMISSION.ManageEnrollments, policy =>
+        policy.RequireClaim("Permission", PERMISSION.ManageEnrollments));
+
+    // Payments
+    options.AddPolicy(PERMISSION.ViewPayments, policy =>
+        policy.RequireClaim("Permission", PERMISSION.ViewPayments));
+    options.AddPolicy(PERMISSION.ManagePayments, policy =>
+        policy.RequireClaim("Permission", PERMISSION.ManagePayments));
+
+    // Logs
+    options.AddPolicy(PERMISSION.ViewLogs, policy =>
+        policy.RequireClaim("Permission", PERMISSION.ViewLogs));
+
+    // System PERMISSION
+    options.AddPolicy(PERMISSION.ViewPermissions, policy =>
+        policy.RequireClaim("Permission", PERMISSION.ViewPermissions));
+    options.AddPolicy(PERMISSION.ManagePermissions, policy =>
+        policy.RequireClaim("Permission", PERMISSION.ManagePermissions));
+});
+
+
+//Thêm DbContext (SQL Server)
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ConnSQL"))
 );
 
-//Th�m DI
+//Thêm DI
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
@@ -95,6 +170,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowAngular");
+
 
 app.UseAuthentication();
 app.UseAuthorization();
