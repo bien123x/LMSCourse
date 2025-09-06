@@ -1,0 +1,71 @@
+﻿using AutoMapper;
+using LMSCourse.DTOs.User;
+using LMSCourse.Models;
+using LMSCourse.Repositories.Interfaces;
+using LMSCourse.Services.Interfaces;
+using Microsoft.AspNetCore.Identity;
+
+namespace LMSCourse.Services
+{
+    public class UserService : IUserService
+    {
+        private readonly IPasswordHasher<User> _passwordHasher;
+        private readonly IUserRepository _userRepository;
+        private readonly IMapper _mapper;
+        public UserService(IUserRepository userRepository, IPasswordHasher<User> passwordHasher, IMapper mapper)
+        {
+            _userRepository = userRepository;
+            _passwordHasher = passwordHasher;
+            _mapper = mapper;
+        }
+
+        public async Task<UserDto?> GetUserByIdAsync(int id)
+        {
+            var user = await _userRepository.GetByIdAsync(id);
+
+            if (user == null) return null;
+
+            return _mapper.Map<UserDto>(user);
+        }
+
+        public async Task<List<string>> GetRolesNameByIdAsync(int userId)
+        {
+            var user = await _userRepository.GetUserWithRolesAsync(userId);
+            if (user == null)
+                return new List<string>(); // hoặc throw exception nếu muốn
+
+            return user.UserRoles.Select(ur => ur.Role.RoleName).ToList();
+        }
+
+        public async Task<List<string>> GetPermissionsNameByIdAsync(int userId)
+        {
+            var user = await _userRepository.GetUserWithRolesAndPermissionsAsync(userId);
+
+            if (user == null)
+                return new List<string>();
+
+            var permissions = user.UserRoles
+                .SelectMany(ur => ur.Role.RolePermissions)
+                .Select(rp => rp.Permission.PermissionName)
+                .ToList();
+
+            return permissions;
+        }
+
+        public bool VerifyPassword(User user, string password)
+        {
+            var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
+            return result == PasswordVerificationResult.Success;
+        }
+
+        public async Task<User?> GetUserByUserNameOrEmailAsync(string userOrEmail)
+        {
+            var user = await _userRepository.GetByUsernameOrEmailAsync(userOrEmail);
+
+            if (user == null)
+                return null;
+
+            return user;
+        }
+    }
+}
