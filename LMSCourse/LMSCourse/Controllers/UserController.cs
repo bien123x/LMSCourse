@@ -1,6 +1,8 @@
 ﻿using LMSCourse.DTOs.User;
 using LMSCourse.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OnlineCourseConstants;
 
 namespace LMSCourse.Controllers
 {
@@ -15,6 +17,7 @@ namespace LMSCourse.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Policy = PERMISSION.ViewUsers)]
         public async Task<ActionResult<UserDto>> GetUserById(int id)
         {
             var userDto = await _userService.GetUserByIdAsync(id);
