@@ -4,6 +4,7 @@ using LMSCourse.Models;
 using LMSCourse.Repositories.Interfaces;
 using LMSCourse.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace LMSCourse.Services
 {
@@ -66,6 +67,30 @@ namespace LMSCourse.Services
                 return null;
 
             return user;
+        }
+
+        public async Task<User?> RegisterUserAsync(RegisterDto dto)
+        {
+            var user = _mapper.Map<User>(dto);
+
+            user.PasswordHash = _passwordHasher.HashPassword(user, dto.PasswordHash);
+
+            if (!await _userRepository.CheckExistUserNameOrEmail(dto.UserName) || !await _userRepository.CheckExistUserNameOrEmail(dto.Email))
+            {
+                await _userRepository.AddAsync(user);
+                return user;
+            }
+            return null;
+        }
+
+        public string HashPasswordUser(User user, string password)
+        {
+            return _passwordHasher.HashPassword(user, password);
+        }
+
+        public async Task UpdateUserAsync(User user)
+        {
+            await _userRepository.UpdateAsync(user);
         }
     }
 }
