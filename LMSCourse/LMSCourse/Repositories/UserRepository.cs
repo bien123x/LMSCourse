@@ -1,4 +1,5 @@
 ﻿using LMSCourse.Data;
+using LMSCourse.DTOs.User;
 using LMSCourse.Models;
 using LMSCourse.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -60,6 +61,11 @@ namespace LMSCourse.Repositories
         {
             return await _context.Users
                 .FirstOrDefaultAsync(u => u.UserName == usernameOrEmail || u.Email == usernameOrEmail);
+        }
+
+        public async Task<bool> CheckExistUserNameOrEmail(string usernameOrEmail)
+        {
+            return await _context.Users.AnyAsync(u => u.UserName == usernameOrEmail || u.Email == usernameOrEmail);
         }
     }
 }

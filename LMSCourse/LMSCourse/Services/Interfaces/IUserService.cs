@@ -7,10 +7,13 @@ namespace LMSCourse.Services.Interfaces
     {
         Task<UserDto?> GetUserByIdAsync(int id);
         //Task<IEnumerable<UserDto>> GetAllUsersAsync();
-        //Task<UserDto> CreateUserAsync(CreateUserDto dto);
+        Task<User?> RegisterUserAsync(RegisterDto dto);
         Task<List<string>> GetRolesNameByIdAsync(int userId);
         Task<List<string>> GetPermissionsNameByIdAsync(int userId);
         Task<User?> GetUserByUserNameOrEmailAsync(string userOrEmail);
         bool VerifyPassword(User user, string password);
+        string HashPasswordUser(User user, string password);
+        Task UpdateUserAsync(User user);
+
     }
 }

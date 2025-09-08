@@ -1,4 +1,5 @@
-﻿using LMSCourse.Models;
+﻿using LMSCourse.DTOs.User;
+using LMSCourse.Models;
 
 namespace LMSCourse.Repositories.Interfaces
 {
@@ -12,5 +13,7 @@ namespace LMSCourse.Repositories.Interfaces
         Task<User?> GetUserWithRolesAsync(int userId);
         Task<User?> GetUserWithRolesAndPermissionsAsync(int userId);
         Task<User?> GetByUsernameOrEmailAsync(string usernameOrEmail);
+
+        Task<bool> CheckExistUserNameOrEmail(string usernameOrEmail);
     }
 }

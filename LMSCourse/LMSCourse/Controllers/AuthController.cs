@@ -5,6 +5,7 @@ using LMSCourse.Services;
 using LMSCourse.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -31,9 +32,12 @@ namespace LMSCourse.Controllers
         {
             var user = await _userService.GetUserByUserNameOrEmailAsync(dto.UserNameOrEmail);
 
-            if (user == null || !_userService.VerifyPassword(user, dto.Password)) {
+            if (user == null) {
                 return Unauthorized();
             }
+
+            if (!_userService.VerifyPassword(user, dto.Password))
+                return Unauthorized("Mật khẩu không đúng!");
 
             var accessToken = _tokenService.GenerateAccessToken(user);
             var refreshToken = _tokenService.GenerateRefreshToken(user);
@@ -43,6 +47,17 @@ namespace LMSCourse.Controllers
                 AccessToken = accessToken,
                 RefreshToken = refreshToken
             });
+        }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterDto dto)
+        {
+            var user = await _userService.RegisterUserAsync(dto);
+
+            if (user != null) {
+                return CreatedAtAction(actionName: nameof(UserController.GetUserById), controllerName: "User", routeValues: new { id = user.UserId }, value: user);
+            }
+            return BadRequest("Tên đăng nhập/Email đã tồn tại!");
         }
 
         [HttpPost("refresh")]
@@ -78,10 +93,52 @@ namespace LMSCourse.Controllers
 
             return Ok(new
             {
-                user.UserId,
                 user.UserName,
-                user.Email
             });
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
+        {
+            var user = await _userService.GetUserByUserNameOrEmailAsync(dto.Email);
+
+            if (user == null)
+                return NotFound("User không tồn tại");
+
+            var token = _tokenService.GenerateResetPasswordToken(user.Email);
+
+            var resetLink = $"http://localhost:4200/auth/reset-password?token={Uri.EscapeDataString(token)}";
+
+            return Ok(new { Message = "Reset password link sent to your email", ResetLink = resetLink });
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
+        {
+            try
+            {
+                var principal = _tokenService.ValidateResetPasswordToken(dto.Token);
+                var email = principal.FindFirstValue(ClaimTypes.Email);
+
+                if (string.IsNullOrEmpty(email))
+                    return BadRequest("Invalid token");
+
+                var user = await _userService.GetUserByUserNameOrEmailAsync(email);
+                if (user == null) return NotFound("User not found");
+
+                user.PasswordHash = _userService.HashPasswordUser(user, dto.NewPassword);
+                await _userService.UpdateUserAsync(user);
+
+                return Ok(new { Message = "Password reset successfully" });
+            }
+            catch (SecurityTokenException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch
+            {
+                return BadRequest("Invalid or expired token");
+            }
         }
     }
 }
