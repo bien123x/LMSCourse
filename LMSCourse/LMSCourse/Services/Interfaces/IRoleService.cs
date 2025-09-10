@@ -15,7 +15,7 @@ namespace LMSCourse.Services.Interfaces
         Task<int> CountUserByRoleId(int roleId);
         Task<bool> AssignRoleUserDelete(int roleId, int roleIdAssign);
         Task<IEnumerable<Role>> GetRolesMinusRoleId(int roleId);
-
+        Task<List<string>> GetRolesName();
         
     }
 }

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using LMSCourse.DTOs.User;
 using LMSCourse.Models;
+using LMSCourse.Repositories;
 using LMSCourse.Repositories.Interfaces;
 using LMSCourse.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
@@ -103,7 +104,7 @@ namespace LMSCourse.Services
         public async Task<ViewUserDto> AddUserAsync(UserDto userDto)
         {
             var user = _mapper.Map<User>(userDto);
-            if (user == null)
+            if (await _userRepository.IsExistUserNameOrEmail(user.UserName, user.Email))
                 return null;
             user.PasswordHash = HashPasswordUser(user, userDto.PasswordHash);
 
@@ -119,6 +120,50 @@ namespace LMSCourse.Services
             }
             await _userRepository.AddAsync(user);
             return _mapper.Map<ViewUserDto>(user);
+        }
+
+        public async Task<ViewUserDto> EditUserDto(int userId, EditUserDto editUserDto)
+        {
+            var user = await _userRepository.GetUserWithRolesAsync(userId);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            _mapper.Map(editUserDto, user);
+
+            if (await _userRepository.IsExistUserNameOrEmail(user.UserName, user.Email, user.UserId))
+                return null;
+             
+            if (editUserDto.Roles != null && editUserDto.Roles.Any())
+            {
+                user.UserRoles.Clear();
+                foreach (var roleName in editUserDto.Roles)
+                {
+                    var role = await _userRepository.GetRoleByRoleName(roleName);
+                    user.UserRoles.Add(new UserRole
+                    {
+                        UserId = user.UserId,
+                        RoleId = role.RoleId
+                    });
+                }
+            }
+            await _userRepository.UpdateAsync(user);
+
+            var viewUserDto = _mapper.Map<ViewUserDto>(user);
+
+            return viewUserDto;
+        }
+        public async Task<List<string>> GetRolesName()
+        {
+            var roles = await _userRepository.GetAllRoles();
+            var rolesName = new List<string>();
+            foreach (var role in roles)
+            {
+                rolesName.Add(role.RoleName);
+            }
+            return rolesName;
         }
     }
 }
