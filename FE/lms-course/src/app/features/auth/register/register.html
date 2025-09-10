@@ -1,0 +1,64 @@
+<h3>Đăng ký</h3>
+<hr />
+<p>
+  Bạn đã có tài khoản?
+  <a class="text-blue-500 underline cursor-pointer" routerLink="/auth/login">Đăng nhập</a>
+</p>
+<p-toast />
+<form #registerForm="ngForm" (ngSubmit)="onSubmit(registerForm)">
+  <div>
+    <p-iftalabel>
+      <input
+        pInputText
+        id="UserName"
+        [(ngModel)]="registerDto().UserName"
+        name="UserName"
+        required
+        #UserName="ngModel"
+      />
+      <label for="UserName">Tên đăng nhập</label>
+    </p-iftalabel>
+    @if (UserName.invalid && UserName.touched) { @if (UserName.hasError('required')) {
+    <div>Tên đăng nhập không được rỗng!</div>
+    } }
+  </div>
+
+  <div>
+    <p-iftalabel>
+      <input
+        pInputText
+        id="Email"
+        [(ngModel)]="registerDto().Email"
+        name="Email"
+        required
+        email
+        #Email="ngModel"
+      />
+      <label for="Email">Email</label>
+    </p-iftalabel>
+    @if (Email.invalid && Email.touched) { @if (Email.hasError('required') ||
+    Email.hasError('email')) {
+    <div>Email không hợp lệ!</div>
+    } }
+  </div>
+
+  <div>
+    <p-iftalabel>
+      <p-password
+        [(ngModel)]="registerDto().PasswordHash"
+        inputId="Password"
+        name="Password"
+        required
+        #Password="ngModel"
+      ></p-password>
+      <label for="Password">Mật khẩu</label>
+    </p-iftalabel>
+    @if (Password.invalid && Password.touched) { @if (Password.hasError('required')) {
+    <div>Mật khẩu không được rỗng!</div>
+    } }
+  </div>
+
+  <div>
+    <p-button label="Đăng ký" type="submit" />
+  </div>
+</form>

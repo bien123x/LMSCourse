@@ -1,0 +1,37 @@
+<h1>Người dùng</h1>
+<p-button label="Thêm người dùng" (onClick)="newUser()"></p-button>
+
+<p-table [value]="users()">
+  <ng-template #header>
+    <tr>
+      <th>Thao tác</th>
+      <th>Tên tài khoản</th>
+      <th>Email</th>
+      <th>Quyền</th>
+      <th>Số điện thoại</th>
+      <th>Họ</th>
+      <th>Tên</th>
+      <th>Trạng thái</th>
+    </tr>
+  </ng-template>
+  <ng-template #body let-user>
+    <tr>
+      <td>
+        <p-menu #menu [model]="menuItems()" [popup]="true" appendTo="body" />
+        <p-button (onClick)="setCurrentUser(user, $event, menu)" label="Thao tác" />
+      </td>
+      <td>{{ user.userName }}</td>
+      <td>{{ user.email }}</td>
+      <td>{{ user.roles }}</td>
+      <td>{{ user.phoneNumber }}</td>
+      <td>{{ user.surName }}</td>
+      <td>{{ user.name }}</td>
+      <td>{{ user.isActive }}</td>
+    </tr>
+  </ng-template>
+  <ng-template #footer>
+    <tr>
+      <td colspan="8">Tổng có {{ totalUsers() }} người dùng</td>
+    </tr>
+  </ng-template>
+</p-table>

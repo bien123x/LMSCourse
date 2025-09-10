@@ -1,0 +1,7 @@
+@if (isLoggedIn()) {
+<p-button (click)="menu.toggle($event)" label="Tài khoản"> </p-button>
+<p-menu #menu [model]="items()" [popup]="true" />
+
+} @else {
+<p-button (onClick)="goToLogin()" label="Đăng nhập"> </p-button>
+}
