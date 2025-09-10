@@ -19,10 +19,24 @@ namespace LMSCourse.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<int> CountUsersByRoleId(int roleId)
+        {
+            return await _context.UserRoles.Where(ur => ur.RoleId == roleId).CountAsync();
+        }
+
         public async Task DeleteAsync(Role role)
         {
             _context.Roles.Remove(role);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<Role?> GetWithPermissionsAsync(int roleId)
+        {
+            return await _context.Roles
+                .Include(r => r.RolePermissions)
+                    .ThenInclude(rp => rp.Permission)
+                .FirstOrDefaultAsync(r => r.RoleId == roleId);
+
         }
 
         public async Task<IEnumerable<Role>> GetAllWithUserRolesAsync()
@@ -39,6 +53,68 @@ namespace LMSCourse.Repositories
         {
             _context.Roles.Update(role);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAllRolePermissionsByRoleId(int roleId)
+        {
+            var rolePermissions = _context.RolePermissions
+                                  .Where(rp => rp.RoleId == roleId);
+
+            // Xóa tất cả
+            _context.RolePermissions.RemoveRange(rolePermissions);
+
+            // Lưu thay đổi bất đồng bộ
+            await _context.SaveChangesAsync();
+        }
+
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<Permission>> GetPermissionsByNamesAsync(List<string> permissionNames)
+        {
+            return await _context.Permissions
+                .Where(p => permissionNames.Contains(p.PermissionName))
+                .ToListAsync();
+        }
+
+        public async Task<Role?> GetById(int roleId)
+        {
+            return await _context.Roles.FindAsync(roleId);
+        }
+
+        public async Task DeleteAllUserRoleById(int roleId)
+        {
+            var userRole = await _context.UserRoles.Where(ur => ur.RoleId == roleId).ToListAsync();
+
+            _context.UserRoles.RemoveRange(userRole);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<Role?> GetWithUserRolesAsync(int roleId)
+        {
+            return await _context.Roles
+                .Where(r => r.RoleId == roleId)
+                .Include(r => r.UserRoles)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task AddUserRoleAsync(UserRole userRole)
+        {
+            await _context.UserRoles.AddAsync(userRole);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<Role>> GetAll()
+        {
+            return await _context.Roles.ToListAsync();
+        }
+
+        public async Task<bool> IsExistUserRole(UserRole userRole)
+        {
+            return await _context.UserRoles.AnyAsync(ur => ur.RoleId == userRole.RoleId && ur.UserId == userRole.UserId);
         }
     }
 }

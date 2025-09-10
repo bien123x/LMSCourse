@@ -67,5 +67,29 @@ namespace LMSCourse.Repositories
         {
             return await _context.Users.AnyAsync(u => u.UserName == usernameOrEmail || u.Email == usernameOrEmail);
         }
+
+        public async Task<IEnumerable<User>> GetAllWithRolesAsync()
+        {
+            return await _context.Users
+                .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role)
+                .ToListAsync();
+        }
+
+        public async Task AddUserRoles(UserRole userRole)
+        {
+            await _context.UserRoles.AddAsync(userRole);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<Role> GetRoleByRoleName(string roleName)
+        {
+            return await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == roleName);
+        }
+
+        public Task<bool> IsExistUserNameOrEmail(string userName, string email)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

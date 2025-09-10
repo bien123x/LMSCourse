@@ -1,9 +1,6 @@
-﻿
-using LMSCourse.Models;
-
-namespace LMSCourse.DTOs.User
+﻿namespace LMSCourse.DTOs.User
 {
-    public class UserDto
+    public class ViewUserDto
     {
         public int UserId { get; set; }
         public string UserName { get; set; } = string.Empty;
@@ -12,9 +9,6 @@ namespace LMSCourse.DTOs.User
         public string Email { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
         public bool IsActive { get; set; } = true;
-        public string PasswordHash { get; set; } = string.Empty;
-
-        public List<string> Roles { get; set; } = new List<string>();
-
+        public string Roles { get; set; } = string.Empty;
     }
 }

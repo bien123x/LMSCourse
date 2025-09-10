@@ -14,6 +14,8 @@ namespace LMSCourse.Services.Interfaces
         bool VerifyPassword(User user, string password);
         string HashPasswordUser(User user, string password);
         Task UpdateUserAsync(User user);
-
+        Task<IEnumerable<ViewUserDto>> GetAllViewUser();
+        Task<ViewUserDto> AddUserAsync(UserDto userDto);
+        
     }
 }

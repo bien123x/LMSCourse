@@ -92,5 +92,33 @@ namespace LMSCourse.Services
         {
             await _userRepository.UpdateAsync(user);
         }
+
+        public async Task<IEnumerable<ViewUserDto>> GetAllViewUser()
+        {
+            var users = await _userRepository.GetAllWithRolesAsync();
+
+            return _mapper.Map<IEnumerable<ViewUserDto>>(users);
+        }
+
+        public async Task<ViewUserDto> AddUserAsync(UserDto userDto)
+        {
+            var user = _mapper.Map<User>(userDto);
+            if (user == null)
+                return null;
+            user.PasswordHash = HashPasswordUser(user, userDto.PasswordHash);
+
+            user.UserRoles = new List<UserRole>();
+            foreach (var roleName in userDto.Roles)
+            {
+                var role = await _userRepository.GetRoleByRoleName(roleName);
+                user.UserRoles.Add(new UserRole
+                {
+                    User = user,
+                    RoleId = role.RoleId
+                });
+            }
+            await _userRepository.AddAsync(user);
+            return _mapper.Map<ViewUserDto>(user);
+        }
     }
 }

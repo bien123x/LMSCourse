@@ -1,4 +1,5 @@
 ﻿using LMSCourse.Data;
+using LMSCourse.Mapper;
 using LMSCourse.Models;
 using LMSCourse.Repositories;
 using LMSCourse.Repositories.Interfaces;
@@ -160,7 +161,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddAutoMapper(typeof(AppProfile));
 
 var app = builder.Build();
 
