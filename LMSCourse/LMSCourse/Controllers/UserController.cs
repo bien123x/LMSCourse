@@ -27,5 +27,23 @@ namespace LMSCourse.Controllers
 
             return Ok(userDto);
         }
+
+        [HttpGet("all-view-user")]
+        [Authorize(Policy = PERMISSION.ViewUsers)]
+        public async Task<IActionResult> GetAllViewUsersDto()
+        {
+            var usersDto = await _userService.GetAllViewUser();
+
+            return Ok(usersDto.Select(u => u));
+        }
+
+        [HttpPost("add-user")]
+        [Authorize(Policy = PERMISSION.CreateUsers)]
+        public async Task<IActionResult> AddUserDto(UserDto userDto)
+        {
+            var userAdd = await _userService.AddUserAsync(userDto);
+            if (userAdd == null) return BadRequest();
+            return Ok(userAdd);
+        }
     }
 }

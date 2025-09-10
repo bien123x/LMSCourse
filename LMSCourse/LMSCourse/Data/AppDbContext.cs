@@ -79,7 +79,7 @@ namespace LMSCourse.Data
                     new Permission { PermissionId = 13, PermissionName = PERMISSION.ViewLessons },
                     new Permission { PermissionId = 14, PermissionName = PERMISSION.CreateLessons },
                     new Permission { PermissionId = 15, PermissionName = PERMISSION.EditLessons },
-                    new Permission { PermissionId = 16, PermissionName = PERMISSION.DeleteCourses },
+                    new Permission { PermissionId = 16, PermissionName = PERMISSION.DeleteLessons },
 
                     // Enrollments
                     new Permission { PermissionId = 17, PermissionName = PERMISSION.ViewEnrollments },

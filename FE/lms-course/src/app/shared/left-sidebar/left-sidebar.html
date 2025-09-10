@@ -1,0 +1,9 @@
+<h1>LMS Course</h1>
+<div class="card">
+  <p-tree
+    [value]="files"
+    class="w-full md:w-[30rem]"
+    selectionMode="single"
+    (onNodeSelect)="nodeSelect($event)"
+  />
+</div>

@@ -1,0 +1,15 @@
+@if (!isAuthPage()) {
+<div class="grid grid-cols-18 h-screen gap-2">
+  <div class="col-span-3 bg-red-400">
+    <app-left-sidebar></app-left-sidebar>
+  </div>
+  <div class="col-span-14 bg-[rgb(240,244,247)]">
+    <router-outlet />
+  </div>
+  <div class="col-span-1 bg-blue-400">
+    <app-right-sidebar></app-right-sidebar>
+  </div>
+</div>
+} @else {
+<router-outlet />
+}
