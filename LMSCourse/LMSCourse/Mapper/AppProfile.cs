@@ -31,6 +31,8 @@ namespace LMSCourse.Mapper
                 .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
                 .ForMember(dest => dest.Roles,
                     opt => opt.MapFrom(src => src.UserRoles.Select(ur => ur.Role.RoleName).ToList()));
+
+            CreateMap<EditUserDto, User>();
         }
     } 
 }

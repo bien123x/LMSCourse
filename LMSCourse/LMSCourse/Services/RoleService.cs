@@ -98,6 +98,17 @@ namespace LMSCourse.Services
             return roles.Where(r => r.RoleId != roleId);
         }
 
+        public async Task<List<string>> GetRolesName()
+        {
+            var roles = await _roleRepository.GetAll();
+            var rolesName = new List<string>();
+            foreach (var role in roles)
+            {
+                rolesName.Add(role.RoleName);
+            }
+            return rolesName;
+        }
+
         public async Task<IEnumerable<ViewRoleDto>?> GetViewRoles() { 
             var roles = await _roleRepository.GetAllWithUserRolesAsync();
 

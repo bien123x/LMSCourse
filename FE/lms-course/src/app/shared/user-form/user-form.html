@@ -1,0 +1,68 @@
+<h1>User Form</h1>
+<form [formGroup]="userForm" (ngSubmit)="save()">
+  <p-tabs [value]="value()">
+    <p-tablist>
+      <p-tab [value]="0">Thông tin người dùng</p-tab>
+      <p-tab [value]="1">Quyền</p-tab>
+    </p-tablist>
+    <p-tabpanels>
+      <p-tabpanel [value]="0">
+        <p-ifta-label>
+          <input pInputText name="userName" id="userName" formControlName="userName" />
+          <label for="userName">Tên đăng nhập</label>
+        </p-ifta-label>
+        @if (userName?.invalid && (userName?.touched || userName?.dirty) ) {
+        <div>Tên đăng nhập không hợp lệ</div>
+        }
+
+        <div class="flex">
+          <p-ifta-label>
+            <input pInputText name="name" id="name" formControlName="name" />
+            <label for="name">Tên</label>
+          </p-ifta-label>
+          <p-ifta-label>
+            <input pInputText name="surname" id="surname" formControlName="surname" />
+            <label for="surname">Họ</label>
+          </p-ifta-label>
+        </div>
+        @if (mode() === 'add') {
+        <p-ifta-label>
+          <p-password name="passwordHash" id="passwordHash" formControlName="passwordHash" />
+          <label for="passwordHash">Mật khẩu</label>
+        </p-ifta-label>
+        }
+
+        <p-ifta-label>
+          <input pInputText name="email" id="email" formControlName="email" />
+          <label for="email">Email</label>
+        </p-ifta-label>
+        <p-ifta-label>
+          <input pInputText name="phoneNumber" id="phoneNumber" formControlName="phoneNumber" />
+          <label for="phoneNumber">Số điện thoại</label>
+        </p-ifta-label>
+        <p-checkbox
+          formControlName="isActive"
+          name="isActive"
+          id="isActive"
+          binary="true"
+        ></p-checkbox>
+        <label for="isActive">Kích hoạt</label>
+      </p-tabpanel>
+      <p-tabpanel [value]="1">
+        <div class="flex flex-col gap-4">
+          <div *ngFor="let roleName of rolesName()" class="flex items-center">
+            <p-checkbox
+              [inputId]="roleName"
+              name="roleName"
+              [value]="roleName"
+              formControlName="roles"
+            />
+            <label [for]="roleName" class="ml-2"> {{ roleName }} </label>
+          </div>
+        </div>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+  <p-button label="Đóng" (onClick)="close()"></p-button>
+  <p-button label="Thêm" type="submit"></p-button>
+</form>
