@@ -41,6 +41,8 @@ export class UsersComponent implements OnInit {
   private userService = inject(UserService);
 
   users = signal<ViewUserDto[]>([]);
+  totalRecords = signal<number>(0);
+  pageSize = signal<number>(2);
   currentUser = signal<ViewUserDto | undefined>(undefined);
 
   ref = signal<DynamicDialogRef | undefined>(undefined);
@@ -52,9 +54,20 @@ export class UsersComponent implements OnInit {
   resetPwd: ResetPasswordDto = { passwordHash: '' };
 
   ngOnInit(): void {
-    this.userService.getViewUsers().subscribe((res: any) => {
-      this.users.set(res);
-      console.log(this.users());
+    // this.userService.getViewUsers().subscribe((res: any) => {
+    //   this.users.set(res);
+    //   console.log(this.users());
+    // });
+    this.loadUsers({ first: 0, rows: this.pageSize });
+  }
+
+  loadUsers(event: any) {
+    const pageNumber = event.first / event.rows + 1;
+    const pageSize = event.rows;
+
+    this.userService.getViewUsersPagination(pageNumber, pageSize).subscribe((res) => {
+      this.users.set(res.items);
+      this.totalRecords.set(res.totalCount);
     });
   }
 

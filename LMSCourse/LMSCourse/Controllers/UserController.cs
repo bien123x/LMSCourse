@@ -1,4 +1,5 @@
-﻿using LMSCourse.DTOs.User;
+﻿using LMSCourse.DTOs.Page;
+using LMSCourse.DTOs.User;
 using LMSCourse.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -104,6 +105,13 @@ namespace LMSCourse.Controllers
             if (isDelete)
                 return Ok();
             return BadRequest("Không có user này");
+        }
+
+        [HttpGet("users/{pageNumber:int}/{pageSize:int}")]
+        public async Task<ActionResult<PagedResult<ViewUserDto>>> GetPagedUsers(int pageNumber, int pageSize)
+        {
+            var result = await _userService.GetPagedUsers(pageNumber, pageSize);
+            return Ok(result);
         }
     }
 }

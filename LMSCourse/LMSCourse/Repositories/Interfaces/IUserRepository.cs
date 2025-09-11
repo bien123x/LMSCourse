@@ -1,4 +1,5 @@
-﻿using LMSCourse.DTOs.User;
+﻿using LMSCourse.DTOs.Page;
+using LMSCourse.DTOs.User;
 using LMSCourse.Models;
 
 namespace LMSCourse.Repositories.Interfaces
@@ -28,5 +29,6 @@ namespace LMSCourse.Repositories.Interfaces
         Task<IEnumerable<Permission>> GetPermissionsByPermissionsName(List<string> permissionsName);
         Task SaveChangesAsync();
         Task<User?> GetWithUserRolesAndUserPermissions(int userId);
+        Task<PagedResult<User>> GetPagedUsersAsync(int pageNumber, int pageSize);
     }
 }
