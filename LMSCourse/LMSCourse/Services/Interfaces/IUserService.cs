@@ -5,7 +5,7 @@ namespace LMSCourse.Services.Interfaces
 {
     public interface IUserService
     {
-        Task<UserDto?> GetUserByIdAsync(int id);
+        Task<ViewUserDto?> GetUserByIdAsync(int id);
         //Task<IEnumerable<UserDto>> GetAllUsersAsync();
         Task<User?> RegisterUserAsync(RegisterDto dto);
         Task<List<string>> GetRolesNameByIdAsync(int userId);

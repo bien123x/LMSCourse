@@ -4,6 +4,7 @@ using LMSCourse.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LMSCourse.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250910200907_EditUserAttri")]
+    partial class EditUserAttri
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -511,15 +514,15 @@ namespace LMSCourse.Migrations
                         {
                             UserId = 1,
                             CreatedBy = "",
-                            CreationTime = new DateTime(2025, 9, 10, 20, 13, 4, 505, DateTimeKind.Utc).AddTicks(8286),
+                            CreationTime = new DateTime(2025, 9, 10, 20, 9, 6, 29, DateTimeKind.Utc).AddTicks(8602),
                             Email = "admin@gmail.com",
                             FailedAccessCount = 0,
                             IsActive = true,
-                            ModificationTime = new DateTime(2025, 9, 10, 20, 13, 4, 505, DateTimeKind.Utc).AddTicks(8288),
+                            ModificationTime = new DateTime(2025, 9, 10, 20, 9, 6, 29, DateTimeKind.Utc).AddTicks(8604),
                             ModifiedBy = "",
                             Name = "",
-                            PasswordHash = "AQAAAAIAAYagAAAAEFZrqt2ahj9xBfLpmbW1UFOEHnsPZqj5588xKVWKALgHTNlkgVJ2yurMAO0eMfsR7w==",
-                            PasswordUpdateTime = new DateTime(2025, 9, 10, 20, 13, 4, 505, DateTimeKind.Utc).AddTicks(8288),
+                            PasswordHash = "AQAAAAIAAYagAAAAEB4GjqoaACirUbTecrx2O8jheQKTstyMw0NjGOmZHRGTn/Jud41tycddYep6PiKI2A==",
+                            PasswordUpdateTime = new DateTime(2025, 9, 10, 20, 9, 6, 29, DateTimeKind.Utc).AddTicks(8604),
                             PhoneNumber = "01234456",
                             Surname = "",
                             UserName = "admin"

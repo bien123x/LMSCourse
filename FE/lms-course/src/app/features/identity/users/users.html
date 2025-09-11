@@ -12,6 +12,8 @@
       <th>Họ</th>
       <th>Tên</th>
       <th>Trạng thái</th>
+      <th>Thời gian tạo</th>
+      <th>Thời gian sửa lần cuối</th>
     </tr>
   </ng-template>
   <ng-template #body let-user>
@@ -27,6 +29,8 @@
       <td>{{ user.surname }}</td>
       <td>{{ user.name }}</td>
       <td>{{ user.isActive }}</td>
+      <td>{{ user.creationTime | date : 'short' }}</td>
+      <td>{{ user.modificationTime | date : 'short' }}</td>
     </tr>
   </ng-template>
   <ng-template #footer>

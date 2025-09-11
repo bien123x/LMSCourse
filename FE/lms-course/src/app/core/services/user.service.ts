@@ -25,4 +25,8 @@ export class UserService {
   getRolesName(): Observable<string[]> {
     return this.http.get<string[]>(`${this.apiUrl}/roles-name`);
   }
+
+  getViewUserByID(userId: number): Observable<ViewUserDto> {
+    return this.http.get<ViewUserDto>(`${this.apiUrl}/view-user/${userId}`);
+  }
 }

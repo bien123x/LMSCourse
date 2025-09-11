@@ -21,13 +21,13 @@ namespace LMSCourse.Services
             _mapper = mapper;
         }
 
-        public async Task<UserDto?> GetUserByIdAsync(int id)
+        public async Task<ViewUserDto?> GetUserByIdAsync(int id)
         {
             var user = await _userRepository.GetByIdAsync(id);
 
             if (user == null) return null;
 
-            return _mapper.Map<UserDto>(user);
+            return _mapper.Map<ViewUserDto>(user);
         }
 
         public async Task<List<string>> GetRolesNameByIdAsync(int userId)
@@ -149,6 +149,7 @@ namespace LMSCourse.Services
                     });
                 }
             }
+            user.ModificationTime = DateTime.Now;
             await _userRepository.UpdateAsync(user);
 
             var viewUserDto = _mapper.Map<ViewUserDto>(user);
