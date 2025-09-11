@@ -36,3 +36,8 @@ export interface EditUserDto {
   isActive: boolean;
   roles: string[];
 }
+
+export interface UserPermissionsDto {
+  userPermissions: string[];
+  rolePermissions: string[];
+}

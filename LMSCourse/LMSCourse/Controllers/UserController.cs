@@ -71,5 +71,19 @@ namespace LMSCourse.Controllers
             var rolesName = await _userService.GetRolesName();
             return Ok(rolesName);
         }
+
+        [HttpGet("permissions-name/{userId:int}")]
+        [Authorize(Policy = PERMISSION.ViewUsers)]
+        public async Task<IActionResult> GetPermissions(int userId)
+        {
+            var userPermissions = await _userService.GetUserPermissionsNameById(userId);
+            var rolePermissions = await _userService.GetPermissionsNameByIdAsync(userId);
+            return Ok(new UserPermissionsDto { UserPermissions = userPermissions, RolePermissions = rolePermissions });
+        }
+        [HttpPut("user-permissions/{userId:int}")]
+        public Task<IActionResult> UpdateUserPermissions(int userId, List<string> permissions)
+        {
+            return null;
+        }
     }
 }

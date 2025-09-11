@@ -4,16 +4,18 @@ import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Tree } from 'primeng/tree';
 import { PERMISSIONS } from '../../core/models/constant';
 import { TreeNode } from 'primeng/api';
+import { TableModule } from 'primeng/table';
 
 @Component({
   selector: 'app-permission-form',
   templateUrl: './permission-form.html',
-  imports: [ButtonModule, Tree],
+  imports: [ButtonModule, Tree, TableModule],
 })
 export class PermissionFormComponent implements OnInit {
   mode = signal<string>('');
   permissions = signal<string[]>([]);
-  treePermissions = PERMISSIONS;
+  disabledKeys = signal<string[]>([]);
+  treePermissions: any = [];
   selectedPermissions: TreeNode[] = [];
 
   constructor(private ref: DynamicDialogRef, private config: DynamicDialogConfig) {
@@ -22,25 +24,38 @@ export class PermissionFormComponent implements OnInit {
       if (this.mode() === 'role-permission') {
         this.permissions.set(config.data.permissions);
         console.log(this.permissions());
+      } else if (this.mode() === 'user-permission') {
+        const userPerms = this.config.data.userPermissions;
+        const rolePerms = this.config.data.rolePermissions;
+
+        this.permissions.set(userPerms);
+        this.disabledKeys.set(rolePerms);
       }
       console.log(config.data);
     }
   }
 
   ngOnInit() {
+    this.treePermissions = JSON.parse(JSON.stringify(PERMISSIONS));
     this.selectedPermissions = this.getSelectedNodes(this.treePermissions, this.permissions());
+    console.log(this.selectedPermissions);
   }
 
   getSelectedNodes(nodes: TreeNode[], checkedKeys: string[]): TreeNode[] {
     let selected: TreeNode[] = [];
-    for (let node of nodes) {
-      if (checkedKeys.includes(node.key!)) {
-        selected.push(node);
-      }
-      if (node.children) {
-        selected = [...selected, ...this.getSelectedNodes(node.children, checkedKeys)];
+    for (let nodeParent of nodes) {
+      for (let nodeChild of nodeParent.children!) {
+        if (checkedKeys.includes(nodeChild.key!)) {
+          selected.push({ ...nodeChild });
+        }
+        // Nếu user-permission và node thuộc role-permission → disable
+        if (this.mode() === 'user-permission' && this.disabledKeys().includes(nodeChild.key!)) {
+          selected.push({ ...nodeChild });
+          nodeChild.selectable = false;
+        }
       }
     }
+
     return selected;
   }
 
@@ -52,11 +67,24 @@ export class PermissionFormComponent implements OnInit {
     return selectedKeys;
   }
 
+  saveUserPermissions() {
+    const selectedKeys = this.selectedPermissions
+      .filter((node) => !node.children || node.children.length === 0) // chỉ lấy leaf node
+      .map((node) => node.key);
+
+    // Loại bỏ các quyền bị disable (role-permission)
+    const filteredKeys = selectedKeys.filter((key) => !this.disabledKeys().includes(key!));
+
+    console.log('User permissions (không gồm role):', filteredKeys);
+    return filteredKeys;
+  }
+
   close() {
     this.ref.close();
   }
   save() {
     // Gửi API
+    if (this.mode() === 'user-permission') return this.ref.close(this.saveUserPermissions());
     this.ref.close(this.saveRolePermissions());
   }
 }
