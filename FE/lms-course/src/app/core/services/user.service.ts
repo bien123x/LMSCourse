@@ -1,4 +1,4 @@
-import { EditUserDto, UserDto, ViewUserDto } from './../models/user-model';
+import { EditUserDto, UserDto, UserPermissionsDto, ViewUserDto } from './../models/user-model';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -28,5 +28,9 @@ export class UserService {
 
   getViewUserByID(userId: number): Observable<ViewUserDto> {
     return this.http.get<ViewUserDto>(`${this.apiUrl}/view-user/${userId}`);
+  }
+
+  getUserPermissions(userId: number): Observable<UserPermissionsDto> {
+    return this.http.get<UserPermissionsDto>(`${this.apiUrl}/permissions-name/${userId}`);
   }
 }

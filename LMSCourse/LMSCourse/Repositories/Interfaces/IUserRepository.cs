@@ -22,5 +22,6 @@ namespace LMSCourse.Repositories.Interfaces
         Task<bool> IsExistUserNameOrEmail(string userName, string email, int? userId = null);
 
         Task<IEnumerable<Role>> GetAllRoles();
+        Task<User?> GetWithUserPermissions(int userId);
     }
 }

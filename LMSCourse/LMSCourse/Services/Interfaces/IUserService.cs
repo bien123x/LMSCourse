@@ -19,5 +19,6 @@ namespace LMSCourse.Services.Interfaces
         Task<ViewUserDto> EditUserDto(int userId, EditUserDto editUserDto);
 
         Task<List<string>> GetRolesName();
+        Task<List<string>> GetUserPermissionsNameById(int userId);
     }
 }

@@ -166,5 +166,21 @@ namespace LMSCourse.Services
             }
             return rolesName;
         }
+
+        public async Task<List<string>> GetUserPermissionsNameById(int userId)
+        {
+            var user = await _userRepository.GetWithUserPermissions(userId);
+            if (user == null)
+            {
+                return new List<string>();
+            }
+            var permissions = new List<string>();
+            foreach (var userPermission in user.UserPermissions)
+            {
+                permissions.Add(userPermission.Permission.PermissionName);
+            }
+
+            return permissions;
+        }
     }
 }

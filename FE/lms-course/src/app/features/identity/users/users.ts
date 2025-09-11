@@ -9,6 +9,7 @@ import { ToastModule } from 'primeng/toast';
 import { ViewUserDto } from '../../../core/models/user-model';
 import { UserService } from '../../../core/services/user.service';
 import { UserFormComponent } from '../../../shared/user-form/user-form';
+import { PermissionFormComponent } from '../../../shared/permission-form/permission-form';
 
 @Component({
   selector: 'app-users',
@@ -47,6 +48,7 @@ export class UsersComponent implements OnInit {
       },
       {
         label: 'Phân quyền',
+        command: () => this.userPermissions(viewUser),
       },
       {
         label: 'Lịch sử thay đổi',
@@ -59,6 +61,27 @@ export class UsersComponent implements OnInit {
       },
     ]);
     menu.toggle(event);
+  }
+
+  userPermissions(viewUser: ViewUserDto) {
+    this.userService.getUserPermissions(viewUser.userId).subscribe((uPerms) => {
+      this.ref.set(
+        this.dialogSerive.open(PermissionFormComponent, {
+          header: 'Phân quyền người dùng',
+          width: 'auto',
+          modal: true,
+          data: {
+            mode: 'user-permission',
+            userPermissions: uPerms.userPermissions,
+            rolePermissions: uPerms.rolePermissions,
+          },
+        })
+      );
+
+      this.ref()?.onClose.subscribe((res) => {
+        console.log(res);
+      });
+    });
   }
 
   viewDetail(viewUser: ViewUserDto) {

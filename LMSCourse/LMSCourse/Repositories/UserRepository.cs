@@ -98,5 +98,13 @@ namespace LMSCourse.Repositories
         {
             return await _context.Roles.ToListAsync();
         }
+
+        public async Task<User?> GetWithUserPermissions(int userId)
+        {
+            return await _context.Users
+                .Include(u => u.UserPermissions)
+                    .ThenInclude(up => up.Permission)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+        }
     }
 }
