@@ -38,6 +38,18 @@ namespace LMSCourse.Data
                 entity.Property(u => u.PasswordHash)
                       .IsRequired();
 
+                entity.Property(u => u.CreationTime)
+                        .HasDefaultValueSql("GETDATE()"); // SQL Server, DB mặc định UTC hiện tại
+
+                entity.Property(u => u.ModificationTime)
+                       .HasDefaultValueSql("GETDATE()");
+
+                entity.Property(u => u.PasswordUpdateTime)
+                       .HasDefaultValueSql("GETDATE()");
+
+                entity.Property(u => u.FailedAccessCount)
+                       .HasDefaultValue(0);
+
                 entity.HasData(new User
                 {
                     UserId = 1,

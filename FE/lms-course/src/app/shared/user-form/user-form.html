@@ -1,9 +1,11 @@
-<h1>User Form</h1>
 <form [formGroup]="userForm" (ngSubmit)="save()">
   <p-tabs [value]="value()">
     <p-tablist>
       <p-tab [value]="0">Thông tin người dùng</p-tab>
       <p-tab [value]="1">Quyền</p-tab>
+      @if (mode() === 'viewDetail') {
+      <p-tab [value]="2">Chung</p-tab>
+      }
     </p-tablist>
     <p-tabpanels>
       <p-tabpanel [value]="0">
@@ -30,16 +32,24 @@
           <p-password name="passwordHash" id="passwordHash" formControlName="passwordHash" />
           <label for="passwordHash">Mật khẩu</label>
         </p-ifta-label>
-        }
+        @if (passwordHash?.invalid && (passwordHash?.touched || passwordHash?.dirty) ) {
+        <div>Mật khẩu bắt buộc</div>
+        } }
 
         <p-ifta-label>
           <input pInputText name="email" id="email" formControlName="email" />
           <label for="email">Email</label>
         </p-ifta-label>
+        @if (email?.invalid && (email?.touched || email?.dirty)) {
+        <div>Email không hợp lệ</div>
+        }
         <p-ifta-label>
           <input pInputText name="phoneNumber" id="phoneNumber" formControlName="phoneNumber" />
           <label for="phoneNumber">Số điện thoại</label>
         </p-ifta-label>
+        @if (phoneNumber?.invalid && (phoneNumber?.touched || phoneNumber?.dirty)) {
+        <div>Số điện thoại phải có 10 số</div>
+        }
         <p-checkbox
           formControlName="isActive"
           name="isActive"
@@ -61,8 +71,22 @@
           </div>
         </div>
       </p-tabpanel>
+      @if (mode() === 'viewDetail') {
+      <p-tabpanel [value]="2">
+        <p-table [value]="general()">
+          <ng-template pTemplate="body" let-field>
+            <tr>
+              <th>{{ field.label }}</th>
+              <td>{{ field.value }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-tabpanel>
+      }
     </p-tabpanels>
   </p-tabs>
   <p-button label="Đóng" (onClick)="close()"></p-button>
-  <p-button label="Thêm" type="submit"></p-button>
+  @if (mode() !== 'viewDetail') {
+  <p-button label="Lưu" type="submit"></p-button>
+  }
 </form>

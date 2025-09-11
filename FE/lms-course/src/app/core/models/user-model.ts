@@ -7,6 +7,13 @@ export interface ViewUserDto {
   phoneNumber: string;
   isActive: boolean;
   roles: string;
+  createBy: string;
+  creationTime: Date;
+  modifiedBy: string;
+  modificationTime: Date;
+  passwordUpdateTime: Date;
+  lockoutEndTime: Date;
+  failedAccessCount: number;
 }
 
 export interface UserDto {

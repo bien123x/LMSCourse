@@ -16,16 +16,16 @@ namespace LMSCourse.Controllers
             _userService = userService;
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("view-user/{userId:int}")]
         [Authorize(Policy = PERMISSION.ViewUsers)]
-        public async Task<ActionResult<UserDto>> GetUserById(int id)
+        public async Task<IActionResult> GetUserById(int userId)
         {
-            var userDto = await _userService.GetUserByIdAsync(id);
+            var viewUserDto = await _userService.GetUserByIdAsync(userId);
 
-            if (userDto == null)
+            if (viewUserDto == null)
                 return NotFound();
 
-            return Ok(userDto);
+            return Ok(viewUserDto);
         }
 
         [HttpGet("all-view-user")]

@@ -24,6 +24,7 @@ import { CheckboxModule } from 'primeng/checkbox';
     InputTextModule,
     PasswordModule,
     CheckboxModule,
+    TableModule,
   ],
 })
 export class UserFormComponent implements OnInit {
@@ -41,6 +42,8 @@ export class UserFormComponent implements OnInit {
   editUserDto = signal<EditUserDto | undefined>(undefined);
   viewUser = signal<ViewUserDto | undefined>(undefined);
 
+  general = signal<any>([]);
+
   ngOnInit(): void {
     if (this.config.data) {
       this.mode.set(this.config.data.mode);
@@ -56,7 +59,8 @@ export class UserFormComponent implements OnInit {
           isActive: [true],
           roles: [[]],
         });
-      } else if (this.mode() === 'edit') {
+      } else if (this.mode() === 'edit' || this.mode() === 'viewDetail') {
+        console.log(this.config.data);
         this.viewUser.set(this.config.data.viewUser);
         const rolesArray: string[] | undefined = this.viewUser()?.roles
           ? this.viewUser()?.roles.split(', ')
@@ -65,11 +69,26 @@ export class UserFormComponent implements OnInit {
           userName: [this.viewUser()?.userName, [Validators.required]],
           name: [this.viewUser()?.name],
           surname: [this.viewUser()?.surname],
-          email: [this.viewUser()?.email, [Validators.required, Validators.email]],
-          phoneNumber: [this.viewUser()?.phoneNumber, [Validators.required]],
+          email: [this.viewUser()?.email, [Validators.email]],
+          phoneNumber: [
+            this.viewUser()?.phoneNumber,
+            [Validators.required, Validators.minLength(10), Validators.maxLength(10)],
+          ],
           isActive: [this.viewUser()?.isActive],
           roles: [rolesArray],
         });
+
+        if (this.mode() === 'viewDetail') {
+          this.userForm.disable();
+          this.general.set([
+            { label: 'Tạo bởi', value: this.viewUser()?.createBy },
+            { label: 'Thời gian tạo', value: this.viewUser()?.creationTime },
+            { label: 'Cập nhật gần nhất', value: this.viewUser()?.modificationTime },
+            { label: 'Cập nhật bởi', value: this.viewUser()?.modifiedBy },
+            { label: 'Thời điểm mở khoá', value: this.viewUser()?.lockoutEndTime },
+            { label: 'Số lần đăng nhập thất bại', value: this.viewUser()?.failedAccessCount },
+          ]);
+        }
       }
     }
   }
@@ -77,21 +96,29 @@ export class UserFormComponent implements OnInit {
   get userName() {
     return this.userForm.get('userName');
   }
-
+  get passwordHash() {
+    return this.userForm.get('passwordHash');
+  }
+  get email() {
+    return this.userForm.get('email');
+  }
+  get phoneNumber() {
+    return this.userForm.get('phoneNumber');
+  }
   close() {
     this.ref.close();
   }
   save() {
-    if (this.userForm.valid && this.mode() === 'add') {
-      this.userDto.set(this.userForm.value);
-      this.ref.close(this.userDto());
-    }
-    if (this.userForm.valid && this.mode() === 'edit') {
-      this.editUserDto.set({ ...this.userForm.value, userId: this.viewUser()?.userId });
-      this.ref.close(this.editUserDto());
+    if (this.userForm.valid) {
+      if (this.mode() === 'add') {
+        this.userDto.set(this.userForm.value);
+        this.ref.close(this.userDto());
+      } else if (this.mode() === 'edit') {
+        this.editUserDto.set({ ...this.userForm.value, userId: this.viewUser()?.userId });
+        this.ref.close(this.editUserDto());
+      }
     } else {
       this.userForm.markAllAsTouched();
     }
-    console.log(this.userForm.value);
   }
 }

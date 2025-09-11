@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MenuItem, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -13,7 +13,7 @@ import { UserFormComponent } from '../../../shared/user-form/user-form';
 @Component({
   selector: 'app-users',
   templateUrl: './users.html',
-  imports: [ButtonModule, TableModule, CommonModule, Menu, ToastModule],
+  imports: [ButtonModule, TableModule, CommonModule, Menu, ToastModule, DatePipe],
   providers: [MessageService, DialogService],
 })
 export class UsersComponent implements OnInit {
@@ -29,13 +29,17 @@ export class UsersComponent implements OnInit {
   menuItems = signal<MenuItem[]>([]);
 
   ngOnInit(): void {
-    this.userService.getViewUsers().subscribe((res: any) => this.users.set(res));
+    this.userService.getViewUsers().subscribe((res: any) => {
+      this.users.set(res);
+      console.log(this.users());
+    });
   }
 
   setCurrentUser(viewUser: ViewUserDto, event: Event, menu: any) {
     this.menuItems.set([
       {
         label: 'Xem chi tiết',
+        command: () => this.viewDetail(viewUser),
       },
       {
         label: 'Sửa',
@@ -55,6 +59,20 @@ export class UsersComponent implements OnInit {
       },
     ]);
     menu.toggle(event);
+  }
+
+  viewDetail(viewUser: ViewUserDto) {
+    this.userService.getRolesName().subscribe((rolesName) => {
+      this.ref.set(
+        this.dialogSerive.open(UserFormComponent, {
+          header: 'Chi tiết người dùng',
+          width: 'auto',
+          modal: true,
+          data: { mode: 'viewDetail', rolesName: rolesName, viewUser: viewUser },
+        })
+      );
+    });
+    this.ref()?.onClose.subscribe((res) => {});
   }
 
   editUser(viewUser: ViewUserDto) {

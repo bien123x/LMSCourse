@@ -14,6 +14,7 @@ namespace LMSCourse.DTOs.User
         public bool IsActive { get; set; } = true;
         public string PasswordHash { get; set; } = string.Empty;
 
+
         public List<string> Roles { get; set; } = new List<string>();
 
     }
