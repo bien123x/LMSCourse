@@ -1,7 +1,14 @@
 <h1>Người dùng</h1>
 <p-button label="Thêm người dùng" (onClick)="newUser()"></p-button>
 <p-toast></p-toast>
-<p-table [value]="users()">
+<p-table
+  [value]="users()"
+  [lazy]="true"
+  [paginator]="true"
+  [rows]="pageSize()"
+  [totalRecords]="totalRecords()"
+  (onLazyLoad)="loadUsers($event)"
+>
   <ng-template #header>
     <tr>
       <th>Thao tác</th>

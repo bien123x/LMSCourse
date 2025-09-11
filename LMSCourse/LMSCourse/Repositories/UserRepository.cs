@@ -1,4 +1,5 @@
 ﻿using LMSCourse.Data;
+using LMSCourse.DTOs.Page;
 using LMSCourse.DTOs.User;
 using LMSCourse.Models;
 using LMSCourse.Repositories.Interfaces;
@@ -129,6 +130,27 @@ namespace LMSCourse.Repositories
                 .Include(u => u.UserRoles)
                 .Include(u => u.UserPermissions)
                 .FirstOrDefaultAsync(u => u.UserId == userId);
+        }
+
+        public async Task<PagedResult<User>> GetPagedUsersAsync(int pageNumber, int pageSize)
+        {
+            var query = _context.Users
+                                .Include(u => u.UserRoles)
+                                .ThenInclude(ur => ur.Role)
+                                .AsQueryable();
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<User>
+            {
+                Items = items,
+                TotalCount = totalCount
+            };
         }
     }
 }

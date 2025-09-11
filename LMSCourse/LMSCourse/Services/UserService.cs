@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using LMSCourse.DTOs.Page;
 using LMSCourse.DTOs.User;
 using LMSCourse.Models;
 using LMSCourse.Repositories;
@@ -222,6 +223,17 @@ namespace LMSCourse.Services
             await _userRepository.DeleteAsync(user);
             await _userRepository.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<PagedResult<ViewUserDto>> GetPagedUsers(int pageNumber, int pageSize)
+        {
+            var pagedUsers = await _userRepository.GetPagedUsersAsync(pageNumber, pageSize);
+
+            return new PagedResult<ViewUserDto>
+            {
+                Items = _mapper.Map<IEnumerable<ViewUserDto>>(pagedUsers.Items),
+                TotalCount = pagedUsers.TotalCount
+            };
         }
     }
 }
