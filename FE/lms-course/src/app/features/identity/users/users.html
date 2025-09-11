@@ -1,6 +1,6 @@
 <h1>Người dùng</h1>
 <p-button label="Thêm người dùng" (onClick)="newUser()"></p-button>
-
+<p-toast></p-toast>
 <p-table [value]="users()">
   <ng-template #header>
     <tr>
@@ -39,3 +39,27 @@
     </tr>
   </ng-template>
 </p-table>
+
+<!-- Dialog Reset Password -->
+<p-dialog [modal]="true" [(visible)]="visibleResetPwd" header="Thiết đặt mật khẩu">
+  <form #resetPwdForm="ngForm" (ngSubmit)="resetPassword(currentUser()!)">
+    <p-ifta-label>
+      <p-password
+        required
+        #newPwd="ngModel"
+        name="resetPwd"
+        id="resetPwd"
+        [(ngModel)]="resetPwd.passwordHash"
+      >
+      </p-password>
+      <label for="resetPwd">Mật khẩu mới</label>
+    </p-ifta-label>
+    @if (newPwd.invalid && (newPwd.dirty || newPwd.touched)) { @if (newPwd.errors?.['required']) {
+    <small>Mật khẩu không được để trống</small>
+    } @if (newPwd.errors?.['minlength']) {
+    <small>Mật khẩu phải ít nhất 6 kí tự</small>
+    } }
+    <p-button label="Đóng" (onClick)="visibleResetPwd.set(false)"></p-button>
+    <p-button label="Lưu" type="submit" [disabled]="resetPwdForm.invalid"></p-button>
+  </form>
+</p-dialog>

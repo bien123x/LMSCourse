@@ -30,6 +30,7 @@ export class DeleteConfirmComponent {
             console.log(this.rolesMinus());
           });
         }
+      } else if (this.mode() === 'user-delete') {
       }
     }
   }
@@ -40,10 +41,14 @@ export class DeleteConfirmComponent {
     // console.log(this.selectedRole);
   }
   delete() {
-    if (this.isAssign != '') {
-      this.ref.close(this.selectedRole);
-    } else {
-      this.ref.close(this.isAssign);
+    if (this.mode() === 'role-delete') {
+      if (this.isAssign != '') {
+        this.ref.close(this.selectedRole);
+      } else {
+        this.ref.close(this.isAssign);
+      }
+    } else if (this.mode() === 'user-delete') {
+      this.ref.close('');
     }
   }
 }

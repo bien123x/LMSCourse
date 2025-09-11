@@ -5,6 +5,7 @@ using LMSCourse.Repositories;
 using LMSCourse.Repositories.Interfaces;
 using LMSCourse.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace LMSCourse.Services
@@ -136,8 +137,8 @@ namespace LMSCourse.Services
             if (await _userRepository.IsExistUserNameOrEmail(user.UserName, user.Email, user.UserId))
                 return null;
              
-            if (editUserDto.Roles != null && editUserDto.Roles.Any())
-            {
+            //if (editUserDto.Roles != null && editUserDto.Roles.Any())
+            //{
                 user.UserRoles.Clear();
                 foreach (var roleName in editUserDto.Roles)
                 {
@@ -148,7 +149,7 @@ namespace LMSCourse.Services
                         RoleId = role.RoleId
                     });
                 }
-            }
+            //}
             user.ModificationTime = DateTime.Now;
             await _userRepository.UpdateAsync(user);
 
@@ -181,6 +182,46 @@ namespace LMSCourse.Services
             }
 
             return permissions;
+        }
+
+        public async Task<List<string>> UpdateUserPermissions(int userId, List<string> permissionsName)
+        {
+            var users = await _userRepository.GetWithUserPermissions(userId);
+            if (users == null)
+                return null;
+            users.UserPermissions.Clear();
+
+            var permissions = await _userRepository.GetPermissionsByPermissionsName(permissionsName);
+
+            foreach (var permission in permissions)
+            {
+                users.UserPermissions.Add(new UserPermission
+                {
+                    UserId = userId,
+                    PermissionId = permission.PermissionId,
+                });
+            }
+            await _userRepository.SaveChangesAsync();
+            return users.UserPermissions.Select(u => u.Permission.PermissionName).ToList();
+        }
+
+        public async Task ResetPassword(int userId, string newPassword)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            user.PasswordHash = _passwordHasher.HashPassword(user, newPassword);
+            await _userRepository.UpdateAsync(user);
+            await _userRepository.SaveChangesAsync();
+        }
+
+        public async Task<bool> DeleteUser(int userId)
+        {
+            var user = await _userRepository.GetWithUserRolesAndUserPermissions(userId);
+            if (user == null) return false;
+            user.UserRoles.Clear();
+            user.UserPermissions.Clear();
+            await _userRepository.DeleteAsync(user);
+            await _userRepository.SaveChangesAsync();
+            return true;
         }
     }
 }

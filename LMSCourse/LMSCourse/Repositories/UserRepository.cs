@@ -106,5 +106,29 @@ namespace LMSCourse.Repositories
                     .ThenInclude(up => up.Permission)
                 .FirstOrDefaultAsync(u => u.UserId == userId);
         }
+
+        public async Task UpdateUserPermissions(UserPermission userPermission)
+        {
+            await _context.UserPermissions.AddAsync(userPermission);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<Permission>> GetPermissionsByPermissionsName(List<string> permissionsName)
+        {
+            return await _context.Permissions.Where(p => permissionsName.Contains(p.PermissionName)).ToListAsync();
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<User?> GetWithUserRolesAndUserPermissions(int userId)
+        {
+            return await _context.Users
+                .Include(u => u.UserRoles)
+                .Include(u => u.UserPermissions)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+        }
     }
 }
