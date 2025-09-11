@@ -6,15 +6,33 @@ import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Menu } from 'primeng/menu';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
-import { ViewUserDto } from '../../../core/models/user-model';
+import { ResetPasswordDto, ViewUserDto } from '../../../core/models/user-model';
 import { UserService } from '../../../core/services/user.service';
 import { UserFormComponent } from '../../../shared/user-form/user-form';
 import { PermissionFormComponent } from '../../../shared/permission-form/permission-form';
+import { DialogModule } from 'primeng/dialog';
+import { IftaLabel } from 'primeng/iftalabel';
+import { FormsModule } from '@angular/forms';
+import { InputTextModule } from 'primeng/inputtext';
+import { PasswordModule } from 'primeng/password';
+import { DeleteConfirmComponent } from '../../../shared/delete-confirm/delete-confirm';
 
 @Component({
   selector: 'app-users',
   templateUrl: './users.html',
-  imports: [ButtonModule, TableModule, CommonModule, Menu, ToastModule, DatePipe],
+  imports: [
+    ButtonModule,
+    TableModule,
+    IftaLabel,
+    CommonModule,
+    Menu,
+    ToastModule,
+    DatePipe,
+    DialogModule,
+    FormsModule,
+    InputTextModule,
+    PasswordModule,
+  ],
   providers: [MessageService, DialogService],
 })
 export class UsersComponent implements OnInit {
@@ -23,11 +41,15 @@ export class UsersComponent implements OnInit {
   private userService = inject(UserService);
 
   users = signal<ViewUserDto[]>([]);
+  currentUser = signal<ViewUserDto | undefined>(undefined);
 
   ref = signal<DynamicDialogRef | undefined>(undefined);
   totalUsers = computed<number>(() => this.users().length);
 
   menuItems = signal<MenuItem[]>([]);
+
+  visibleResetPwd = signal<boolean>(false);
+  resetPwd: ResetPasswordDto = { passwordHash: '' };
 
   ngOnInit(): void {
     this.userService.getViewUsers().subscribe((res: any) => {
@@ -37,6 +59,7 @@ export class UsersComponent implements OnInit {
   }
 
   setCurrentUser(viewUser: ViewUserDto, event: Event, menu: any) {
+    this.currentUser.set(viewUser);
     this.menuItems.set([
       {
         label: 'Xem chi tiết',
@@ -55,12 +78,65 @@ export class UsersComponent implements OnInit {
       },
       {
         label: 'Thiết đặt mật khẩu',
+        command: () => this.clickVisibleResetPwd(),
       },
       {
         label: 'Xoá',
+        command: () => this.deleteUser(viewUser),
       },
     ]);
     menu.toggle(event);
+  }
+
+  deleteUser(viewUser: ViewUserDto) {
+    this.ref.set(
+      this.dialogSerive.open(DeleteConfirmComponent, {
+        header: 'Bạn có chắc muốn xoá người dùng này?',
+        width: 'auto',
+        modal: true,
+        data: {
+          mode: 'user-delete',
+          user: viewUser,
+          msg: `Xoá người dùng ${viewUser.userName}`,
+        },
+      })
+    );
+
+    this.ref()?.onClose.subscribe((res) => {
+      if (res != null) {
+        this.userService.deleteUser(viewUser.userId).subscribe({
+          next: () => {
+            this.msgService.add({
+              severity: 'success',
+              summary: 'Thành công',
+              detail: `Phân quyền thành công`,
+            });
+            this.users.update((oUsers) => oUsers.filter((u) => u.userId !== viewUser.userId));
+          },
+          error: (err) => {
+            console.log(err);
+          },
+        });
+      }
+    });
+  }
+
+  clickVisibleResetPwd() {
+    this.resetPwd.passwordHash = '';
+    this.visibleResetPwd.set(true);
+  }
+
+  resetPassword(viewUser: ViewUserDto) {
+    console.log('vao');
+    console.log(this.resetPwd);
+    this.userService.resetPassword(viewUser.userId, this.resetPwd).subscribe({
+      next: () => {
+        this.visibleResetPwd.set(false);
+      },
+      error: (err) => {
+        console.log(err);
+      },
+    });
   }
 
   userPermissions(viewUser: ViewUserDto) {
@@ -79,7 +155,23 @@ export class UsersComponent implements OnInit {
       );
 
       this.ref()?.onClose.subscribe((res) => {
-        console.log(res);
+        if (res)
+          this.userService.updateUserPermissions(viewUser.userId, res).subscribe({
+            next: (perms) => {
+              this.msgService.add({
+                severity: 'success',
+                summary: 'Thành công',
+                detail: `Phân quyền thành công`,
+              });
+            },
+            error: (err) => {
+              this.msgService.add({
+                severity: 'error',
+                summary: 'Thất bại',
+                detail: err,
+              });
+            },
+          });
       });
     });
   }
@@ -110,6 +202,7 @@ export class UsersComponent implements OnInit {
       );
 
       this.ref()?.onClose.subscribe((res) => {
+        console.log(res);
         if (res !== undefined) {
           this.userService.editUser(viewUser.userId, res).subscribe({
             next: (editUserDto) => {

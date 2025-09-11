@@ -41,3 +41,7 @@ export interface UserPermissionsDto {
   userPermissions: string[];
   rolePermissions: string[];
 }
+
+export interface ResetPasswordDto {
+  passwordHash: string;
+}

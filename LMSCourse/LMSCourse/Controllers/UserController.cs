@@ -57,7 +57,7 @@ namespace LMSCourse.Controllers
             var userEdit = await _userService.EditUserDto(userId, editUserDto);
 
 
-            if (userEdit == null) 
+            if (userEdit == null)
                 return BadRequest(
                     new { Message = "Không thể cập nhật user. Có thể user không tồn tại hoặc Username/Email đã được dùng." }
                 );
@@ -81,9 +81,29 @@ namespace LMSCourse.Controllers
             return Ok(new UserPermissionsDto { UserPermissions = userPermissions, RolePermissions = rolePermissions });
         }
         [HttpPut("user-permissions/{userId:int}")]
-        public Task<IActionResult> UpdateUserPermissions(int userId, List<string> permissions)
+        public async Task<IActionResult> UpdateUserPermissions(int userId, List<string> permissions)
         {
-            return null;
+            var updatePermissions = await _userService.UpdateUserPermissions(userId, permissions);
+            if (updatePermissions == null) return BadRequest("Không có người dùng này");
+
+            return Ok(updatePermissions);
+        }
+
+        [HttpPut("reset-password/{userId:int}")]
+        [Authorize(Policy = PERMISSION.EditUsers)]
+        public async Task<IActionResult> ResetPassword(int userId, SetPassword resetDto)
+        {
+            await _userService.ResetPassword(userId, resetDto.PasswordHash);
+            return Ok();
+        }
+        [HttpDelete("delete-user/{userId:int}")]
+        [Authorize(Policy = PERMISSION.DeleteUsers)]
+        public async Task<IActionResult> DeleteUser(int userId)
+        {
+            var isDelete = await _userService.DeleteUser(userId);
+            if (isDelete)
+                return Ok();
+            return BadRequest("Không có user này");
         }
     }
 }

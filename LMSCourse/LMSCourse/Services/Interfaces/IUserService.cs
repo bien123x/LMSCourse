@@ -17,8 +17,12 @@ namespace LMSCourse.Services.Interfaces
         Task<IEnumerable<ViewUserDto>> GetAllViewUser();
         Task<ViewUserDto> AddUserAsync(UserDto userDto);
         Task<ViewUserDto> EditUserDto(int userId, EditUserDto editUserDto);
+        Task<bool> DeleteUser(int userId);
 
         Task<List<string>> GetRolesName();
         Task<List<string>> GetUserPermissionsNameById(int userId);
+
+        Task<List<string>> UpdateUserPermissions(int userId, List<string> permissions);
+        Task ResetPassword(int userId, string newPassword);
     }
 }
