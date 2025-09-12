@@ -103,7 +103,7 @@ namespace LMSCourse.Services
             return _mapper.Map<IEnumerable<ViewUserDto>>(users);
         }
 
-        public async Task<ViewUserDto> AddUserAsync(UserDto userDto, )
+        public async Task<ViewUserDto> AddUserAsync(UserDto userDto)
         {
             var user = _mapper.Map<User>(userDto);
             if (await _userRepository.IsExistUserNameOrEmail(user.UserName, user.Email))
