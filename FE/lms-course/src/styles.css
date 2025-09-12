@@ -3,7 +3,3 @@
 @plugin "tailwindcss-primeui";
 @import "primeicons/primeicons.css";
 @custom-variant dark (&:where(.my-app-dark, .my-app-dark *));
-
-.bg-system {
-    background-color: rgb(240, 244, 247);
-}

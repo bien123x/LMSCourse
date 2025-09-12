@@ -81,4 +81,5 @@ secrets.json
 
 
 # bỏ qua
-Migrations/
+# Migrations/
+# appsettings.json
