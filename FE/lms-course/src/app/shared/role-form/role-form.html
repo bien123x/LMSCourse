@@ -1,4 +1,13 @@
-<label for="roleName">Tên quyền</label>
-<input id="roleName" type="text" pInputText [formControl]="roleName" />
-<p-button label="Đóng" (onClick)="close()"></p-button>
-<p-button label="Lưu" (onClick)="save()"></p-button>
+<div class="flex flex-col gap-2.5">
+  <div class="flex flex-col gap-1">
+    <label for="roleName">Tên quyền</label>
+    <input class="" id="roleName" type="text" pInputText [formControl]="roleName" />
+    @if (roleName.invalid && (roleName.touched || roleName.dirty)) {
+    <small class="text-red-500">Tên quyền không được để trống</small>
+    }
+  </div>
+  <div class="flex justify-end gap-1">
+    <p-button label="Đóng" (onClick)="close()"></p-button>
+    <p-button label="Lưu" (onClick)="save()" [disabled]="roleName.invalid"></p-button>
+  </div>
+</div>

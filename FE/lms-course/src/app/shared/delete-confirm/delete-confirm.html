@@ -1,23 +1,32 @@
-<p>{{ msg() }}</p>
-@if (mode() === 'user-delete') { } @else { @if (msg()) {
-<div>
-  <p-radio-button [(ngModel)]="isAssign" name="role" value="" inputId="UnAssign" />
-  <label for="UnAssign">Không gán quyền mới cho người dùng</label>
+<div class="flex flex-col gap-2.5">
+  <h1 class="font-bold">{{ msg() }}</h1>
+  @if (mode() === 'user-delete') { } @else { @if (msg()) {
+  <div class="flex items-center gap-1">
+    <p-radio-button [(ngModel)]="isAssign" name="role" value="" inputId="UnAssign" />
+    <label for="UnAssign">Không gán quyền mới cho người dùng</label>
+  </div>
+  <div class="flex flex-col">
+    <div class="flex items-center gap-2.5">
+      <p-radio-button [(ngModel)]="isAssign" name="role" value="{{ msg() }}" inputId="Assign" />
+      <label for="Assign">Chọn 1 quyền mới gán cho người dùng</label>
+    </div>
+    <div>
+      @if (isAssign) {
+      <p-select
+        class="w-full"
+        [options]="rolesMinus()"
+        [(ngModel)]="selectedRole"
+        optionLabel="roleName"
+        optionValue="roleId"
+        placeholder="Chọn quyền"
+        appendTo="body"
+      />
+      }
+    </div>
+  </div>
+  }}
+  <div class="flex gap-1 justify-end">
+    <p-button label="Đóng" (onClick)="close()"></p-button>
+    <p-button label="Xoá" (onClick)="delete()"></p-button>
+  </div>
 </div>
-<div>
-  <p-radio-button [(ngModel)]="isAssign" name="role" value="{{ msg() }}" inputId="Assign" />
-  <label for="Assign">Chọn 1 quyền mới gán cho người dùng</label>
-</div>
-@if (isAssign) {
-<p-select
-  [options]="rolesMinus()"
-  [(ngModel)]="selectedRole"
-  optionLabel="roleName"
-  optionValue="roleId"
-  placeholder="Chọn quyền"
-  appendTo="body"
-/>
-} } }
-
-<p-button label="Đóng" (onClick)="close()"></p-button>
-<p-button pButton label="Xoá" (onClick)="delete()"></p-button>

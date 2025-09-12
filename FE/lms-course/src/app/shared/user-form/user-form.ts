@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -25,6 +25,7 @@ import { CheckboxModule } from 'primeng/checkbox';
     PasswordModule,
     CheckboxModule,
     TableModule,
+    DatePipe,
   ],
 })
 export class UserFormComponent implements OnInit {

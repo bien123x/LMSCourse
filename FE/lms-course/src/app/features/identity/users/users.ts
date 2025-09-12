@@ -42,11 +42,10 @@ export class UsersComponent implements OnInit {
 
   users = signal<ViewUserDto[]>([]);
   totalRecords = signal<number>(0);
-  pageSize = signal<number>(2);
+  pageSize = signal<number>(4);
   currentUser = signal<ViewUserDto | undefined>(undefined);
 
   ref = signal<DynamicDialogRef | undefined>(undefined);
-  totalUsers = computed<number>(() => this.users().length);
 
   menuItems = signal<MenuItem[]>([]);
 
@@ -157,7 +156,7 @@ export class UsersComponent implements OnInit {
       this.ref.set(
         this.dialogSerive.open(PermissionFormComponent, {
           header: 'Phân quyền người dùng',
-          width: 'auto',
+          width: '400px',
           modal: true,
           data: {
             mode: 'user-permission',
