@@ -78,3 +78,6 @@ publish/
 *.Publish.xml
 appsettings.Development.json
 secrets.json
+# bo qua
+Migrations/
+appsettings.json
