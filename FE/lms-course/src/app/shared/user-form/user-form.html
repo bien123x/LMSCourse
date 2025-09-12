@@ -9,54 +9,77 @@
     </p-tablist>
     <p-tabpanels>
       <p-tabpanel [value]="0">
-        <p-ifta-label>
-          <input pInputText name="userName" id="userName" formControlName="userName" />
-          <label for="userName">Tên đăng nhập</label>
-        </p-ifta-label>
-        @if (userName?.invalid && (userName?.touched || userName?.dirty) ) {
-        <div>Tên đăng nhập không hợp lệ</div>
-        }
+        <div class="flex flex-col gap-2.5">
+          <p-ifta-label>
+            <input
+              class="w-full"
+              pInputText
+              name="userName"
+              id="userName"
+              formControlName="userName"
+              autofocus
+            />
+            <label for="userName">Tên đăng nhập</label>
+          </p-ifta-label>
+          @if (userName?.invalid && (userName?.touched || userName?.dirty) ) {
+          <small class="text-red-500">Tên đăng nhập không hợp lệ</small>
+          }
+          <div class="flex gap-1">
+            <p-ifta-label>
+              <input class="w-full" pInputText name="name" id="name" formControlName="name" />
+              <label for="name">Tên</label>
+            </p-ifta-label>
+            <p-ifta-label>
+              <input pInputText name="surname" id="surname" formControlName="surname" />
+              <label for="surname">Họ</label>
+            </p-ifta-label>
+          </div>
 
-        <div class="flex">
+          @if (mode() === 'add') {
           <p-ifta-label>
-            <input pInputText name="name" id="name" formControlName="name" />
-            <label for="name">Tên</label>
+            <p-password
+              class="w-full"
+              inputStyleClass="w-full"
+              name="passwordHash"
+              id="passwordHash"
+              formControlName="passwordHash"
+            />
+            <label for="passwordHash">Mật khẩu</label>
           </p-ifta-label>
+          @if (passwordHash?.invalid && (passwordHash?.touched || passwordHash?.dirty) ) {
+          <small class="text-red-500">Mật khẩu bắt buộc</small>
+          } }
+
           <p-ifta-label>
-            <input pInputText name="surname" id="surname" formControlName="surname" />
-            <label for="surname">Họ</label>
+            <input class="w-full" pInputText name="email" id="email" formControlName="email" />
+            <label for="email">Email</label>
           </p-ifta-label>
+          @if (email?.invalid && (email?.touched || email?.dirty)) {
+          <small class="text-red-500">Email không hợp lệ</small>
+          }
+          <p-ifta-label>
+            <input
+              class="w-full"
+              pInputText
+              name="phoneNumber"
+              id="phoneNumber"
+              formControlName="phoneNumber"
+            />
+            <label for="phoneNumber">Số điện thoại</label>
+          </p-ifta-label>
+          @if (phoneNumber?.invalid && (phoneNumber?.touched || phoneNumber?.dirty)) {
+          <small class="text-red-500">Số điện thoại phải có 10 số</small>
+          }
+          <div class="flex gap-1 items-center">
+            <p-checkbox
+              formControlName="isActive"
+              name="isActive"
+              id="isActive"
+              binary="true"
+            ></p-checkbox>
+            <label for="isActive">Kích hoạt</label>
+          </div>
         </div>
-        @if (mode() === 'add') {
-        <p-ifta-label>
-          <p-password name="passwordHash" id="passwordHash" formControlName="passwordHash" />
-          <label for="passwordHash">Mật khẩu</label>
-        </p-ifta-label>
-        @if (passwordHash?.invalid && (passwordHash?.touched || passwordHash?.dirty) ) {
-        <div>Mật khẩu bắt buộc</div>
-        } }
-
-        <p-ifta-label>
-          <input pInputText name="email" id="email" formControlName="email" />
-          <label for="email">Email</label>
-        </p-ifta-label>
-        @if (email?.invalid && (email?.touched || email?.dirty)) {
-        <div>Email không hợp lệ</div>
-        }
-        <p-ifta-label>
-          <input pInputText name="phoneNumber" id="phoneNumber" formControlName="phoneNumber" />
-          <label for="phoneNumber">Số điện thoại</label>
-        </p-ifta-label>
-        @if (phoneNumber?.invalid && (phoneNumber?.touched || phoneNumber?.dirty)) {
-        <div>Số điện thoại phải có 10 số</div>
-        }
-        <p-checkbox
-          formControlName="isActive"
-          name="isActive"
-          id="isActive"
-          binary="true"
-        ></p-checkbox>
-        <label for="isActive">Kích hoạt</label>
       </p-tabpanel>
       <p-tabpanel [value]="1">
         <div class="flex flex-col gap-4">
@@ -76,8 +99,13 @@
         <p-table [value]="general()">
           <ng-template pTemplate="body" let-field>
             <tr>
-              <th>{{ field.label }}</th>
+              <td class="font-bold">{{ field.label }}</td>
+              @if (field.label === 'Thời gian tạo' || field.label === 'Cập nhật gần nhất') {
+              <td>{{ field.value | date : 'short' }}</td>
+              } @else {
               <td>{{ field.value }}</td>
+
+              }
             </tr>
           </ng-template>
         </p-table>
@@ -85,8 +113,10 @@
       }
     </p-tabpanels>
   </p-tabs>
-  <p-button label="Đóng" (onClick)="close()"></p-button>
-  @if (mode() !== 'viewDetail') {
-  <p-button label="Lưu" type="submit"></p-button>
-  }
+  <div class="flex gap-1 justify-around">
+    <p-button label="Đóng" (onClick)="close()"></p-button>
+    @if (mode() !== 'viewDetail') {
+    <p-button label="Lưu" type="submit" [disabled]="userForm.invalid"></p-button>
+    }
+  </div>
 </form>

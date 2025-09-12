@@ -120,6 +120,8 @@ namespace LMSCourse.Services
                     RoleId = role.RoleId
                 });
             }
+            user.CreationTime = DateTime.Now;
+            user.ModificationTime = DateTime.Now;
             await _userRepository.AddAsync(user);
             return _mapper.Map<ViewUserDto>(user);
         }

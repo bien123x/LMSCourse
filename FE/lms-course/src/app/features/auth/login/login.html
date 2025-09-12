@@ -1,47 +1,57 @@
-<h3>Đăng nhập</h3>
-<hr />
-<p>
-  Bạn chưa có tài khoản?
-  <a class="text-blue-500 underline cursor-pointer" routerLink="/auth/register">Đăng ký</a>
-</p>
 <p-toast />
-<form #loginForm="ngForm" (ngSubmit)="onSubmit(loginForm)">
+<div class="flex flex-col gap-2.5">
   <div>
-    <p-iftalabel>
-      <input
-        pInputText
-        id="UserNameOrEmail"
-        [(ngModel)]="loginDto().UserNameOrEmail"
-        name="UserNameOrEmail"
-        required
-        #UserNameOrEmail="ngModel"
-      />
-      <label for="UserNameOrEmail">Tên đăng nhập/Email</label>
-    </p-iftalabel>
-    @if (UserNameOrEmail.invalid && UserNameOrEmail.touched) { @if
-    (UserNameOrEmail.hasError('required')) {
-    <div>Tên đăng nhập/Email được rỗng!</div>
-    } }
+    <h3 class="mb-[10px] font-bold">Đăng nhập</h3>
+    <hr />
   </div>
 
   <div>
-    <p-iftalabel>
-      <p-password
-        [(ngModel)]="loginDto().Password"
-        inputId="Password"
-        name="Password"
-        required
-        #Password="ngModel"
-      ></p-password>
-      <label for="Password">Mật khẩu</label>
-    </p-iftalabel>
-    @if (Password.invalid && Password.touched) { @if (Password.hasError('required')) {
-    <div>Mật khẩu không được rỗng!</div>
-    } }
+    <p>
+      Bạn chưa có tài khoản?
+      <a class="text-blue-500 underline cursor-pointer" routerLink="/auth/register">Đăng ký</a>
+    </p>
   </div>
-  <a class="text-blue-500 underline cursor-pointer">Quên mật khẩu?</a>
+  <form #loginForm="ngForm" (ngSubmit)="onSubmit(loginForm)" class="flex flex-col gap-2.5">
+    <div class="">
+      <p-iftalabel>
+        <input
+          class="w-full"
+          pInputText
+          id="UserNameOrEmail"
+          [(ngModel)]="loginDto().UserNameOrEmail"
+          name="UserNameOrEmail"
+          required
+          #UserNameOrEmail="ngModel"
+        />
+        <label for="UserNameOrEmail">Tên đăng nhập/Email</label>
+      </p-iftalabel>
+      @if (UserNameOrEmail.invalid && UserNameOrEmail.touched) { @if
+      (UserNameOrEmail.hasError('required')) {
+      <div>Tên đăng nhập/Email được rỗng!</div>
+      } }
+    </div>
 
-  <div>
-    <p-button label="Đăng nhập" type="submit" />
-  </div>
-</form>
+    <div>
+      <p-iftalabel>
+        <p-password
+          class="w-full"
+          inputStyleClass="w-full"
+          [(ngModel)]="loginDto().Password"
+          inputId="Password"
+          name="Password"
+          required
+          #Password="ngModel"
+        ></p-password>
+        <label for="Password">Mật khẩu</label>
+      </p-iftalabel>
+      @if (Password.invalid && Password.touched) { @if (Password.hasError('required')) {
+      <div>Mật khẩu không được rỗng!</div>
+      } }
+    </div>
+    <a class="text-blue-500 underline cursor-pointer">Quên mật khẩu?</a>
+
+    <div>
+      <p-button label="Đăng nhập" type="submit" styleClass="w-full" />
+    </div>
+  </form>
+</div>

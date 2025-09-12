@@ -1,5 +1,14 @@
-<p-tree [value]="treePermissions" selectionMode="checkbox" [(selection)]="selectedPermissions">
-</p-tree>
+<div class="flex flex-col gap-2">
+  <p-tree
+    class="rounded-lg border border-gray-200 shadow-sm p-2 bg-white"
+    [value]="treePermissions"
+    selectionMode="checkbox"
+    [(selection)]="selectedPermissions"
+  >
+  </p-tree>
 
-<p-button label="Đóng" (onClick)="close()"></p-button>
-<p-button pButton label="Lưu phân quyền" (onClick)="save()"></p-button>
+  <div class="flex gap-1 justify-end">
+    <p-button label="Đóng" (onClick)="close()"></p-button>
+    <p-button label="Lưu phân quyền" (onClick)="save()"></p-button>
+  </div>
+</div>

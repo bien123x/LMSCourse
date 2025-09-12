@@ -27,10 +27,12 @@ export class LeftSidebarComponent implements OnInit {
       {
         label: 'Quản trị',
         icon: 'pi pi-fw pi-inbox',
+        expanded: true,
         children: [
           {
             label: 'Quản lý tài khoản',
             icon: 'pi pi-fw pi-inbox',
+            expanded: true,
             children: [
               {
                 label: 'Quyền',

@@ -1,12 +1,33 @@
-@if (!isAuthPage()) {
+<!-- @if (!isAuthPage()) {
 <div class="grid grid-cols-18 h-screen gap-2">
-  <div class="col-span-3 bg-red-400">
+  <div class="col-span-3">
     <app-left-sidebar></app-left-sidebar>
   </div>
-  <div class="col-span-14 bg-[rgb(240,244,247)]">
+  <div class="col-span-14 bg-[rgb(240,244,247)] p-10">
     <router-outlet />
   </div>
-  <div class="col-span-1 bg-blue-400">
+  <div class="col-span-1">
+    <app-right-sidebar></app-right-sidebar>
+  </div>
+</div>
+} @else {
+<router-outlet />
+} -->
+
+@if (!isAuthPage()) {
+<div class="grid grid-cols-1 md:grid-cols-12 lg:grid-cols-18 h-screen gap-2">
+  <!-- Left Sidebar -->
+  <div class="hidden md:block md:col-span-3">
+    <app-left-sidebar></app-left-sidebar>
+  </div>
+
+  <!-- Main Content -->
+  <div class="col-span-1 md:col-span-9 lg:col-span-14 bg-[rgb(240,244,247)] p-4 md:p-6 lg:p-10">
+    <router-outlet />
+  </div>
+
+  <!-- Right Sidebar -->
+  <div class="hidden lg:block lg:col-span-1">
     <app-right-sidebar></app-right-sidebar>
   </div>
 </div>

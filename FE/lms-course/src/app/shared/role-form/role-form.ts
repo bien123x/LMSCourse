@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { InputTextModule } from 'primeng/inputtext';
@@ -10,7 +10,7 @@ import { InputTextModule } from 'primeng/inputtext';
   imports: [ButtonModule, FormsModule, ReactiveFormsModule, InputTextModule],
 })
 export class RoleFormComponent {
-  roleName = new FormControl('');
+  roleName = new FormControl('', Validators.required);
   mode = signal<string>('add');
   constructor(private ref: DynamicDialogRef, private config: DynamicDialogConfig) {
     if (config.data) {
