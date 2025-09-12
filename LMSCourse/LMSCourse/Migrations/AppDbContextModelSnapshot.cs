@@ -446,7 +446,7 @@ namespace LMSCourse.Migrations
                     b.Property<DateTime>("CreationTime")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasDefaultValueSql("GETDATE()");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -467,7 +467,7 @@ namespace LMSCourse.Migrations
                     b.Property<DateTime>("ModificationTime")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasDefaultValueSql("GETDATE()");
 
                     b.Property<string>("ModifiedBy")
                         .IsRequired()
@@ -483,7 +483,7 @@ namespace LMSCourse.Migrations
                     b.Property<DateTime>("PasswordUpdateTime")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasDefaultValueSql("GETDATE()");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
@@ -511,15 +511,15 @@ namespace LMSCourse.Migrations
                         {
                             UserId = 1,
                             CreatedBy = "",
-                            CreationTime = new DateTime(2025, 9, 10, 20, 13, 4, 505, DateTimeKind.Utc).AddTicks(8286),
+                            CreationTime = new DateTime(2025, 9, 12, 10, 34, 3, 997, DateTimeKind.Local).AddTicks(744),
                             Email = "admin@gmail.com",
                             FailedAccessCount = 0,
                             IsActive = true,
-                            ModificationTime = new DateTime(2025, 9, 10, 20, 13, 4, 505, DateTimeKind.Utc).AddTicks(8288),
+                            ModificationTime = new DateTime(2025, 9, 12, 10, 34, 3, 997, DateTimeKind.Local).AddTicks(755),
                             ModifiedBy = "",
                             Name = "",
-                            PasswordHash = "AQAAAAIAAYagAAAAEFZrqt2ahj9xBfLpmbW1UFOEHnsPZqj5588xKVWKALgHTNlkgVJ2yurMAO0eMfsR7w==",
-                            PasswordUpdateTime = new DateTime(2025, 9, 10, 20, 13, 4, 505, DateTimeKind.Utc).AddTicks(8288),
+                            PasswordHash = "AQAAAAIAAYagAAAAEE1LT7emzIaAiYlRz0j+CCqFIH5ONYcWBrUxx+e3HXzaZUGRd2RETEVwv/sP6ngFmg==",
+                            PasswordUpdateTime = new DateTime(2025, 9, 12, 10, 34, 3, 997, DateTimeKind.Local).AddTicks(755),
                             PhoneNumber = "01234456",
                             Surname = "",
                             UserName = "admin"
