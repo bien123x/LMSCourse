@@ -1,4 +1,5 @@
 ﻿using LMSCourse.DTOs.Page;
+using LMSCourse.DTOs.Page_Sort_Filter;
 using LMSCourse.DTOs.User;
 using LMSCourse.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -107,10 +108,11 @@ namespace LMSCourse.Controllers
             return BadRequest("Không có user này");
         }
 
-        [HttpGet("users/{pageNumber:int}/{pageSize:int}")]
-        public async Task<ActionResult<PagedResult<ViewUserDto>>> GetPagedUsers(int pageNumber, int pageSize)
+        [HttpPost("users")]
+        public async Task<ActionResult<PagedResult<ViewUserDto>>> GetPagedUsers([FromBody] QueryDto query)
         {
-            var result = await _userService.GetPagedUsers(pageNumber, pageSize);
+            var result = await _userService.GetPagedUsers(query);
+
             return Ok(result);
         }
     }

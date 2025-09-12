@@ -1,16 +1,19 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TreeNode } from 'primeng/api';
 import { Tree } from 'primeng/tree';
+import { DrawerModule } from 'primeng/drawer';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-left-sidebar',
   templateUrl: './left-sidebar.html',
-  imports: [Tree],
+  imports: [Tree, DrawerModule, ButtonModule],
 })
 export class LeftSidebarComponent implements OnInit {
   private router = inject(Router);
   files!: TreeNode[];
+  showDrawer = false;
 
   ngOnInit(): void {
     this.files = [

@@ -9,6 +9,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { PagedResult } from '../models/page-model';
+import { QueryDto } from '../models/query-model';
 
 @Injectable({
   providedIn: 'root',
@@ -51,12 +52,7 @@ export class UserService {
     return this.http.delete<any>(`${this.apiUrl}/delete-user/${userId}`);
   }
 
-  getViewUsersPagination(
-    pageNumber: number,
-    pageSize: number
-  ): Observable<PagedResult<ViewUserDto>> {
-    return this.http.get<PagedResult<ViewUserDto>>(
-      `${this.apiUrl}/users/${pageNumber}/${pageSize}`
-    );
+  getViewUsersPagination(query: QueryDto): Observable<PagedResult<ViewUserDto>> {
+    return this.http.post<PagedResult<ViewUserDto>>(`${this.apiUrl}/users`, query);
   }
 }

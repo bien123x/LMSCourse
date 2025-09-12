@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using LMSCourse.DTOs.Page;
+using LMSCourse.DTOs.Page_Sort_Filter;
 using LMSCourse.DTOs.User;
 using LMSCourse.Models;
 using LMSCourse.Repositories;
@@ -227,9 +228,9 @@ namespace LMSCourse.Services
             return true;
         }
 
-        public async Task<PagedResult<ViewUserDto>> GetPagedUsers(int pageNumber, int pageSize)
+        public async Task<PagedResult<ViewUserDto>> GetPagedUsers(QueryDto query)
         {
-            var pagedUsers = await _userRepository.GetPagedUsersAsync(pageNumber, pageSize);
+            var pagedUsers = await _userRepository.GetPagedUsersAsync(query);
 
             return new PagedResult<ViewUserDto>
             {

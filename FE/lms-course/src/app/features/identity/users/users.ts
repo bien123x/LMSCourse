@@ -16,6 +16,7 @@ import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { DeleteConfirmComponent } from '../../../shared/delete-confirm/delete-confirm';
+import { FilterField, QueryDto, SortField } from '../../../core/models/query-model';
 
 @Component({
   selector: 'app-users',
@@ -43,6 +44,7 @@ export class UsersComponent implements OnInit {
   users = signal<ViewUserDto[]>([]);
   totalRecords = signal<number>(0);
   pageSize = signal<number>(4);
+  loading = signal<boolean>(false);
   currentUser = signal<ViewUserDto | undefined>(undefined);
 
   ref = signal<DynamicDialogRef | undefined>(undefined);
@@ -51,6 +53,8 @@ export class UsersComponent implements OnInit {
 
   visibleResetPwd = signal<boolean>(false);
   resetPwd: ResetPasswordDto = { passwordHash: '' };
+  userT: any;
+  i = 1;
 
   ngOnInit(): void {
     // this.userService.getViewUsers().subscribe((res: any) => {
@@ -63,10 +67,30 @@ export class UsersComponent implements OnInit {
   loadUsers(event: any) {
     const pageNumber = event.first / event.rows + 1;
     const pageSize = event.rows;
+    this.loading.set(true);
 
-    this.userService.getViewUsersPagination(pageNumber, pageSize).subscribe((res) => {
+    const sorts: SortField[] = (event.multiSortMeta ?? []).map((s: any) => ({
+      field: s.field,
+      order: s.order === 1 ? 'asc' : 'desc',
+    }));
+
+    // filters
+    const filters: FilterField[] = [];
+    if (event.filters) {
+      for (const key of Object.keys(event.filters)) {
+        const f = event.filters[key];
+        if (f && f.value) {
+          filters.push({ field: key, value: f.value });
+        }
+      }
+    }
+
+    const query: QueryDto = { pageNumber, pageSize, sorts, filters };
+
+    this.userService.getViewUsersPagination(query).subscribe((res) => {
       this.users.set(res.items);
       this.totalRecords.set(res.totalCount);
+      this.loading.set(false);
     });
   }
 

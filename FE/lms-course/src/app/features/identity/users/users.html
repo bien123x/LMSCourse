@@ -6,19 +6,34 @@
   </div>
 
   <p-table
+    #dt
     [value]="users()"
     [lazy]="true"
     [paginator]="true"
+    [loading]="loading()"
+    [sortMode]="'multiple'"
+    [scrollable]="true"
     [rows]="pageSize()"
     [totalRecords]="totalRecords()"
     (onLazyLoad)="loadUsers($event)"
     class="rounded-xl overflow-hidden"
+    scrollHeight="800px"
   >
     <ng-template #header>
       <tr>
         <th>Thao tác</th>
-        <th>Tên tài khoản</th>
-        <th>Email</th>
+        <th pSortableColumn="userName">
+          <div class="flex items-center gap-2">
+            Tên tài khoản
+            <p-sortIcon field="userName" />
+          </div>
+        </th>
+        <th pSortableColumn="email">
+          <div class="flex items-center gap-2">
+            Email
+            <p-sortIcon field="email" />
+          </div>
+        </th>
         <th>Quyền</th>
         <th>Số điện thoại</th>
         <th>Họ</th>
@@ -26,6 +41,23 @@
         <th>Trạng thái</th>
         <th>Thời gian tạo</th>
         <th>Thời gian sửa lần cuối</th>
+      </tr>
+      <tr>
+        <th></th>
+        <th>
+          <input
+            pInputText
+            (input)="dt.filter($event.target.value, 'userName', 'contains')"
+            placeholder="Search by user name"
+          />
+        </th>
+        <th>
+          <input
+            pInputText
+            (input)="dt.filter($event.target.value, 'email', 'contains')"
+            placeholder="Search by Email"
+          />
+        </th>
       </tr>
     </ng-template>
     <ng-template #body let-user>
