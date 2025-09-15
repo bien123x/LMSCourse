@@ -20,11 +20,13 @@ namespace LMSCourse.Controllers
     {
         private readonly TokenService _tokenService;
         private readonly IUserService _userService;
+        private readonly ISettingsService _settingsService;
 
-        public AuthController(TokenService tokenService, IUserService userService)
+        public AuthController(TokenService tokenService, IUserService userService, ISettingsService settingsService)
         {
             this._tokenService = tokenService;
             this._userService = userService;
+            _settingsService = settingsService;
         }
 
         [HttpPost("login")]
@@ -35,6 +37,8 @@ namespace LMSCourse.Controllers
             if (user == null) {
                 return Unauthorized();
             }
+            if (!user.IsActive) 
+                return BadRequest("Tài khoản đã bị khoá!");
 
             if (!_userService.VerifyPassword(user, dto.Password))
                 return Unauthorized("Mật khẩu không đúng!");
@@ -52,10 +56,16 @@ namespace LMSCourse.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
+            var (isValid, errors) = await _settingsService.ValidateAsync(dto.PasswordHash);
+
+            if (!isValid)
+                return BadRequest(new { Errors = errors });
+
             var user = await _userService.RegisterUserAsync(dto);
 
+
             if (user != null) {
-                return CreatedAtAction(actionName: nameof(UserController.GetUserById), controllerName: "User", routeValues: new { id = user.UserId }, value: user);
+                return Ok(user);
             }
             return BadRequest("Tên đăng nhập/Email đã tồn tại!");
         }

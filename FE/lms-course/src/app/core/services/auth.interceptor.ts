@@ -2,7 +2,7 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { error } from 'console';
-import { catchError, switchMap, throwError } from 'rxjs';
+import { catchError, EMPTY, switchMap, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 import { RefreshRequestDto } from '../models/auth-model';
 
@@ -22,30 +22,36 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   }
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && refresh) {
-        const refreshToken: RefreshRequestDto = { refreshToken: refresh };
-        return authService.refreshToken(refreshToken).pipe(
-          switchMap((res: any) => {
-            console.log(res);
-            localStorage.setItem('access_token', res.accessToken);
-            localStorage.setItem('refresh_token', res.refreshToken);
+      if (error.status === 401) {
+        if (refresh) {
+          const refreshToken: RefreshRequestDto = { refreshToken: refresh };
+          return authService.refreshToken(refreshToken).pipe(
+            switchMap((res: any) => {
+              localStorage.setItem('access_token', res.accessToken);
+              localStorage.setItem('refresh_token', res.refreshToken);
 
-            // gửi lại request ban đầu với access token mới
-            const retryReq = req.clone({
-              setHeaders: {
-                Authorization: `Bearer ${res.accessToken}`,
-              },
-            });
-            return next(retryReq);
-          }),
-          catchError((err) => {
-            // refresh cũng fail → logout
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
-            router.navigate(['/auth/login']);
-            return throwError(() => err);
-          })
-        );
+              // gửi lại request ban đầu với access token mới
+              const retryReq = req.clone({
+                setHeaders: {
+                  Authorization: `Bearer ${res.accessToken}`,
+                },
+              });
+              return next(retryReq);
+            }),
+            catchError((err) => {
+              // refresh cũng fail → logout
+              console.error('Refresh token failed:', err);
+              localStorage.removeItem('access_token');
+              localStorage.removeItem('refresh_token');
+              router.navigate(['/auth/login']);
+              return throwError(() => err);
+            })
+          );
+        } else {
+          localStorage.removeItem('access_token');
+          router.navigate(['/auth/login']);
+        }
+        return throwError(() => error);
       }
       return throwError(() => error);
     })

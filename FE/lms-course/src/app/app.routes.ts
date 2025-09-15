@@ -7,6 +7,7 @@ import { App } from './app';
 import { IdentityComponent } from './features/identity/identity';
 import { RolesComponent } from './features/identity/roles/roles';
 import { UsersComponent } from './features/identity/users/users';
+import { SettingsComponent } from './features/settings/settings';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -20,6 +21,7 @@ export const routes: Routes = [
       { path: 'users', component: UsersComponent },
     ],
   },
+  { path: 'settings', component: SettingsComponent },
   {
     path: 'auth',
     component: AuthComponent,

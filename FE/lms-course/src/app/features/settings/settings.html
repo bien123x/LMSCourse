@@ -1,0 +1,83 @@
+<p-toast></p-toast>
+<div class="flex flex-col gap-2">
+  <div class="font-black text-[25px]"><h1>Settings</h1></div>
+  <div class="flex flex-row bg-white">
+    <div class="border-r-4 border-r-blue-200"><p-menu [model]="items"> </p-menu></div>
+    <div class="w-full">
+      @if (menuSelect === 'account') {
+
+      <div><h1>Chung</h1></div>
+
+      } @else if (menuSelect === 'identity') {
+      <p-tabs value="0">
+        <p-tablist>
+          <p-tab value="0">Chính sách mật khẩu</p-tab>
+          <p-tab value="1">Chung</p-tab>
+        </p-tablist>
+        <p-tabpanels>
+          <p-tabpanel value="0">
+            <div class="flex flex-col">
+              <div class="font-bold"><h1>Cài đặt độ mạnh của mật khẩu</h1></div>
+              <div>
+                <form [formGroup]="form" (ngSubmit)="onSave()" class="flex flex-col gap-2">
+                  <p-iftaLabel>
+                    <p-input-number formControlName="minLength" id="minLength" name="minLength" />
+                    <label for="minLength">Độ dài bắt buộc</label>
+                  </p-iftaLabel>
+                  <p-iftaLabel>
+                    <p-input-number
+                      formControlName="requiredUniqueChars"
+                      id="requiredUniqueChars"
+                      name="requiredUniqueChars"
+                    />
+                    <label for="requiredUniqueChars">Số ký tự duy nhất bắt buộc</label>
+                  </p-iftaLabel>
+                  <div class="flex flex-row items-center gap-1">
+                    <p-check-box
+                      binary="true"
+                      formControlName="requireDigit"
+                      id="requireDigit"
+                      name="requireDigit"
+                    />
+                    <label for="requireDigit">Bắt buộc có số</label>
+                  </div>
+                  <div class="flex flex-row items-center gap-1">
+                    <p-check-box
+                      binary="true"
+                      formControlName="requireLowercase"
+                      id="requireLowercase"
+                      name="requireLowercase"
+                    />
+                    <label for="requireLowercase">Chữ thường bắt buộc</label>
+                  </div>
+                  <div class="flex flex-row items-center gap-1">
+                    <p-check-box
+                      binary="true"
+                      formControlName="requireUppercase"
+                      id="requireUppercase"
+                      name="requireUppercase"
+                    />
+                    <label for="requireUppercase">Chữ hoa bắt buộc</label>
+                  </div>
+                  <div class="flex flex-row items-center gap-1">
+                    <p-check-box
+                      binary="true"
+                      formControlName="requireNonAlphanumeric"
+                      id="requireNonAlphanumeric"
+                      name="requireNonAlphanumeric"
+                    />
+                    <label for="requireNonAlphanumeric">Ký tự đặc biệt</label>
+                  </div>
+
+                  <div><button pButton type="submit" label="Lưu"></button></div>
+                </form>
+              </div>
+            </div>
+          </p-tabpanel>
+          <p-tabpanel value="1"> Chung </p-tabpanel>
+        </p-tabpanels>
+      </p-tabs>
+      }
+    </div>
+  </div>
+</div>

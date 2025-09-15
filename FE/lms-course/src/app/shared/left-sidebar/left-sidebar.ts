@@ -1,73 +1,63 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { TreeNode } from 'primeng/api';
-import { Tree } from 'primeng/tree';
+import { MenuItem, TreeNode } from 'primeng/api';
 import { DrawerModule } from 'primeng/drawer';
 import { ButtonModule } from 'primeng/button';
+import { PanelMenu } from 'primeng/panelmenu';
 
 @Component({
   selector: 'app-left-sidebar',
   templateUrl: './left-sidebar.html',
-  imports: [Tree, DrawerModule, ButtonModule],
+  imports: [PanelMenu, DrawerModule, ButtonModule],
 })
 export class LeftSidebarComponent implements OnInit {
   private router = inject(Router);
-  files!: TreeNode[];
-  showDrawer = false;
+  items: MenuItem[] = [];
 
   ngOnInit(): void {
-    this.files = [
+    this.items = [
       {
         label: 'Trang chủ',
-        icon: 'pi pi-fw pi-inbox',
-        data: { route: '/home' },
+        icon: 'pi pi-home',
+        command: () => this.router.navigate(['/home']),
       },
       {
         label: 'Dashboard',
-        icon: 'pi pi-fw pi-inbox',
-        data: {},
+        icon: 'pi pi-chart-line',
+        command: () => this.router.navigate(['/dashboard']),
       },
       {
         label: 'Quản trị',
-        icon: 'pi pi-fw pi-inbox',
-        expanded: true,
-        children: [
+        icon: 'pi pi-cog',
+        items: [
           {
             label: 'Quản lý tài khoản',
-            icon: 'pi pi-fw pi-inbox',
-            expanded: true,
-            children: [
+            icon: 'pi pi-users',
+            items: [
               {
                 label: 'Quyền',
-                icon: 'pi pi-fw pi-inbox',
-                data: { route: '/identity/roles' },
+                icon: 'pi pi-lock',
+                command: () => this.router.navigate(['/identity/roles']),
               },
               {
                 label: 'Người dùng',
-                icon: 'pi pi-fw pi-inbox',
-                data: { route: '/identity/users' },
+                icon: 'pi pi-user',
+                command: () => this.router.navigate(['/identity/users']),
               },
             ],
           },
           {
             label: 'Nhật ký',
-            icon: 'pi pi-fw pi-inbox',
-            data: {},
+            icon: 'pi pi-book',
+            command: () => this.router.navigate(['/logs']),
           },
           {
             label: 'Cài đặt',
-            icon: 'pi pi-fw pi-inbox',
-            data: {},
+            icon: 'pi pi-sliders-h',
+            command: () => this.router.navigate(['/settings']),
           },
         ],
       },
     ];
-  }
-
-  nodeSelect(event: any) {
-    const route = event.node.data?.route;
-    if (route) {
-      this.router.navigate([route]);
-    }
   }
 }

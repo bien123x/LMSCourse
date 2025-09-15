@@ -11,6 +11,9 @@ import { IftaLabel } from 'primeng/iftalabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { CheckboxModule } from 'primeng/checkbox';
+import { SettingsService } from '../../core/services/settings.service';
+import { passwordValidator } from '../../core/validators/settings-validator';
+import { map } from 'rxjs';
 
 @Component({
   selector: 'app-user-form',
@@ -32,6 +35,7 @@ export class UserFormComponent implements OnInit {
   private ref = inject(DynamicDialogRef);
   private config = inject(DynamicDialogConfig);
   private userService = inject(UserService);
+  private settingsService = inject(SettingsService);
   private fb = inject(FormBuilder);
 
   mode = signal<string>('');
@@ -46,6 +50,14 @@ export class UserFormComponent implements OnInit {
   general = signal<any>([]);
 
   ngOnInit(): void {
+    this.settingsService.validatePassword('dsads').subscribe({
+      next: (res) => {
+        console.log(res);
+      },
+      error: (err) => {
+        console.log('errr', err.error);
+      },
+    });
     if (this.config.data) {
       this.mode.set(this.config.data.mode);
       this.rolesName.set(this.config.data.rolesName);
@@ -53,7 +65,14 @@ export class UserFormComponent implements OnInit {
         this.userForm = this.fb.group({
           userName: ['', [Validators.required]],
           name: [''],
-          passwordHash: ['', [Validators.required]],
+          passwordHash: [
+            '',
+            {
+              validators: [Validators.required],
+              asyncValidators: [passwordValidator(this.settingsService)],
+              updateOn: 'blur', // hoặc 'change' nếu muốn check realtime
+            },
+          ],
           surname: [''],
           email: ['', [Validators.required, Validators.email]],
           phoneNumber: [

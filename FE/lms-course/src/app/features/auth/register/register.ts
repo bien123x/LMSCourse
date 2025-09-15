@@ -1,3 +1,4 @@
+import { join } from 'node:path';
 import { Component, inject, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { Router, RouterLink } from '@angular/router';
@@ -40,17 +41,21 @@ export class RegisterComponent {
     console.log(this.registerDto());
     this.authService.register(this.registerDto()).subscribe({
       next: (res) => {
+        console.log(res);
         this.router.navigate(['/auth/login']);
       },
       error: (err) => {
-        console.log('Lỗi đăng kí', err);
-        //Toast
-        this.msgService.add({
-          severity: 'error',
-          summary: 'Lỗi',
-          detail: 'Thông tin đăng nhập đã tồn tại!',
-          life: 3000,
-        });
+        console.log('Lỗi đăng kí', err.error);
+        if (err.error.errors != null) {
+          const e = err.error.errors.join('\n');
+          //Toast
+          this.msgService.add({
+            severity: 'error',
+            summary: 'Lỗi',
+            detail: e,
+            life: 3000,
+          });
+        }
       },
     });
   }

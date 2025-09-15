@@ -43,7 +43,7 @@ export class LoginComponent {
         this.msgService.add({
           severity: 'error',
           summary: 'Lỗi',
-          detail: 'Sai thông tin đăng nhập!',
+          detail: err.error,
           life: 3000,
         });
       },

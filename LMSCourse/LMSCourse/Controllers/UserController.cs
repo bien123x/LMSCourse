@@ -13,9 +13,11 @@ namespace LMSCourse.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
-        public UserController(IUserService userService)
+        private readonly ISettingsService _settingsService;
+        public UserController(IUserService userService, ISettingsService settingsService)
         {
             _userService = userService;
+            _settingsService = settingsService;
         }
 
         [HttpGet("view-user/{userId:int}")]
@@ -43,6 +45,10 @@ namespace LMSCourse.Controllers
         [Authorize(Policy = PERMISSION.CreateUsers)]
         public async Task<IActionResult> AddUserDto(UserDto userDto)
         {
+            var (isValid, errors) = await _settingsService.ValidateAsync(userDto.PasswordHash);
+
+            if (!isValid)
+                return BadRequest(new { Errors = errors });
             var userAdd = await _userService.AddUserAsync(userDto);
             if (userAdd == null) return BadRequest("Tên đang nhập/Email đã tồn tại!");
             return Ok(userAdd);
@@ -109,6 +115,7 @@ namespace LMSCourse.Controllers
         }
 
         [HttpPost("users")]
+        [Authorize(Policy = PERMISSION.ViewUsers)]
         public async Task<ActionResult<PagedResult<ViewUserDto>>> GetPagedUsers([FromBody] QueryDto query)
         {
             var result = await _userService.GetPagedUsers(query);

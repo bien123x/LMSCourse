@@ -1,5 +1,6 @@
+import { join } from 'node:path';
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { MenuItem, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -17,6 +18,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { DeleteConfirmComponent } from '../../../shared/delete-confirm/delete-confirm';
 import { FilterField, QueryDto, SortField } from '../../../core/models/query-model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-users',
@@ -36,47 +38,56 @@ import { FilterField, QueryDto, SortField } from '../../../core/models/query-mod
   ],
   providers: [MessageService, DialogService],
 })
-export class UsersComponent implements OnInit {
+export class UsersComponent implements OnInit, OnDestroy {
   private dialogSerive = inject(DialogService);
   private msgService = inject(MessageService);
   private userService = inject(UserService);
+  getUserApi = new Subscription();
 
   users = signal<ViewUserDto[]>([]);
   totalRecords = signal<number>(0);
   pageSize = signal<number>(4);
-  loading = signal<boolean>(false);
+  loading = false;
   currentUser = signal<ViewUserDto | undefined>(undefined);
 
   ref = signal<DynamicDialogRef | undefined>(undefined);
 
   menuItems = signal<MenuItem[]>([]);
 
-  visibleResetPwd = signal<boolean>(false);
+  visibleResetPwd = false;
   resetPwd: ResetPasswordDto = { passwordHash: '' };
-  userT: any;
-  i = 1;
 
   ngOnInit(): void {
     // this.userService.getViewUsers().subscribe((res: any) => {
     //   this.users.set(res);
     //   console.log(this.users());
     // });
-    this.loadUsers({ first: 0, rows: this.pageSize });
+    this.loadUsers({
+      first: 0,
+      rows: 4,
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.getUserApi.unsubscribe();
   }
 
   loadUsers(event: any) {
-    const pageNumber = event.first / event.rows + 1;
-    const pageSize = event.rows;
-    this.loading.set(true);
-
-    const sorts: SortField[] = (event.multiSortMeta ?? []).map((s: any) => ({
-      field: s.field,
-      order: s.order === 1 ? 'asc' : 'desc',
-    }));
-
-    // filters
+    // console.log('Event:', event);
+    const pageNumber = event?.first != null && event?.rows ? event.first / event.rows + 1 : 1;
+    this.pageSize.set(event.rows);
+    this.loading = true;
+    let sorts: SortField[] = [];
+    if (event.multiSortMeta) {
+      sorts = event.multiSortMeta.map((s: any) => ({
+        field: s.field,
+        order: s.order === 1 ? 'asc' : 'desc',
+      }));
+    }
+    // console.log(sorts);
+    // // filters
     const filters: FilterField[] = [];
-    if (event.filters) {
+    if (event.filters && Object.keys(event.filters).length > 0) {
       for (const key of Object.keys(event.filters)) {
         const f = event.filters[key];
         if (f && f.value) {
@@ -84,13 +95,23 @@ export class UsersComponent implements OnInit {
         }
       }
     }
-
-    const query: QueryDto = { pageNumber, pageSize, sorts, filters };
-
-    this.userService.getViewUsersPagination(query).subscribe((res) => {
-      this.users.set(res.items);
-      this.totalRecords.set(res.totalCount);
-      this.loading.set(false);
+    const query: QueryDto = {
+      pageNumber: pageNumber,
+      pageSize: this.pageSize(),
+      sorts: sorts,
+      filters: filters,
+    };
+    // console.log('Query:', query);
+    this.getUserApi = this.userService.getViewUsersPagination(query).subscribe({
+      next: (res) => {
+        console.log(res);
+        this.users.set(res.items);
+        this.totalRecords.set(res.totalCount);
+        this.loading = false;
+      },
+      error: (err) => {
+        console.log('Request thất bại, nhưng không hiển thị 401 trên console');
+      },
     });
   }
 
@@ -145,7 +166,7 @@ export class UsersComponent implements OnInit {
             this.msgService.add({
               severity: 'success',
               summary: 'Thành công',
-              detail: `Phân quyền thành công`,
+              detail: `Xoá người dùng thành công`,
             });
             this.users.update((oUsers) => oUsers.filter((u) => u.userId !== viewUser.userId));
           },
@@ -159,7 +180,7 @@ export class UsersComponent implements OnInit {
 
   clickVisibleResetPwd() {
     this.resetPwd.passwordHash = '';
-    this.visibleResetPwd.set(true);
+    this.visibleResetPwd = true;
   }
 
   resetPassword(viewUser: ViewUserDto) {
@@ -167,7 +188,7 @@ export class UsersComponent implements OnInit {
     console.log(this.resetPwd);
     this.userService.resetPassword(viewUser.userId, this.resetPwd).subscribe({
       next: () => {
-        this.visibleResetPwd.set(false);
+        this.visibleResetPwd = false;
       },
       error: (err) => {
         console.log(err);
@@ -245,6 +266,12 @@ export class UsersComponent implements OnInit {
               this.users.update((oUsers) =>
                 oUsers.map((u) => (u.userId === viewUser.userId ? editUserDto : u))
               );
+              if (editUserDto.isActive === false) {
+                this.users.update((oUsers) =>
+                  oUsers.filter((u) => u.userId !== editUserDto.userId)
+                );
+                this.totalRecords.update((oTotal) => oTotal - 1);
+              }
             },
             error: (err) => {
               console.log(err);
@@ -273,10 +300,21 @@ export class UsersComponent implements OnInit {
               this.users.update((oUsers) => [...oUsers, viewUserDto]);
             },
             error: (err) => {
-              console.log(err);
+              if (err.error.errors) {
+                this.msgService.add({
+                  severity: 'error',
+                  summary: 'Lỗi',
+                  detail: err.error.errors.join('\n'),
+                });
+              } else if (err.error) {
+                this.msgService.add({
+                  severity: 'error',
+                  summary: 'Lỗi',
+                  detail: err.error,
+                });
+              }
             },
           });
-          console.log(res);
         }
       });
     });

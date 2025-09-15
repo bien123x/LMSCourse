@@ -4,36 +4,31 @@
     <h1 class="font-black text-[25px]">Người dùng</h1>
     <p-button label="Thêm người dùng" (onClick)="newUser()"></p-button>
   </div>
-
   <p-table
     #dt
     [value]="users()"
-    [lazy]="true"
-    [paginator]="true"
-    [loading]="loading()"
-    [sortMode]="'multiple'"
-    [scrollable]="true"
-    [rows]="pageSize()"
-    [totalRecords]="totalRecords()"
-    (onLazyLoad)="loadUsers($event)"
     class="rounded-xl overflow-hidden"
-    scrollHeight="800px"
+    lazy="true"
+    paginator="true"
+    sortMode="multiple"
+    [totalRecords]="totalRecords()"
+    [rows]="pageSize()"
+    (onLazyLoad)="loadUsers($event)"
+    [scrollable]="true"
+    scrollHeight="650px"
   >
     <ng-template #header>
       <tr>
         <th>Thao tác</th>
+        @if (users().length > 0) {
         <th pSortableColumn="userName">
-          <div class="flex items-center gap-2">
-            Tên tài khoản
-            <p-sortIcon field="userName" />
-          </div>
+          Tên tài khoản
+          <p-sortIcon field="userName"></p-sortIcon>
         </th>
-        <th pSortableColumn="email">
-          <div class="flex items-center gap-2">
-            Email
-            <p-sortIcon field="email" />
-          </div>
-        </th>
+        } @else {
+        <th>Tên tài khoản</th>
+        }
+        <th>Email</th>
         <th>Quyền</th>
         <th>Số điện thoại</th>
         <th>Họ</th>
@@ -115,7 +110,7 @@
     </div>
 
     <div class="flex justify-end gap-1">
-      <p-button label="Đóng" (onClick)="visibleResetPwd.set(false)"></p-button>
+      <p-button label="Đóng" (onClick)="visibleResetPwd = false"></p-button>
       <p-button label="Lưu" type="submit" [disabled]="resetPwdForm.invalid"></p-button>
     </div>
   </form>

@@ -6,7 +6,6 @@ using LMSCourse.Models;
 using LMSCourse.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
-using System.Linq.Expressions;
 
 namespace LMSCourse.Repositories
 {
@@ -137,7 +136,7 @@ namespace LMSCourse.Repositories
 
         public async Task<LMSCourse.DTOs.Page.PagedResult<User>> GetPagedUsersAsync(QueryDto query)
         {
-            var users = _context.Users
+            var users = _context.Users.Where(u => u.IsActive == true)
                                 .Include(u => u.UserRoles)
                                 .ThenInclude(ur => ur.Role)
                                 .AsQueryable();
