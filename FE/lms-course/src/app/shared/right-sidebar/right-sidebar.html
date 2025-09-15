@@ -1,7 +1,12 @@
-@if (isLoggedIn()) {
-<p-button (click)="menu.toggle($event)" label="Tài khoản"> </p-button>
-<p-menu #menu [model]="items()" [popup]="true" />
+<div class="">
+  <h1 class="font-black text-[25px] text-center">Account</h1>
+  <div class="w-full md:w-30">
+    @if (isLoggedIn()) {
+    <p-button (click)="menu.toggle($event)" label="Tài khoản"> </p-button>
+    <p-menu #menu [model]="items()" [popup]="true" />
 
-} @else {
-<p-button (onClick)="goToLogin()" label="Đăng nhập"> </p-button>
-}
+    } @else {
+    <p-button (onClick)="goToLogin()" label="Đăng nhập"> </p-button>
+    }
+  </div>
+</div>

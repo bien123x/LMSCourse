@@ -21,7 +21,6 @@ export class RightSidebarComponent implements OnInit {
     if (this.isLoggedIn()) {
       this.authService.loadCurrentUser().subscribe((res) => {
         this.user.set(res);
-        console.log(res);
       });
     }
     this.items.set([

@@ -33,6 +33,9 @@ namespace LMSCourse.Mapper
                     opt => opt.MapFrom(src => src.UserRoles.Select(ur => ur.Role.RoleName).ToList()));
 
             CreateMap<EditUserDto, User>();
+
+            CreateMap<PasswordPolicy, PasswordPolicy>()
+                .ForMember(dest => dest.PasswordPolicyId, opt => opt.Ignore());
         }
     } 
 }

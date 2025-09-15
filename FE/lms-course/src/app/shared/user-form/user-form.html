@@ -46,10 +46,13 @@
             />
             <label for="passwordHash">Mật khẩu</label>
           </p-ifta-label>
-          @if (passwordHash?.invalid && (passwordHash?.touched || passwordHash?.dirty) ) {
+          @if (passwordHash?.invalid && (passwordHash?.touched || passwordHash?.dirty) ) { @if
+          (passwordHash?.hasError('required')) {
           <small class="text-red-500">Mật khẩu bắt buộc</small>
-          } }
-
+          }} @if (passwordHash?.hasError('passwordPolicy')) { @for (item of
+          passwordHash?.getError('passwordPolicy'); track $index) {
+          <small class="text-red-500">{{ item }}</small>
+          } }}
           <p-ifta-label>
             <input class="w-full" pInputText name="email" id="email" formControlName="email" />
             <label for="email">Email</label>

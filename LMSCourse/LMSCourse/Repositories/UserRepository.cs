@@ -1,9 +1,11 @@
 ﻿using LMSCourse.Data;
 using LMSCourse.DTOs.Page;
+using LMSCourse.DTOs.Page_Sort_Filter;
 using LMSCourse.DTOs.User;
 using LMSCourse.Models;
 using LMSCourse.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Dynamic.Core;
 
 namespace LMSCourse.Repositories
 {
@@ -132,21 +134,50 @@ namespace LMSCourse.Repositories
                 .FirstOrDefaultAsync(u => u.UserId == userId);
         }
 
-        public async Task<PagedResult<User>> GetPagedUsersAsync(int pageNumber, int pageSize)
+        public async Task<LMSCourse.DTOs.Page.PagedResult<User>> GetPagedUsersAsync(QueryDto query)
         {
-            var query = _context.Users
+            var users = _context.Users.Where(u => u.IsActive == true)
                                 .Include(u => u.UserRoles)
                                 .ThenInclude(ur => ur.Role)
                                 .AsQueryable();
 
-            var totalCount = await query.CountAsync();
+            foreach (var filter in query.Filters)
+            {
 
-            var items = await query
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
+                if (string.IsNullOrWhiteSpace(filter.Value)) continue;
+
+                switch (filter.Field.ToLower())
+                {
+                    case "username":
+                        users = users.Where(u => u.UserName.Contains(filter.Value));
+                        break;
+                    case "email":
+                        users = users.Where(u => u.Email.Contains(filter.Value));
+                        break;
+                    case "role":
+                        users = users.Where(u => u.UserRoles.Select(ur => ur.Role.RoleName).Contains(filter.Value));
+                        break;
+                }
+            }
+
+            // --- total count trước khi paging ---
+            var totalCount = await users.CountAsync();
+
+            if (query.Sorts != null && query.Sorts.Count > 0)
+            {
+                // Tạo chuỗi sort để System.Linq.Dynamic.Core đọc được
+                // Ví dụ: "UserName asc, Email desc"
+                var sortString = string.Join(", ", query.Sorts.Select(s => $"{s.Field} {s.Order}"));
+                users = users.OrderBy(sortString); // OrderBy của System.Linq.Dynamic.Core
+            }
+
+            // --- pagination ---
+            var items = await users
+                .Skip((query.PageNumber - 1) * query.PageSize)
+                .Take(query.PageSize)
                 .ToListAsync();
 
-            return new PagedResult<User>
+            return new LMSCourse.DTOs.Page.PagedResult<User>
             {
                 Items = items,
                 TotalCount = totalCount

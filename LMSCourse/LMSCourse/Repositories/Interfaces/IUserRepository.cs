@@ -1,6 +1,8 @@
 ﻿using LMSCourse.DTOs.Page;
+using LMSCourse.DTOs.Page_Sort_Filter;
 using LMSCourse.DTOs.User;
 using LMSCourse.Models;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace LMSCourse.Repositories.Interfaces
 {
@@ -29,6 +31,6 @@ namespace LMSCourse.Repositories.Interfaces
         Task<IEnumerable<Permission>> GetPermissionsByPermissionsName(List<string> permissionsName);
         Task SaveChangesAsync();
         Task<User?> GetWithUserRolesAndUserPermissions(int userId);
-        Task<PagedResult<User>> GetPagedUsersAsync(int pageNumber, int pageSize);
+        Task<PagedResult<User>> GetPagedUsersAsync(QueryDto query);
     }
 }

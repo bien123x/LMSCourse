@@ -1,4 +1,5 @@
-﻿using LMSCourse.Models;
+﻿using LMSCourse.Migrations;
+using LMSCourse.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OnlineCourseConstants;
@@ -16,6 +17,7 @@ namespace LMSCourse.Data
         public DbSet<RolePermission> RolePermissions { get; set; }
         public DbSet<UserPermission> UserPermissions { get; set; }
 
+        public DbSet<PasswordPolicy> PasswordPolicies { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -163,6 +165,20 @@ namespace LMSCourse.Data
                         UserRoleId = 1,
                         UserId = 1, // Admin User
                         RoleId = 1 // Admin
+                    }
+                );
+
+            modelBuilder.Entity<PasswordPolicy>()
+                .HasData(
+                    new PasswordPolicy
+                    {
+                        PasswordPolicyId = 1,
+                        MinLength = 6,
+                        RequiredUniqueChars = 3,
+                        RequireDigit = true,
+                        RequireLowercase = true,
+                        RequireUppercase = true,
+                        RequireNonAlphanumeric = true,
                     }
                 );
         }

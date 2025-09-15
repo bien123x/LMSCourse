@@ -1,11 +1,11 @@
+<!-- <p-drawer [(visible)]="showDrawer" position="left">
+  <h3>My Drawer Content</h3>
+</p-drawer> -->
+
+<!-- <button pButton type="button" label="Open Drawer" (click)="showDrawer = true"></button> -->
 <div class="">
   <h1 class="font-black text-[25px] text-center">LMS Course</h1>
   <div>
-    <p-tree
-      [value]="files"
-      class="w-full md:w-[30rem]"
-      selectionMode="single"
-      (onNodeSelect)="nodeSelect($event)"
-    />
+    <p-panelmenu [model]="items" class="w-full md:w-80" />
   </div>
 </div>
