@@ -79,9 +79,16 @@ namespace LMSCourse.Services
 
             user.PasswordHash = _passwordHasher.HashPassword(user, dto.PasswordHash);
 
+            user.EmailVerificationToken = Guid.NewGuid().ToString();
+            user.EmailVerificationTokenExpires = DateTime.UtcNow.AddHours(24);
+
             if (!await _userRepository.CheckExistUserNameOrEmail(dto.UserName) || !await _userRepository.CheckExistUserNameOrEmail(dto.Email))
             {
                 await _userRepository.AddAsync(user);
+
+                //var verifyLink = $"https://yourdomain.com/api/account/verify-email?token={user.EmailVerificationToken}&email={user.Email}";
+                //await _emailService.SendEmailAsync(user.Email, "Verify your email", $"Click here to verify: {verifyLink}");
+
                 return user;
             }
             return null;

@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+import { Routes, CanActivate } from '@angular/router';
 import { HomeComponent } from './features/home/home';
 import { LoginComponent } from './features/auth/login/login';
 import { AuthComponent } from './features/auth/auth.component';
@@ -8,6 +8,8 @@ import { IdentityComponent } from './features/identity/identity';
 import { RolesComponent } from './features/identity/roles/roles';
 import { UsersComponent } from './features/identity/users/users';
 import { SettingsComponent } from './features/settings/settings';
+import { AuthGuard } from './core/guards/auth-guard';
+import { RoleGuard } from './core/guards/role-guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -21,7 +23,12 @@ export const routes: Routes = [
       { path: 'users', component: UsersComponent },
     ],
   },
-  { path: 'settings', component: SettingsComponent },
+  {
+    path: 'settings',
+    component: SettingsComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['Admin'] },
+  },
   {
     path: 'auth',
     component: AuthComponent,

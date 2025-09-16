@@ -12,3 +12,9 @@ export interface RegisterDto {
 export interface RefreshRequestDto {
   refreshToken: string;
 }
+
+export interface DecodedToken {
+  roles: string[];
+  permissions: string[];
+  exp: number;
+}
