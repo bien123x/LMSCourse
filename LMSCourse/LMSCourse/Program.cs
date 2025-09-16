@@ -8,9 +8,9 @@ using LMSCourse.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using OnlineCourseConstants;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -59,70 +59,8 @@ builder.Services.AddCors(options =>
                         .AllowAnyMethod());
 });
 
-builder.Services.AddAuthorization(options =>
-{
-    // User
-    options.AddPolicy(PERMISSION.ViewUsers, policy =>
-        policy.RequireClaim("Permission", PERMISSION.ViewUsers));
-    options.AddPolicy(PERMISSION.CreateUsers, policy =>
-        policy.RequireClaim("Permission", PERMISSION.CreateUsers));
-    options.AddPolicy(PERMISSION.EditUsers, policy =>
-        policy.RequireClaim("Permission", PERMISSION.EditUsers));
-    options.AddPolicy(PERMISSION.DeleteUsers, policy =>
-        policy.RequireClaim("Permission", PERMISSION.DeleteUsers));
 
-    // Roles
-    options.AddPolicy(PERMISSION.ViewRoles, policy =>
-        policy.RequireClaim("Permission", PERMISSION.ViewRoles));
-    options.AddPolicy(PERMISSION.CreateRoles, policy =>
-        policy.RequireClaim("Permission", PERMISSION.CreateRoles));
-    options.AddPolicy(PERMISSION.EditRoles, policy =>
-        policy.RequireClaim("Permission", PERMISSION.EditRoles));
-    options.AddPolicy(PERMISSION.DeleteRoles, policy =>
-        policy.RequireClaim("Permission", PERMISSION.DeleteRoles));
 
-    // Courses
-    options.AddPolicy(PERMISSION.ViewCourses, policy =>
-        policy.RequireClaim("Permission", PERMISSION.ViewCourses));
-    options.AddPolicy(PERMISSION.CreateCourses, policy =>
-        policy.RequireClaim("Permission", PERMISSION.CreateCourses));
-    options.AddPolicy(PERMISSION.EditCourses, policy =>
-        policy.RequireClaim("Permission", PERMISSION.EditCourses));
-    options.AddPolicy(PERMISSION.DeleteCourses, policy =>
-        policy.RequireClaim("Permission", PERMISSION.DeleteCourses));
-
-    // Lessons
-    options.AddPolicy(PERMISSION.ViewLessons, policy =>
-        policy.RequireClaim("Permission", PERMISSION.ViewLessons));
-    options.AddPolicy(PERMISSION.CreateLessons, policy =>
-        policy.RequireClaim("Permission", PERMISSION.CreateLessons));
-    options.AddPolicy(PERMISSION.EditLessons, policy =>
-        policy.RequireClaim("Permission", PERMISSION.EditLessons));
-    options.AddPolicy(PERMISSION.DeleteLessons, policy =>
-        policy.RequireClaim("Permission", PERMISSION.DeleteLessons));
-
-    // Enrollments
-    options.AddPolicy(PERMISSION.ViewEnrollments, policy =>
-        policy.RequireClaim("Permission", PERMISSION.ViewEnrollments));
-    options.AddPolicy(PERMISSION.ManageEnrollments, policy =>
-        policy.RequireClaim("Permission", PERMISSION.ManageEnrollments));
-
-    // Payments
-    options.AddPolicy(PERMISSION.ViewPayments, policy =>
-        policy.RequireClaim("Permission", PERMISSION.ViewPayments));
-    options.AddPolicy(PERMISSION.ManagePayments, policy =>
-        policy.RequireClaim("Permission", PERMISSION.ManagePayments));
-
-    // Logs
-    options.AddPolicy(PERMISSION.ViewLogs, policy =>
-        policy.RequireClaim("Permission", PERMISSION.ViewLogs));
-
-    // System PERMISSION
-    options.AddPolicy(PERMISSION.ViewPermissions, policy =>
-        policy.RequireClaim("Permission", PERMISSION.ViewPermissions));
-    options.AddPolicy(PERMISSION.ManagePermissions, policy =>
-        policy.RequireClaim("Permission", PERMISSION.ManagePermissions));
-});
 
 
 //Thêm DbContext (SQL Server)
@@ -139,13 +77,14 @@ builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<ISettingsRepository, SettingsRepository>();
 builder.Services.AddScoped<ISettingsService, SettingsService>();
-
+builder.Services.AddScoped<IPermissionsRepository, PermissionsRepository>();
 
 //JWT
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
 })
 .AddJwtBearer(options =>
 {
@@ -164,9 +103,13 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+
+
 builder.Services.AddAutoMapper(typeof(AppProfile));
 
 var app = builder.Build();
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -184,5 +127,25 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+await using (var scope = app.Services.CreateAsyncScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await DbInitializer.InitializeAsync(context);
+
+    var permissionRepo = scope.ServiceProvider.GetRequiredService<IPermissionsRepository>();
+    var permissions = await permissionRepo.GetAllAsync();
+
+    var authOptions = scope.ServiceProvider
+    .GetRequiredService<IOptions<Microsoft.AspNetCore.Authorization.AuthorizationOptions>>()
+    .Value;
+    foreach (var perm in permissions)
+    {
+        authOptions.AddPolicy(perm.PermissionName, policy =>
+            policy.RequireClaim("Permission", perm.PermissionName));
+    }
+
+    
+}
 
 app.Run();

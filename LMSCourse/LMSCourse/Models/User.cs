@@ -8,6 +8,12 @@
         public string? Name { get; set; } = string.Empty;
         public string? Surname { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
+
+        // Email verification
+        public bool IsEmailConfirmed { get; set; } = false;
+        public string EmailVerificationToken { get; set; } = string.Empty;
+        public DateTime? EmailVerificationTokenExpires { get; set; }
+
         public string PhoneNumber { get; set; } = string.Empty;
         public bool IsActive { get; set; } = true;
         public string CreatedBy { get; set; } = string.Empty;

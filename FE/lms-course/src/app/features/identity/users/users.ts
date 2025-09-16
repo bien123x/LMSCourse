@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal, Directive } from '@angular/core';
 import { MenuItem, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -19,6 +19,7 @@ import { PasswordModule } from 'primeng/password';
 import { DeleteConfirmComponent } from '../../../shared/delete-confirm/delete-confirm';
 import { FilterField, QueryDto, SortField } from '../../../core/models/query-model';
 import { Subscription } from 'rxjs';
+import { HasPermissionDirective } from '../../../core/directives/has-permission-directive';
 
 @Component({
   selector: 'app-users',
@@ -35,6 +36,7 @@ import { Subscription } from 'rxjs';
     FormsModule,
     InputTextModule,
     PasswordModule,
+    HasPermissionDirective,
   ],
   providers: [MessageService, DialogService],
 })
