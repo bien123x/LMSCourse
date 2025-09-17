@@ -38,5 +38,14 @@ namespace LMSCourse.Controllers
 
             return Ok(new { isValid, errors });
         }
+
+        [HttpGet("user-policy")]
+        public async Task<IActionResult> GetUserSettingAsync()
+        {
+            var userPolicy = await _service.GetUserSettingAsync();
+
+            return Ok(userPolicy);
+        }
+
     }
 }

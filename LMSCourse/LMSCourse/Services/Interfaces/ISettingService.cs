@@ -16,5 +16,7 @@ namespace LMSCourse.Services.Interfaces
         Task<ApiResponse<LockoutAccountDto>> IsLockOutAsync(DateTime? lockoutEndTime, int failedAccessCount);
 
         Task<UserSettingDto> GetUserSettingAsync();
+
+        Task<ApiResponse<ConfirmEmailDto>> IsConfirmEmailAsync(bool isEmailConfirm);
     }
 }

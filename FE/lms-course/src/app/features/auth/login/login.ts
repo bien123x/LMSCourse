@@ -115,7 +115,15 @@ export class LoginComponent implements OnInit {
             detail: err.error.message,
             life: 3000,
           });
-        } else {
+        } else if (err.error.success) {
+          this.msgService.add({
+            severity: 'info',
+            summary: 'Thông tin',
+            detail: err.error.message,
+            life: 3000,
+          });
+        }
+        if (!err.error.success) {
           this.msgService.add({
             severity: 'error',
             summary: 'Lỗi',

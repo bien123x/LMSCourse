@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { PasswordPolicy } from '../models/settings-model';
+import { PasswordPolicy, UserPolicy } from '../models/settings-model';
 
 @Injectable({
   providedIn: 'root',
@@ -23,5 +23,9 @@ export class SettingsService {
     return this.http.post<any>(`${this.apiUrl}`, JSON.stringify(password), {
       headers: { 'Content-Type': 'application/json' },
     });
+  }
+
+  getUserPolicy(): Observable<UserPolicy> {
+    return this.http.get<any>(`${this.apiUrl}/user-policy`);
   }
 }

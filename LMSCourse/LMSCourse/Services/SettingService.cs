@@ -121,5 +121,28 @@ namespace LMSCourse.Services
                 IsEmailUpdateEnabled = userSetting.IsEmailUpdateEnabled,
             };
         }
+
+        public async Task<ApiResponse<ConfirmEmailDto>> IsConfirmEmailAsync(bool isEmailConfirm)
+        {
+            var identitySetting = await _repository.GetIdentityAsync();
+
+
+
+            var signInPolicy = identitySetting.SignIn;
+
+            if (signInPolicy.RequireConfirmedEmail)
+            {
+                if (!isEmailConfirm)
+                {
+                    // Confirm Email
+                    return ApiResponse<ConfirmEmailDto>.Ok(new ConfirmEmailDto
+                    {
+                        IsConfirmEmail = true
+                    }, "Đã gửi link xác thực vào Email của bạn");
+                }
+            }
+
+            return ApiResponse<ConfirmEmailDto>.Fail("Bạn đã xác thực Email!");
+        }
     }
 }

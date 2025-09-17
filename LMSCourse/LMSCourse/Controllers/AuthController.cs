@@ -21,12 +21,14 @@ namespace LMSCourse.Controllers
         private readonly TokenService _tokenService;
         private readonly IUserService _userService;
         private readonly ISettingService _settingsService;
+        private readonly IEmailService _emailService;
 
-        public AuthController(TokenService tokenService, IUserService userService, ISettingService settingsService)
+        public AuthController(TokenService tokenService, IUserService userService, ISettingService settingsService, IEmailService emailService)
         {
             this._tokenService = tokenService;
             this._userService = userService;
             _settingsService = settingsService;
+            _emailService = emailService;
         }
 
         [HttpPost("login")]
@@ -40,6 +42,7 @@ namespace LMSCourse.Controllers
             }
             if (!user.IsActive)
                 return BadRequest("Tài khoản đã bị khoá!");
+
             if (user.LockoutEndTime != null && user.LockoutEndTime > DateTime.Now)
                 return BadRequest($"Tài khoản đã bị khoá đến {user.LockoutEndTime}!");
             else if (user.LockoutEndTime != null)
@@ -48,7 +51,6 @@ namespace LMSCourse.Controllers
                 await _userService.ResetFailAccessCount(user.UserId);
 
             }
-
 
             if (!_userService.VerifyPassword(user, dto.Password))
             {
@@ -72,6 +74,22 @@ namespace LMSCourse.Controllers
             // Check force periodically change password
             if (await _settingsService.IsPasswordExpiration(user.PasswordUpdateTime))
                 return Ok(new { requirePasswordChange = true, userId = user.UserId });
+
+            var resEmailConfirm = await _settingsService.IsConfirmEmailAsync(user.IsEmailConfirmed);
+            if (resEmailConfirm.Success)
+            {
+                user.TokenEmailExpires = DateTime.Now.AddMinutes(30);
+                user.TokenEmail = Guid.NewGuid().ToString();
+                await _userService.UpdateUserAsync(user);
+                var verifyLink = $"https://localhost:7202/Auth/verify-email?token={user.TokenEmail}";
+
+                string htmlMessage = $@"
+                    <p>Nhấn nút bên dưới để xác minh tài khoản:</p>
+                    <a href='{verifyLink}' style='display:inline-block;padding:10px 20px;background-color:#4CAF50;color:white;text-decoration:none;border-radius:5px;'>Verify Email</a>
+                    ";
+                await _emailService.SendEmailAsync(user.Email, "Xác thực Email", htmlMessage);
+                return BadRequest(resEmailConfirm);
+            }
 
             var accessToken = _tokenService.GenerateAccessToken(user);
             var refreshToken = _tokenService.GenerateRefreshToken(user);
