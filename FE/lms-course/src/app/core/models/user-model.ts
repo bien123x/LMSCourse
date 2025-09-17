@@ -45,3 +45,9 @@ export interface UserPermissionsDto {
 export interface ResetPasswordDto {
   passwordHash: string;
 }
+
+export interface ChangePasswordDto {
+  nowPassword: string;
+  newPassword: string;
+  confirmNewPassword: string;
+}

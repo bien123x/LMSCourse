@@ -11,12 +11,12 @@ export class SettingsService {
 
   private http = inject(HttpClient);
 
-  getPasswordPolicy(): Observable<PasswordPolicy> {
-    return this.http.get<PasswordPolicy>(`${this.apiUrl}`);
+  getIdentitySetting(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/identity`);
   }
 
-  updatePasswordPolicy(passwordPolicy: PasswordPolicy): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}`, passwordPolicy);
+  updateIdentitySetting(identitySettingDto: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/identity`, identitySettingDto);
   }
 
   validatePassword(password: string): Observable<any> {

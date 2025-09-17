@@ -3,26 +3,34 @@
   <div class="font-black text-[25px]"><h1>Settings</h1></div>
   <div class="flex flex-row bg-white">
     <div class="border-r-4 border-r-blue-200"><p-menu [model]="items"> </p-menu></div>
-    <div class="w-full">
+    <div class="">
       @if (menuSelect === 'account') {
 
       <div><h1>Chung</h1></div>
 
       } @else if (menuSelect === 'identity') {
-      <p-tabs value="0">
-        <p-tablist>
-          <p-tab value="0">Chính sách mật khẩu</p-tab>
-          <p-tab value="1">Chung</p-tab>
-        </p-tablist>
-        <p-tabpanels>
-          <p-tabpanel value="0">
-            <div class="flex flex-col">
-              <div class="font-bold"><h1>Cài đặt độ mạnh của mật khẩu</h1></div>
-              <div>
-                <form [formGroup]="form" (ngSubmit)="onSave()" class="flex flex-col gap-2">
+      <form [formGroup]="form" (ngSubmit)="onSave()">
+        <p-tabs value="0">
+          <p-tablist>
+            <p-tab value="0">Chính sách mật khẩu</p-tab>
+            <p-tab value="1">Khoá</p-tab>
+            <p-tab value="2">Xác minh danh tính</p-tab>
+            <p-tab value="3">Thông tin người dùng</p-tab>
+          </p-tablist>
+          <p-tabpanels>
+            <!-- Password Policy -->
+            <p-tabpanel value="0">
+              <div class="flex flex-col gap-5" formGroupName="password">
+                <div class="flex flex-col gap-2">
+                  <div class="font-bold"><h1>Cài đặt độ mạnh của mật khẩu</h1></div>
+
                   <p-iftaLabel>
-                    <p-input-number formControlName="minLength" id="minLength" name="minLength" />
-                    <label for="minLength">Độ dài bắt buộc</label>
+                    <p-input-number
+                      formControlName="requiredLength"
+                      id="requiredLength"
+                      name="requiredLength"
+                    />
+                    <label for="requiredLength">Độ dài bắt buộc</label>
                   </p-iftaLabel>
                   <p-iftaLabel>
                     <p-input-number
@@ -68,15 +76,153 @@
                     />
                     <label for="requireNonAlphanumeric">Ký tự đặc biệt</label>
                   </div>
+                  <hr class="text-gray-300" />
+                </div>
+                <div class="flex flex-col gap-2">
+                  <div class="font-bold"><h1>Cài đặt gia hạn mật khẩu</h1></div>
+                  <div class="flex flex-row items-center gap-1">
+                    <p-check-box
+                      binary="true"
+                      formControlName="forceUsersToPeriodicallyChangePassword"
+                      id="forceUsersToPeriodicallyChangePassword"
+                      name="forceUsersToPeriodicallyChangePassword"
+                    />
+                    <label for="forceUsersToPeriodicallyChangePassword"
+                      >Buộc người dùng thay đổi mật khẩu định kỳ</label
+                    >
+                  </div>
 
-                  <div><button pButton type="submit" label="Lưu"></button></div>
-                </form>
+                  <p-iftaLabel>
+                    <p-input-number
+                      formControlName="passwordChangePeriodDays"
+                      id="passwordChangePeriodDays"
+                      name="passwordChangePeriodDays"
+                    />
+                    <label for="passwordChangePeriodDays">Thời gian thay đổi mật khẩu (Ngày)</label>
+                  </p-iftaLabel>
+                  @if (passwordChangePeriodDays?.invalid && (passwordChangePeriodDays?.touched ||
+                  passwordChangePeriodDays?.dirty)) { @if
+                  (passwordChangePeriodDays?.hasError('min')) {
+                  <small class="text-red-500">Không được bé hơn 0</small>
+                  } }
+                </div>
+                <hr class="text-gray-300" />
               </div>
-            </div>
-          </p-tabpanel>
-          <p-tabpanel value="1"> Chung </p-tabpanel>
-        </p-tabpanels>
-      </p-tabs>
+            </p-tabpanel>
+            <!-- Lockout -->
+            <p-tabpanel value="1">
+              <div class="flex flex-col gap-2" formGroupName="lockout">
+                <div class="font-bold">
+                  <h1>Cài đặt khoá</h1>
+                </div>
+                <div class="flex flex-row items-center gap-1">
+                  <p-check-box
+                    binary="true"
+                    formControlName="allowedForNewUsers"
+                    id="allowedForNewUsers"
+                    name="allowedForNewUsers"
+                  />
+                  <label for="allowedForNewUsers">Bật cho người dùng mới</label>
+                </div>
+
+                <p-iftaLabel>
+                  <p-input-number
+                    formControlName="lockoutDuration"
+                    id="lockoutDuration"
+                    name="lockoutDuration"
+                  />
+                  <label for="lockoutDuration">Thời lượng khoá (Giây)</label>
+                </p-iftaLabel>
+
+                <p-iftaLabel>
+                  <p-input-number
+                    formControlName="maxFailedAccessAttempts"
+                    id="maxFailedAccessAttempts"
+                    name="maxFailedAccessAttempts"
+                  />
+                  <label for="maxFailedAccessAttempts">Số lần truy cập thất bại</label>
+                </p-iftaLabel>
+              </div>
+            </p-tabpanel>
+            <!-- SignIn -->
+            <p-tabpanel value="2">
+              <div class="flex flex-col gap-2" formGroupName="signIn">
+                <div class="font-bold"><h1>Cài đặt đăng nhập</h1></div>
+                <div class="flex flex-row items-center gap-1">
+                  <p-check-box
+                    binary="true"
+                    formControlName="requireConfirmedEmail"
+                    id="requireConfirmedEmail"
+                    name="requireConfirmedEmail"
+                  />
+                  <label for="requireConfirmedEmail">Bắt buộc xác thực Email để đăng nhập</label>
+                </div>
+                <div class="flex flex-row items-center gap-1">
+                  <p-check-box
+                    binary="true"
+                    formControlName="requireEmailVerificationToRegister"
+                    id="requireEmailVerificationToRegister"
+                    name="requireEmailVerificationToRegister"
+                  />
+                  <label for="requireEmailVerificationToRegister"
+                    >Bắt buộc xác thực Email để đăng ký</label
+                  >
+                </div>
+                <div class="flex flex-row items-center gap-1">
+                  <p-check-box
+                    binary="true"
+                    formControlName="enablePhoneNumberConfirmation"
+                    id="enablePhoneNumberConfirmation"
+                    name="enablePhoneNumberConfirmation"
+                  />
+                  <label for="enablePhoneNumberConfirmation"
+                    >Cho phép người dùng xác nhận số điện thoại</label
+                  >
+                </div>
+                <div class="flex flex-row items-center gap-1">
+                  <p-check-box
+                    binary="true"
+                    formControlName="requireConfirmedPhoneNumber"
+                    id="requireConfirmedPhoneNumber"
+                    name="requireConfirmedPhoneNumber"
+                  />
+                  <label for="requireConfirmedPhoneNumber"
+                    >Bắt buộc xác thực số điện thoại để đăng nhập</label
+                  >
+                </div>
+              </div>
+            </p-tabpanel>
+            <!-- User -->
+            <p-tabpanel value="3">
+              <div class="flex flex-col" formGroupName="user">
+                <div class="font-bold"><h1>Cài đặt người dùng</h1></div>
+                <div class="flex flex-row items-center gap-1">
+                  <p-check-box
+                    binary="true"
+                    formControlName="isUserNameUpdateEnabled"
+                    id="isUserNameUpdateEnabled"
+                    name="isUserNameUpdateEnabled"
+                  />
+                  <label for="isUserNameUpdateEnabled"
+                    >Cho phép người dùng cập nhật Tên đăng nhập</label
+                  >
+                </div>
+                <div class="flex flex-row items-center gap-1">
+                  <p-check-box
+                    binary="true"
+                    formControlName="isEmailUpdateEnabled"
+                    id="isEmailUpdateEnabled"
+                    name="isEmailUpdateEnabled"
+                  />
+                  <label for="isEmailUpdateEnabled">Cho phép người dùng cập nhật Email</label>
+                </div>
+              </div>
+            </p-tabpanel>
+          </p-tabpanels>
+        </p-tabs>
+        <div><button pButton type="submit" label="Lưu"></button></div>
+      </form>
+
       }
     </div>
   </div>

@@ -1,6 +1,4 @@
-﻿using LMSCourse.Migrations;
-using LMSCourse.Models;
-using Microsoft.AspNetCore.Identity;
+﻿using LMSCourse.Models;
 using Microsoft.EntityFrameworkCore;
 using OnlineCourseConstants;
 
@@ -17,6 +15,7 @@ namespace LMSCourse.Data
         public DbSet<RolePermission> RolePermissions { get; set; }
         public DbSet<UserPermission> UserPermissions { get; set; }
 
+        public DbSet<IdentitySetting> IdentitySettings { get; set; }
         public DbSet<PasswordPolicy> PasswordPolicies { get; set; }
 
 
@@ -41,7 +40,7 @@ namespace LMSCourse.Data
                       .IsRequired();
 
                 entity.Property(u => u.CreationTime)
-                        .HasDefaultValueSql("GETDATE()"); // SQL Server, DB mặc định UTC hiện tại
+                        .HasDefaultValueSql("GETDATE()"); 
 
                 entity.Property(u => u.ModificationTime)
                        .HasDefaultValueSql("GETDATE()");

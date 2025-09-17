@@ -109,6 +109,44 @@ namespace LMSCourse.Data
                 }
                 await context.SaveChangesAsync();
             }
+
+            if (!context.IdentitySettings.Any())
+            {
+                await context.IdentitySettings.AddAsync(new IdentitySetting
+                {
+                    Password = new PasswordSetting
+                    {
+                        RequiredLength = 3,
+                        RequiredUniqueChars = 1,
+                        RequireNonAlphanumeric = false,
+                        RequireLowercase = false,
+                        RequireUppercase = false,
+                        RequireDigit = false,
+                        ForceUsersToPeriodicallyChangePassword = false,
+                        PasswordChangePeriodDays = 0,
+                    },
+                    Lockout = new LockoutSetting
+                    {
+                        AllowedForNewUsers = true,
+                        LockoutDuration = 300,
+                        MaxFailedAccessAttempts = 5
+                    },
+                    SignIn = new SignInSetting
+                    {
+                        RequireConfirmedEmail = false,
+                        RequireEmailVerificationToRegister = false,
+                        EnablePhoneNumberConfirmation = true,
+                        RequireConfirmedPhoneNumber = false,
+                    },
+                    User = new UserSetting
+                    {
+                        IsUserNameUpdateEnabled = true,
+                        IsEmailUpdateEnabled = true,
+                    }
+                });
+
+                await context.SaveChangesAsync();
+            }
         }
     }
 }

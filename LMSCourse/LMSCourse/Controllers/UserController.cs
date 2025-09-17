@@ -13,8 +13,8 @@ namespace LMSCourse.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
-        private readonly ISettingsService _settingsService;
-        public UserController(IUserService userService, ISettingsService settingsService)
+        private readonly ISettingService _settingsService;
+        public UserController(IUserService userService, ISettingService settingsService)
         {
             _userService = userService;
             _settingsService = settingsService;
@@ -120,6 +120,15 @@ namespace LMSCourse.Controllers
         {
             var result = await _userService.GetPagedUsers(query);
 
+            return Ok(result);
+        }
+
+        [HttpPut("change-password/{userId:int}")]
+        public async Task<IActionResult> ChangePasswordAsync(int userId, ChangePasswordDto dto)
+        {
+            var result = await _userService.ChangePasswordByIdAsync(userId, dto);
+            if (!result.Success)
+                return BadRequest(result);
             return Ok(result);
         }
     }

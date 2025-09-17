@@ -1,4 +1,5 @@
-﻿using LMSCourse.DTOs.Page;
+﻿using LMSCourse.DTOs;
+using LMSCourse.DTOs.Page;
 using LMSCourse.DTOs.Page_Sort_Filter;
 using LMSCourse.DTOs.User;
 using LMSCourse.Models;
@@ -27,5 +28,10 @@ namespace LMSCourse.Services.Interfaces
         Task<List<string>> UpdateUserPermissions(int userId, List<string> permissions);
         Task ResetPassword(int userId, string newPassword);
         Task<PagedResult<ViewUserDto>> GetPagedUsers(QueryDto query);
+        Task<User?> VerifyEmailByToken(string tokenEmail);
+        Task<ApiResponse<ViewUserDto>> ChangePasswordByIdAsync(int userId, ChangePasswordDto dto);
+        Task IncreaseFailAccessCount(int userId);
+        Task ResetFailAccessCount(int userId);
+        Task SetLockEndTimeAsync(int userId, int lockoutDuration);
     }
 }

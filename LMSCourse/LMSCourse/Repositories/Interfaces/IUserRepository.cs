@@ -32,5 +32,7 @@ namespace LMSCourse.Repositories.Interfaces
         Task SaveChangesAsync();
         Task<User?> GetWithUserRolesAndUserPermissions(int userId);
         Task<PagedResult<User>> GetPagedUsersAsync(QueryDto query);
+
+        Task<User?> GetByTokenEmailAsync(string tokenEmail);
     }
 }

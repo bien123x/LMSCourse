@@ -20,9 +20,9 @@ namespace LMSCourse.Controllers
     {
         private readonly TokenService _tokenService;
         private readonly IUserService _userService;
-        private readonly ISettingsService _settingsService;
+        private readonly ISettingService _settingsService;
 
-        public AuthController(TokenService tokenService, IUserService userService, ISettingsService settingsService)
+        public AuthController(TokenService tokenService, IUserService userService, ISettingService settingsService)
         {
             this._tokenService = tokenService;
             this._userService = userService;
@@ -34,14 +34,44 @@ namespace LMSCourse.Controllers
         {
             var user = await _userService.GetUserByUserNameOrEmailAsync(dto.UserNameOrEmail);
 
-            if (user == null) {
+            if (user == null)
+            {
                 return Unauthorized();
             }
-            if (!user.IsActive) 
+            if (!user.IsActive)
                 return BadRequest("Tài khoản đã bị khoá!");
+            if (user.LockoutEndTime != null && user.LockoutEndTime > DateTime.Now)
+                return BadRequest($"Tài khoản đã bị khoá đến {user.LockoutEndTime}!");
+            else if (user.LockoutEndTime != null)
+            {
+                await _userService.SetLockEndTimeAsync(user.UserId, -1);
+                await _userService.ResetFailAccessCount(user.UserId);
+
+            }
+
 
             if (!_userService.VerifyPassword(user, dto.Password))
-                return Unauthorized("Mật khẩu không đúng!");
+            {
+                var result = await _settingsService.IsLockOutAsync(user.LockoutEndTime, user.FailedAccessCount + 1);
+                // Lock
+                if (result.Success)
+                {
+                    // Set LockEndTime
+                    await _userService.SetLockEndTimeAsync(user.UserId, result.Data.LockoutDuration);
+                    return Ok(result);
+                }
+                // Update Count Access Fail
+                await _userService.IncreaseFailAccessCount(user.UserId);
+                return BadRequest(result);
+            }
+            else
+            {
+                await _userService.ResetFailAccessCount(user.UserId);
+            }
+
+            // Check force periodically change password
+            if (await _settingsService.IsPasswordExpiration(user.PasswordUpdateTime))
+                return Ok(new { requirePasswordChange = true, userId = user.UserId });
 
             var accessToken = _tokenService.GenerateAccessToken(user);
             var refreshToken = _tokenService.GenerateRefreshToken(user);
@@ -64,10 +94,22 @@ namespace LMSCourse.Controllers
             var user = await _userService.RegisterUserAsync(dto);
 
 
-            if (user != null) {
-                return Ok(user);
+            if (user != null)
+            {
+                return Ok("");
             }
             return BadRequest("Tên đăng nhập/Email đã tồn tại!");
+        }
+
+        [HttpGet("verify-email")]
+        public async Task<IActionResult> VerifyEmail(string token)
+        {
+            var user = await _userService.VerifyEmailByToken(token);
+
+            if (user == null)
+                return BadRequest("Không hợp lệ.");
+
+            return Ok("Xác thực Email thành công.");
         }
 
         [HttpPost("refresh")]

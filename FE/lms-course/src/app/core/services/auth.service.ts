@@ -79,12 +79,14 @@ export class AuthService {
   login(loginDto: LoginDto): Observable<any> {
     return this.http.post<LoginDto>(`${this.apiUrl}/login`, loginDto).pipe(
       tap((res: any) => {
-        const token = res.accessToken.result;
-        localStorage.setItem(this.accessTokenKey, res.accessToken.result);
-        localStorage.setItem(this.refreshTokenKey, res.refreshToken);
+        if (res.accessToken.result) {
+          const token = res.accessToken.result;
+          localStorage.setItem(this.accessTokenKey, res.accessToken.result);
+          localStorage.setItem(this.refreshTokenKey, res.refreshToken);
 
-        this.loggedIn.set(true);
-        this.decodeAndSetClaims(token);
+          this.loggedIn.set(true);
+          this.decodeAndSetClaims(token);
+        }
       })
     );
   }
