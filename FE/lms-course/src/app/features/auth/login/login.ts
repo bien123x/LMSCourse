@@ -106,20 +106,29 @@ export class LoginComponent implements OnInit {
         }
       },
       error: (err) => {
-        console.log(err);
-        //Toast
-        if (!err.error.success) {
-          this.msgService.add({
-            severity: 'error',
-            summary: 'Lỗi',
-            detail: err.error.message,
-            life: 3000,
-          });
-        } else if (err.error.success) {
+        const errorBody = err?.error; // dùng optional chaining
+
+        if (errorBody && typeof errorBody === 'object' && 'success' in errorBody) {
+          if (errorBody.success == false) {
+            this.msgService.add({
+              severity: 'error',
+              summary: 'Lỗi',
+              detail: errorBody.message,
+              life: 3000,
+            });
+          } else if (errorBody.success == true) {
+            this.msgService.add({
+              severity: 'info',
+              summary: 'Thông tin',
+              detail: errorBody.message,
+              life: 3000,
+            });
+          }
+        } else {
           this.msgService.add({
             severity: 'info',
             summary: 'Thông tin',
-            detail: err.error.message,
+            detail: err.error,
             life: 3000,
           });
         }

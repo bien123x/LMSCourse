@@ -49,7 +49,7 @@ export class LeftSidebarComponent implements OnInit {
           {
             label: 'Nhật ký',
             icon: 'pi pi-book',
-            command: () => this.router.navigate(['/logs']),
+            command: () => this.router.navigate(['/audit-logs']),
           },
           {
             label: 'Cài đặt',

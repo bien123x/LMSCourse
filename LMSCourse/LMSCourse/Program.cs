@@ -1,4 +1,5 @@
 ﻿using LMSCourse.Data;
+using LMSCourse.Interfaces;
 using LMSCourse.Mapper;
 using LMSCourse.Models;
 using LMSCourse.Repositories;
@@ -79,6 +80,9 @@ builder.Services.AddScoped<ISettingRepository, SettingRepository>();
 builder.Services.AddScoped<ISettingService, SettingService>();
 builder.Services.AddScoped<IPermissionsRepository, PermissionsRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+
 
 //JWT
 builder.Services.AddAuthentication(options =>
@@ -123,8 +127,8 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowAngular");
 
-
 app.UseAuthentication();
+app.UseMiddleware<AuditLogMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -22,5 +22,6 @@
         public int FailedAccessCount { get; set; } = 0;
         public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
         public ICollection<UserPermission> UserPermissions { get; set; } = new List<UserPermission>();
+        public ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
     }
 }

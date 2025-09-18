@@ -39,7 +39,7 @@ namespace LMSCourse.Controllers
 
             if (user == null)
             {
-                return Unauthorized();
+                return Unauthorized("Tài khoản không tồn tại.");
             }
             if (!user.IsActive)
                 return BadRequest("Tài khoản đã bị khoá!");
@@ -61,7 +61,7 @@ namespace LMSCourse.Controllers
                 {
                     // Set LockEndTime
                     await _userService.SetLockEndTimeAsync(user.UserId, result.Data.LockoutDuration);
-                    return Ok(result);
+                    return BadRequest(result);
                 }
                 // Update Count Access Fail
                 await _userService.IncreaseFailAccessCount(user.UserId);

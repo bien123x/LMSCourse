@@ -17,6 +17,7 @@ namespace LMSCourse.Data
 
         public DbSet<IdentitySetting> IdentitySettings { get; set; }
         public DbSet<PasswordPolicy> PasswordPolicies { get; set; }
+        public DbSet<AuditLog> AuditLogs { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -40,7 +41,7 @@ namespace LMSCourse.Data
                       .IsRequired();
 
                 entity.Property(u => u.CreationTime)
-                        .HasDefaultValueSql("GETDATE()"); 
+                        .HasDefaultValueSql("GETDATE()");
 
                 entity.Property(u => u.ModificationTime)
                        .HasDefaultValueSql("GETDATE()");
@@ -52,7 +53,7 @@ namespace LMSCourse.Data
                        .HasDefaultValue(0);
             });
 
-           
+
 
             modelBuilder.Entity<PasswordPolicy>()
                 .HasData(

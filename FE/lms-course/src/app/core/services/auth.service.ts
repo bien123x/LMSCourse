@@ -45,22 +45,50 @@ export class AuthService {
     localStorage.setItem(key, JSON.stringify(arr));
   }
 
-  private decodeAndSetClaims(token: string) {
-    const decoded = jwtDecode<any>(token);
+  // private decodeAndSetClaims(token: string) {
 
-    const roleClaim = decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-    const roles = Array.isArray(roleClaim) ? roleClaim : roleClaim ? [roleClaim] : [];
-    this.rolesSignal.set(roles);
-    this.saveArray(this.rolesKey, roles);
+  //   const decoded = jwtDecode<any>(token);
 
-    const permissionClaim = decoded.Permission;
-    const permissions = Array.isArray(permissionClaim)
-      ? permissionClaim
-      : permissionClaim
-      ? [permissionClaim]
-      : [];
-    this.permissionsSignal.set(permissions);
-    this.saveArray(this.permissionsKey, permissions);
+  //   const roleClaim = decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+  //   const roles = Array.isArray(roleClaim) ? roleClaim : roleClaim ? [roleClaim] : [];
+  //   this.rolesSignal.set(roles);
+  //   this.saveArray(this.rolesKey, roles);
+
+  //   const permissionClaim = decoded.Permission;
+  //   const permissions = Array.isArray(permissionClaim)
+  //     ? permissionClaim
+  //     : permissionClaim
+  //     ? [permissionClaim]
+  //     : [];
+  //   this.permissionsSignal.set(permissions);
+  //   this.saveArray(this.permissionsKey, permissions);
+  // }
+
+  private decodeAndSetClaims(token: string | null) {
+    if (!token || typeof token !== 'string') {
+      console.error('Token không hợp lệ:', token);
+      return;
+    }
+
+    try {
+      const decoded = jwtDecode<any>(token);
+
+      const roleClaim = decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+      const roles = Array.isArray(roleClaim) ? roleClaim : roleClaim ? [roleClaim] : [];
+      this.rolesSignal.set(roles);
+      this.saveArray(this.rolesKey, roles);
+
+      const permissionClaim = decoded.Permission;
+      const permissions = Array.isArray(permissionClaim)
+        ? permissionClaim
+        : permissionClaim
+        ? [permissionClaim]
+        : [];
+      this.permissionsSignal.set(permissions);
+      this.saveArray(this.permissionsKey, permissions);
+    } catch (err) {
+      console.error('Decode JWT thất bại:', err);
+    }
   }
 
   // --- Public API ---

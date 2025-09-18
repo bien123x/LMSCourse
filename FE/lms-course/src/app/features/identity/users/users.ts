@@ -60,10 +60,6 @@ export class UsersComponent implements OnInit, OnDestroy {
   resetPwd: ResetPasswordDto = { passwordHash: '' };
 
   ngOnInit(): void {
-    // this.userService.getViewUsers().subscribe((res: any) => {
-    //   this.users.set(res);
-    //   console.log(this.users());
-    // });
     this.loadUsers({
       first: 0,
       rows: 4,
@@ -75,7 +71,6 @@ export class UsersComponent implements OnInit, OnDestroy {
   }
 
   loadUsers(event: any) {
-    // console.log('Event:', event);
     const pageNumber = event?.first != null && event?.rows ? event.first / event.rows + 1 : 1;
     this.pageSize.set(event.rows);
     this.loading = true;
@@ -103,7 +98,7 @@ export class UsersComponent implements OnInit, OnDestroy {
       sorts: sorts,
       filters: filters,
     };
-    // console.log('Query:', query);
+    console.log('Query:', query);
     this.getUserApi = this.userService.getViewUsersPagination(query).subscribe({
       next: (res) => {
         console.log(res);
@@ -170,7 +165,10 @@ export class UsersComponent implements OnInit, OnDestroy {
               summary: 'Thành công',
               detail: `Xoá người dùng thành công`,
             });
-            this.users.update((oUsers) => oUsers.filter((u) => u.userId !== viewUser.userId));
+            this.loadUsers({
+              first: 0,
+              rows: 4,
+            });
           },
           error: (err) => {
             console.log(err);
@@ -186,16 +184,13 @@ export class UsersComponent implements OnInit, OnDestroy {
   }
 
   resetPassword(viewUser: ViewUserDto) {
-    console.log('vao');
-    console.log(this.resetPwd);
     this.userService.resetPassword(viewUser.userId, this.resetPwd).subscribe({
-      next: () => {
-        this.visibleResetPwd = false;
-      },
+      next: () => {},
       error: (err) => {
         console.log(err);
       },
     });
+    this.visibleResetPwd = false;
   }
 
   userPermissions(viewUser: ViewUserDto) {
@@ -300,6 +295,10 @@ export class UsersComponent implements OnInit, OnDestroy {
           this.userService.addUser(res).subscribe({
             next: (viewUserDto) => {
               this.users.update((oUsers) => [...oUsers, viewUserDto]);
+              this.loadUsers({
+                first: 0,
+                rows: 4,
+              });
             },
             error: (err) => {
               if (err.error.errors) {

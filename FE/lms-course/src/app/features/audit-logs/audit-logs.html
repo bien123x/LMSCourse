@@ -1,0 +1,76 @@
+<div class="flex flex-col gap-2">
+  <h1 class="font-black text-[25px]">Nhật ký</h1>
+  <p-table
+    #dt
+    [value]="auditLogs()"
+    lazy="true"
+    paginator="true"
+    sortMode="multiple"
+    [rows]="pageSize()"
+    [totalRecords]="totalRecords()"
+    [loading]="loading"
+    (onLazyLoad)="loadAuditLogsLazy($event)"
+    [scrollable]="true"
+    scrollHeight="650px"
+  >
+    <ng-template #header>
+      <tr>
+        <th>Thao tác</th>
+        @if (auditLogs().length > 0) {
+        <th pSortableColumn="httpMethod">
+          Yêu cầu HTTP
+          <p-sortIcon field="httpMethod"></p-sortIcon>
+        </th>
+
+        } @else {
+        <th>Yêu cầu HTTP</th>
+
+        }
+        <th>Người dùng</th>
+        <th>Địa chỉ IP</th>
+        @if (auditLogs().length > 0) {
+        <th pSortableColumn="createdAt">
+          Ngày
+          <p-sortIcon field="createdAt"></p-sortIcon>
+        </th>
+
+        } @else {
+        <th>Ngày</th>
+        }
+        <th>Khoảng thời gian</th>
+      </tr>
+      <tr>
+        <th></th>
+        <th>
+          <input
+            pInputText
+            (input)="dt.filter($event.target.value, 'httpMethod', 'contains')"
+            placeholder="Search by user name"
+          />
+        </th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-auditLog>
+      <tr>
+        <td>Thao tác</td>
+
+        <td>
+          <span
+            class="rounded-2xl px-1.5"
+            [ngClass]="getClass(auditLog.statusCode, auditLog.method)"
+            >{{ auditLog.statusCode }}</span
+          >
+          {{ auditLog.httpMethod }} {{ auditLog.url }}
+        </td>
+        <td>{{ auditLog.userName }}</td>
+        <td>{{ auditLog.ipAddress }}</td>
+        <td>{{ auditLog.createdAt | date : 'short' }}</td>
+        <td>{{ auditLog.duration }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
