@@ -18,5 +18,6 @@ namespace LMSCourse.Services.Interfaces
         Task<UserSettingDto> GetUserSettingAsync();
 
         Task<ApiResponse<ConfirmEmailDto>> IsConfirmEmailAsync(bool isEmailConfirm);
+        Task<ApiResponse<bool>> IsForceConfirmEmailRegistor();
     }
 }

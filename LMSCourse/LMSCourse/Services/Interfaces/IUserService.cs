@@ -10,7 +10,7 @@ namespace LMSCourse.Services.Interfaces
     {
         Task<ViewUserDto?> GetUserByIdAsync(int id);
         //Task<IEnumerable<UserDto>> GetAllUsersAsync();
-        Task<User?> RegisterUserAsync(RegisterDto dto);
+        Task<ApiResponse<User?>> RegisterUserAsync(RegisterDto dto);
         Task<List<string>> GetRolesNameByIdAsync(int userId);
         Task<List<string>> GetPermissionsNameByIdAsync(int userId);
         Task<User?> GetUserByUserNameOrEmailAsync(string userOrEmail);

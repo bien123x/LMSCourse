@@ -1,3 +1,4 @@
+import { error } from 'console';
 import { join } from 'node:path';
 import { Component, inject, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
@@ -53,6 +54,7 @@ export class RegisterComponent {
         this.router.navigate(['/auth/login']);
       },
       error: (err) => {
+        console.log(err);
         if (err.error) {
           if (err.error.errors && Array.isArray(err.error.errors)) {
             this.errorMsg.set(err.error.errors.join('\n'));

@@ -126,8 +126,6 @@ namespace LMSCourse.Services
         {
             var identitySetting = await _repository.GetIdentityAsync();
 
-
-
             var signInPolicy = identitySetting.SignIn;
 
             if (signInPolicy.RequireConfirmedEmail)
@@ -143,6 +141,20 @@ namespace LMSCourse.Services
             }
 
             return ApiResponse<ConfirmEmailDto>.Fail("Bạn đã xác thực Email!");
+        }
+
+        public async Task<ApiResponse<bool>> IsForceConfirmEmailRegistor()
+        {
+            var identitySetting = await _repository.GetIdentityAsync();
+
+            var signInPolicy = identitySetting.SignIn;
+
+            if (signInPolicy.RequireEmailVerificationToRegister)
+            {
+                return ApiResponse<bool>.Ok(true, "Cần phải xác thực Email trước");
+            }
+
+            return ApiResponse<bool>.Fail("Không cần xác thực Email");
         }
     }
 }

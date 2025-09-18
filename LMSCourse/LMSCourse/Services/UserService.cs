@@ -76,7 +76,7 @@ namespace LMSCourse.Services
             return user;
         }
 
-        public async Task<User?> RegisterUserAsync(RegisterDto dto)
+        public async Task<ApiResponse<User>> RegisterUserAsync(RegisterDto dto)
         {
             var user = _mapper.Map<User>(dto);
 
@@ -86,21 +86,16 @@ namespace LMSCourse.Services
             user.TokenEmailExpires = DateTime.Now.AddHours(24);
             //
 
-            if (!await _userRepository.CheckExistUserNameOrEmail(dto.UserName) && !await _userRepository.CheckExistUserNameOrEmail(dto.Email))
+            if (await _userRepository.CheckExistUserNameOrEmail(dto.UserName))
             {
-                await _userRepository.AddAsync(user);
-                var verifyLink = $"https://localhost:7202/Auth/verify-email?token={user.TokenEmail}";
-
-                string htmlMessage = $@"
-                    <p>Nhấn nút bên dưới để xác minh tài khoản:</p>
-                    <a href='{verifyLink}' style='display:inline-block;padding:10px 20px;background-color:#4CAF50;color:white;text-decoration:none;border-radius:5px;'>Verify Email</a>
-                    ";
-                await _emailService.SendEmailAsync(user.Email, "Xác thực Email", htmlMessage);
-
-
-                return user;
+                return ApiResponse<User>.Fail("Tên đăng nhập đã tồn tại");
             }
-            return null;
+            if (await _userRepository.CheckExistUserNameOrEmail(dto.Email))
+            {
+                return ApiResponse<User>.Fail("Email đã tồn tại");
+            }
+            await _userRepository.AddAsync(user);
+            return ApiResponse<User>.Ok(user, "Người dùng hợp lệ");
         }
 
         public string HashPasswordUser(User user, string password)
@@ -321,8 +316,7 @@ namespace LMSCourse.Services
                 else user.LockoutEndTime = null;
                 await _userRepository.UpdateAsync(user);
             }
-
-
         }
+
     }
 }

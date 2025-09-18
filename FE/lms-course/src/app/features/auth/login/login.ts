@@ -123,14 +123,6 @@ export class LoginComponent implements OnInit {
             life: 3000,
           });
         }
-        if (!err.error.success) {
-          this.msgService.add({
-            severity: 'error',
-            summary: 'Lỗi',
-            detail: err.error,
-            life: 3000,
-          });
-        }
       },
     });
   }
