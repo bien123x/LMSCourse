@@ -1,4 +1,5 @@
 import {
+  ChangePasswordDto,
   EditUserDto,
   ResetPasswordDto,
   UserDto,
@@ -54,5 +55,9 @@ export class UserService {
 
   getViewUsersPagination(query: QueryDto): Observable<PagedResult<ViewUserDto>> {
     return this.http.post<PagedResult<ViewUserDto>>(`${this.apiUrl}/users`, query);
+  }
+
+  changePassword(userId: number, changePasswordDto: ChangePasswordDto): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/change-password/${userId}`, changePasswordDto);
   }
 }

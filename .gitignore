@@ -81,5 +81,6 @@ secrets.json
 
 
 # bỏ qua
-LMSCourse/LMSCourse/Migrations/
-appsettings.json
+Migrations/
+LMSCourse/LMSCourse/appsettings.json
+bien.txt

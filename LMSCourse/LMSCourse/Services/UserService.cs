@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using LMSCourse.DTOs;
 using LMSCourse.DTOs.Page;
 using LMSCourse.DTOs.Page_Sort_Filter;
 using LMSCourse.DTOs.User;
@@ -17,11 +18,13 @@ namespace LMSCourse.Services
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
-        public UserService(IUserRepository userRepository, IPasswordHasher<User> passwordHasher, IMapper mapper)
+        private readonly IEmailService _emailService;
+        public UserService(IUserRepository userRepository, IPasswordHasher<User> passwordHasher, IMapper mapper, IEmailService emailService)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
             _mapper = mapper;
+            _emailService = emailService;
         }
 
         public async Task<ViewUserDto?> GetUserByIdAsync(int id)
@@ -73,25 +76,26 @@ namespace LMSCourse.Services
             return user;
         }
 
-        public async Task<User?> RegisterUserAsync(RegisterDto dto)
+        public async Task<ApiResponse<User>> RegisterUserAsync(RegisterDto dto)
         {
             var user = _mapper.Map<User>(dto);
 
             user.PasswordHash = _passwordHasher.HashPassword(user, dto.PasswordHash);
 
-            user.EmailVerificationToken = Guid.NewGuid().ToString();
-            user.EmailVerificationTokenExpires = DateTime.UtcNow.AddHours(24);
+            user.TokenEmail = Guid.NewGuid().ToString();
+            user.TokenEmailExpires = DateTime.Now.AddHours(24);
+            //
 
-            if (!await _userRepository.CheckExistUserNameOrEmail(dto.UserName) || !await _userRepository.CheckExistUserNameOrEmail(dto.Email))
+            if (await _userRepository.CheckExistUserNameOrEmail(dto.UserName))
             {
-                await _userRepository.AddAsync(user);
-
-                //var verifyLink = $"https://yourdomain.com/api/account/verify-email?token={user.EmailVerificationToken}&email={user.Email}";
-                //await _emailService.SendEmailAsync(user.Email, "Verify your email", $"Click here to verify: {verifyLink}");
-
-                return user;
+                return ApiResponse<User>.Fail("Tên đăng nhập đã tồn tại");
             }
-            return null;
+            if (await _userRepository.CheckExistUserNameOrEmail(dto.Email))
+            {
+                return ApiResponse<User>.Fail("Email đã tồn tại");
+            }
+            await _userRepository.AddAsync(user);
+            return ApiResponse<User>.Ok(user, "Người dùng hợp lệ");
         }
 
         public string HashPasswordUser(User user, string password)
@@ -147,19 +151,19 @@ namespace LMSCourse.Services
 
             if (await _userRepository.IsExistUserNameOrEmail(user.UserName, user.Email, user.UserId))
                 return null;
-             
+
             //if (editUserDto.Roles != null && editUserDto.Roles.Any())
             //{
-                user.UserRoles.Clear();
-                foreach (var roleName in editUserDto.Roles)
+            user.UserRoles.Clear();
+            foreach (var roleName in editUserDto.Roles)
+            {
+                var role = await _userRepository.GetRoleByRoleName(roleName);
+                user.UserRoles.Add(new UserRole
                 {
-                    var role = await _userRepository.GetRoleByRoleName(roleName);
-                    user.UserRoles.Add(new UserRole
-                    {
-                        UserId = user.UserId,
-                        RoleId = role.RoleId
-                    });
-                }
+                    UserId = user.UserId,
+                    RoleId = role.RoleId
+                });
+            }
             //}
             user.ModificationTime = DateTime.Now;
             await _userRepository.UpdateAsync(user);
@@ -245,5 +249,74 @@ namespace LMSCourse.Services
                 TotalCount = pagedUsers.TotalCount
             };
         }
+
+        public async Task<User?> VerifyEmailByToken(string tokenEmail)
+        {
+            var user = await _userRepository.GetByTokenEmailAsync(tokenEmail);
+
+            if (user != null && user.TokenEmailExpires > DateTime.Now)
+            {
+                user.IsEmailConfirmed = true;
+                user.TokenEmailExpires = null;
+                user.TokenEmail = "";
+                await _userRepository.SaveChangesAsync();
+                return user;
+            }
+
+            return null;
+        }
+
+        public async Task<ApiResponse<ViewUserDto>> ChangePasswordByIdAsync(int userId, ChangePasswordDto dto)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+
+            if (user == null) return null;
+            // Change Pwd
+            var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, dto.NowPassword);
+            if (result == PasswordVerificationResult.Failed)
+                return ApiResponse<ViewUserDto>.Fail("Mật khẩu hiện tại không đúng");
+            if (dto.NewPassword != dto.ConfirmNewPassword)
+                return ApiResponse<ViewUserDto>.Fail("Hãy nhập lại mật khẩu mới");
+            user.PasswordHash = _passwordHasher.HashPassword(user, dto.NewPassword);
+            user.PasswordUpdateTime = DateTime.Now;
+
+            var viewUserDto = _mapper.Map<ViewUserDto>(user);
+
+            await _userRepository.UpdateAsync(user);
+            return ApiResponse<ViewUserDto>.Ok(viewUserDto, "Đổi mật khẩu thành công");
+        }
+
+        public async Task IncreaseFailAccessCount(int userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user != null)
+            {
+                user.FailedAccessCount += 1;
+                await _userRepository.UpdateAsync(user);
+            }
+        }
+
+        public async Task ResetFailAccessCount(int userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user != null)
+            {
+                user.FailedAccessCount = 0;
+                await _userRepository.UpdateAsync(user);
+            }
+        }
+
+        public async Task SetLockEndTimeAsync(int userId, int lockoutDuration)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user != null)
+            {
+                if (lockoutDuration > 0)
+                    user.LockoutEndTime = DateTime.Now.AddSeconds(lockoutDuration);
+                else user.LockoutEndTime = null;
+                await _userRepository.UpdateAsync(user);
+            }
+        }
+
     }
 }

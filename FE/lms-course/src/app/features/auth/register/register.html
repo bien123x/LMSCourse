@@ -2,6 +2,15 @@
 <div class="flex flex-col gap-2.5">
   <h3 class="font-bold">Đăng ký</h3>
   <hr />
+  @if (errorMsg()) {
+  <p-card header="Lỗi" class="bg-red-50">
+    <small class="text-red-500">
+      <pre>{{ errorMsg() }}</pre>
+    </small>
+  </p-card>
+  <hr />
+
+  }
   <p>
     Bạn đã có tài khoản?
     <a class="text-blue-500 underline cursor-pointer" routerLink="/auth/login">Đăng nhập</a>

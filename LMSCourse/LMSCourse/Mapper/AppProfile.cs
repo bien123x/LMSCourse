@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using LMSCourse.DTOs.Role;
+using LMSCourse.DTOs.Setting;
 using LMSCourse.DTOs.User;
 using LMSCourse.Models;
 
@@ -9,9 +10,12 @@ namespace LMSCourse.Mapper
     {
         public AppProfile()
         {
-
             CreateMap<RegisterDto, User>()
                 .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
+
+
+            CreateMap<User, RegisterDto>();
+
 
             CreateMap<Role, ViewRoleDto>()
                 .ForMember(dest => dest.CountUserRoles, opt => opt.Ignore());
@@ -24,7 +28,6 @@ namespace LMSCourse.Mapper
                            string.Join(", ", src.UserRoles.Select(ur => ur.Role.RoleName))));
 
             CreateMap<UserDto, User>()
-                .ForMember(dest => dest.UserRoles, opt => opt.Ignore())
                 .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
 
             CreateMap<User, UserDto>()
@@ -36,6 +39,18 @@ namespace LMSCourse.Mapper
 
             CreateMap<PasswordPolicy, PasswordPolicy>()
                 .ForMember(dest => dest.PasswordPolicyId, opt => opt.Ignore());
+
+            CreateMap<IdentitySetting, IdentitySettingDto>();
+            CreateMap<PasswordSetting, PasswordSettingDto>();
+            CreateMap<LockoutSetting, LockoutSettingDto>();
+            CreateMap<SignInSetting, SignInSettingDto>();
+            CreateMap<UserSetting, UserSettingDto>();
+
+            CreateMap<IdentitySettingDto, IdentitySetting>();
+            CreateMap<PasswordSettingDto, PasswordSetting>();
+            CreateMap<LockoutSettingDto, LockoutSetting>();
+            CreateMap<SignInSettingDto, SignInSetting>();
+            CreateMap<UserSettingDto, UserSetting>();
         }
     } 
 }

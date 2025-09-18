@@ -50,14 +50,6 @@ export class UserFormComponent implements OnInit {
   general = signal<any>([]);
 
   ngOnInit(): void {
-    this.settingsService.validatePassword('dsads').subscribe({
-      next: (res) => {
-        console.log(res);
-      },
-      error: (err) => {
-        console.log('errr', err.error);
-      },
-    });
     if (this.config.data) {
       this.mode.set(this.config.data.mode);
       this.rolesName.set(this.config.data.rolesName);
@@ -99,6 +91,11 @@ export class UserFormComponent implements OnInit {
           ],
           isActive: [this.viewUser()?.isActive],
           roles: [rolesArray],
+        });
+
+        this.settingsService.getUserPolicy().subscribe((res) => {
+          if (!res.isUserNameUpdateEnabled) this.userForm.get('userName')?.disable();
+          if (!res.isEmailUpdateEnabled) this.userForm.get('email')?.disable();
         });
 
         if (this.mode() === 'viewDetail') {

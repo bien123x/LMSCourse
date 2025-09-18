@@ -183,5 +183,10 @@ namespace LMSCourse.Repositories
                 TotalCount = totalCount
             };
         }
+
+        public async Task<User?> GetByTokenEmailAsync(string tokenEmail)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.TokenEmail == tokenEmail);
+        }
     }
 }
