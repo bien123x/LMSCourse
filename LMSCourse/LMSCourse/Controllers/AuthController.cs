@@ -39,12 +39,12 @@ namespace LMSCourse.Controllers
 
             if (user == null)
             {
-                return Unauthorized();
+                return Unauthorized("Tài khoản không tồn tại.");
             }
             if (!user.IsActive)
                 return BadRequest("Tài khoản đã bị khoá!");
 
-            if (user.LockoutEndTime != null && user.LockoutEndTime > DateTime.Now)
+            if (user.LockoutEndTime != null && user.LockoutEndTime > DateTime.UtcNow)
                 return BadRequest($"Tài khoản đã bị khoá đến {user.LockoutEndTime}!");
             else if (user.LockoutEndTime != null)
             {
@@ -61,7 +61,7 @@ namespace LMSCourse.Controllers
                 {
                     // Set LockEndTime
                     await _userService.SetLockEndTimeAsync(user.UserId, result.Data.LockoutDuration);
-                    return Ok(result);
+                    return BadRequest(result);
                 }
                 // Update Count Access Fail
                 await _userService.IncreaseFailAccessCount(user.UserId);
@@ -79,7 +79,7 @@ namespace LMSCourse.Controllers
             var resEmailConfirm = await _settingsService.IsConfirmEmailAsync(user.IsEmailConfirmed);
             if (resEmailConfirm.Success)
             {
-                user.TokenEmailExpires = DateTime.Now.AddMinutes(30);
+                user.TokenEmailExpires = DateTime.UtcNow.AddMinutes(30);
                 user.TokenEmail = Guid.NewGuid().ToString();
                 await _userService.UpdateUserAsync(user);
                 var verifyLink = $"https://localhost:7202/Auth/verify-email?token={user.TokenEmail}";

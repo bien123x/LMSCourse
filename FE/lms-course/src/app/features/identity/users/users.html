@@ -1,82 +1,158 @@
 <p-toast></p-toast>
-<div class="flex flex-col gap-2.5">
-  <div class="flex justify-between">
-    <h1 class="font-black text-[25px]">Người dùng</h1>
-    <ng-container *appHasPermission="'UsersView'"
-      ><p-button label="Thêm người dùng" (onClick)="newUser()"></p-button
-    ></ng-container>
+
+<div class="flex flex-col gap-4 whitespace-nowrap">
+  <!-- Header -->
+  <div class="flex justify-between items-center">
+    <h1 class="font-black text-2xl">Người dùng</h1>
+    <ng-container *appHasPermission="'UsersView'">
+      <p-button label="Thêm người dùng" (onClick)="newUser()"></p-button>
+    </ng-container>
   </div>
+
+  <!-- Data Table -->
   <p-table
     #dt
     [value]="users()"
     class="rounded-xl overflow-hidden"
-    lazy="true"
-    paginator="true"
-    sortMode="multiple"
-    [totalRecords]="totalRecords()"
+    [lazy]="true"
+    [paginator]="true"
     [rows]="pageSize()"
-    (onLazyLoad)="loadUsers($event)"
+    [totalRecords]="totalRecords()"
     [scrollable]="true"
     scrollHeight="650px"
+    sortMode="multiple"
+    (onLazyLoad)="loadUsers($event)"
+    [globalFilterFields]="['userName', 'email', 'name', 'surname', 'phoneNumber']"
   >
-    <ng-template #header>
-      <tr>
-        <th>Thao tác</th>
-        @if (users().length > 0) {
-        <th pSortableColumn="userName">
-          Tên tài khoản
-          <p-sortIcon field="userName"></p-sortIcon>
-        </th>
-        } @else {
-        <th>Tên tài khoản</th>
-        }
-        <th>Email</th>
-        <th>Quyền</th>
-        <th>Số điện thoại</th>
-        <th>Họ</th>
-        <th>Tên</th>
-        <th>Trạng thái</th>
-        <th>Thời gian tạo</th>
-        <th>Thời gian sửa lần cuối</th>
-      </tr>
+    <!-- Caption -->
+    <ng-template pTemplate="caption">
+      <div class="flex justify-between items-center">
+        <span class="font-semibold">Danh sách người dùng</span>
+        <p-iconfield iconPosition="left">
+          <p-inputicon><i class="pi pi-search"></i></p-inputicon>
+          <input
+            pInputText
+            type="text"
+            (input)="dt.filterGlobal($event.target.value, 'contains')"
+            placeholder="Tìm kiếm..."
+            class="w-64"
+          />
+        </p-iconfield>
+      </div>
+    </ng-template>
+
+    <!-- Header -->
+    <ng-template pTemplate="header">
+      <!-- Filter row -->
       <tr>
         <th></th>
         <th>
           <input
             pInputText
             (input)="dt.filter($event.target.value, 'userName', 'contains')"
-            placeholder="Search by user name"
+            placeholder="Tìm theo tài khoản"
           />
         </th>
         <th>
           <input
             pInputText
             (input)="dt.filter($event.target.value, 'email', 'contains')"
-            placeholder="Search by Email"
+            placeholder="Tìm theo email"
           />
         </th>
+        <th>
+          <p-select
+            [options]="roles"
+            [optionValue]="'roleName'"
+            [optionLabel]="'roleName'"
+            (onChange)="dt.filter($event.value, 'roles', 'contains')"
+            placeholder="Tìm theo quyền"
+            class="w-full"
+            [showClear]="true"
+          >
+          </p-select>
+        </th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+      </tr>
+      <tr>
+        @if (users().length > 0) {
+        <th class="w-32 whitespace-nowrap">Thao tác</th>
+        <th pSortableColumn="userName">Tên tài khoản <p-sortIcon field="userName"></p-sortIcon></th>
+        <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
+        <th>Quyền</th>
+        <th class="whitespace-nowrap">Số điện thoại</th>
+        <th>Họ</th>
+        <th>Tên</th>
+        <th class="whitespace-nowrap">Trạng thái</th>
+        <th pSortableColumn="creationTime" class="whitespace-nowrap">
+          Thời gian tạo <p-sortIcon field="creationTime"></p-sortIcon>
+        </th>
+        <th pSortableColumn="modificationTime" class="whitespace-nowrap">
+          Thời gian sửa lần cuối <p-sortIcon field="modificationTime"></p-sortIcon>
+        </th>
+        } @else {
+        <th class="w-32 whitespace-nowrap">Thao tác</th>
+        <th>Tên tài khoản</th>
+        <th>Email</th>
+        <th>Quyền</th>
+        <th class="whitespace-nowrap">Số điện thoại</th>
+        <th class="whitespace-nowrap">Họ</th>
+        <th>Tên</th>
+        <th class="whitespace-nowrap">Trạng thái</th>
+        <th class="whitespace-nowrap">Thời gian tạo</th>
+        <th class="whitespace-nowrap">Thời gian sửa lần cuối</th>
+        }
       </tr>
     </ng-template>
-    <ng-template #body let-user>
+
+    <!-- Body -->
+    <ng-template pTemplate="body" let-user>
       <tr>
         <td>
-          <p-menu #menu [model]="menuItems()" [popup]="true" appendTo="body" />
-          <p-button (onClick)="setCurrentUser(user, $event, menu)" label="Thao tác" />
+          <p-menu #menu [model]="menuItems()" [popup]="true" appendTo="body"></p-menu>
+          <p-button
+            (onClick)="setCurrentUser(user, $event, menu)"
+            label="Thao tác"
+            size="small"
+            class="whitespace-nowrap"
+          />
         </td>
-        <td>{{ user.userName }}</td>
+        <td>
+          {{ user.userName }}@if (isUserLocked(user)) {
+          <span class="text-red-500 text-sm font-semibold" title="Tài khoản đang bị khoá">
+            (Khoá)
+          </span>
+          }
+        </td>
         <td>{{ user.email }}</td>
-        <td>{{ user.roles }}</td>
+        <td class="truncate max-w-[200px]" title="{{ user.roles }}">{{ user.roles }}</td>
         <td>{{ user.phoneNumber }}</td>
         <td>{{ user.surname }}</td>
         <td>{{ user.name }}</td>
-        <td>{{ user.isActive }}</td>
-        <td>{{ user.creationTime | date : 'short' }}</td>
+        <td>
+          <span
+            class="px-2 py-1 rounded-md text-sm font-medium whitespace-nowrap"
+            [ngClass]="user.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
+          >
+            {{ user.isActive ? 'Hoạt động' : 'Khoá' }}
+          </span>
+        </td>
+        <td class="whitespace-nowrap">{{ user.creationTime | date : 'short' }}</td>
         <td>{{ user.modificationTime | date : 'short' }}</td>
       </tr>
     </ng-template>
-    <ng-template #footer>
+
+    <!-- Footer -->
+    <ng-template pTemplate="footer">
       <tr>
-        <td colspan="10">Tổng có {{ totalRecords() }} người dùng</td>
+        <td colspan="10" class="text-right font-semibold pr-4">
+          Tổng: {{ totalRecords() }} người dùng
+        </td>
       </tr>
     </ng-template>
   </p-table>
@@ -93,9 +169,8 @@
       <p-password
         class="w-full"
         inputStyleClass="w-full"
-        required
-        [minlength]="6"
         #newPwd="ngModel"
+        appPasswordValidator
         name="resetPwd"
         id="resetPwd"
         [(ngModel)]="resetPwd.passwordHash"
@@ -103,17 +178,50 @@
       </p-password>
       <label for="resetPwd">Mật khẩu mới</label>
     </p-ifta-label>
+
+    <!-- Validation -->
     <div>
-      @if (newPwd.invalid && (newPwd.dirty || newPwd.touched)) { @if (newPwd.errors?.['required']) {
-      <small class="text-red-500">Mật khẩu không được để trống</small>
-      } @if (newPwd.errors?.['minlength']) {
-      <small class="text-red-500">Mật khẩu phải ít nhất 6 kí tự</small>
-      } }
+      @if (newPwd.invalid && (newPwd.dirty || newPwd.touched)) { @if
+      (newPwd.hasError('passwordPolicy')) { @for (item of newPwd.getError('passwordPolicy'); track
+      $index) {
+      <small class="text-red-500">{{ item }}</small>
+      <br />
+
+      } } }
     </div>
 
-    <div class="flex justify-end gap-1">
+    <!-- Actions -->
+    <div class="flex justify-end gap-2 mt-2">
       <p-button label="Đóng" (onClick)="visibleResetPwd = false"></p-button>
       <p-button label="Lưu" type="submit" [disabled]="resetPwdForm.invalid"></p-button>
+    </div>
+  </form>
+</p-dialog>
+
+<p-dialog
+  modal="true"
+  [(visible)]="visibleLockUser"
+  header="Khoá tài khoản"
+  [style]="{ width: '400px' }"
+>
+  <form #lockUserForm="ngForm" class="flex flex-col gap-4" (ngSubmit)="lockoutUser(currentUser()!)">
+    <div>
+      <label for="lockEndTime" class="font-bold block mb-2"> Thời hạn </label>
+      <p-datePicker
+        inputId="lockEndTime"
+        [(ngModel)]="lockEndTimeDto.lockEndtime"
+        [showTime]="true"
+        [hourFormat]="'24'"
+        appendTo="body"
+        class="w-full max-w-full"
+        name="lockEndTime"
+        required
+      ></p-datePicker>
+    </div>
+
+    <div class="flex justify-end gap-2">
+      <p-button label="Đóng" (onClick)="visibleLockUser = false"></p-button>
+      <p-button type="submit" label="Khoá" [disabled]="lockUserForm.invalid"></p-button>
     </div>
   </form>
 </p-dialog>

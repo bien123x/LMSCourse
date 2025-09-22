@@ -16,7 +16,16 @@ namespace LMSCourse.Data
         public DbSet<UserPermission> UserPermissions { get; set; }
 
         public DbSet<IdentitySetting> IdentitySettings { get; set; }
-        public DbSet<PasswordPolicy> PasswordPolicies { get; set; }
+        public DbSet<AuditLog> AuditLogs { get; set; }
+        
+        public DbSet<Level> Levels { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Language> Languages { get; set; }
+        public DbSet<Lesson> Lessons { get; set; }
+        public DbSet<CourseTopic> CourseTopics { get; set; }
+        public DbSet<FaqItem> FaqItems { get; set; }
+        public DbSet<FaqGroup> FaqGroups { get; set; }
+        public DbSet<Course> Courses { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -39,34 +48,10 @@ namespace LMSCourse.Data
                 entity.Property(u => u.PasswordHash)
                       .IsRequired();
 
-                entity.Property(u => u.CreationTime)
-                        .HasDefaultValueSql("GETDATE()"); 
-
-                entity.Property(u => u.ModificationTime)
-                       .HasDefaultValueSql("GETDATE()");
-
-                entity.Property(u => u.PasswordUpdateTime)
-                       .HasDefaultValueSql("GETDATE()");
-
                 entity.Property(u => u.FailedAccessCount)
                        .HasDefaultValue(0);
             });
 
-           
-
-            modelBuilder.Entity<PasswordPolicy>()
-                .HasData(
-                    new PasswordPolicy
-                    {
-                        PasswordPolicyId = 1,
-                        MinLength = 6,
-                        RequiredUniqueChars = 3,
-                        RequireDigit = true,
-                        RequireLowercase = true,
-                        RequireUppercase = true,
-                        RequireNonAlphanumeric = true,
-                    }
-                );
         }
     }
 }

@@ -7,7 +7,7 @@ import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Menu } from 'primeng/menu';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
-import { ResetPasswordDto, ViewUserDto } from '../../../core/models/user-model';
+import { LockEndTimeDto, ResetPasswordDto, ViewUserDto } from '../../../core/models/user-model';
 import { UserService } from '../../../core/services/user.service';
 import { UserFormComponent } from '../../../shared/user-form/user-form';
 import { PermissionFormComponent } from '../../../shared/permission-form/permission-form';
@@ -20,6 +20,13 @@ import { DeleteConfirmComponent } from '../../../shared/delete-confirm/delete-co
 import { FilterField, QueryDto, SortField } from '../../../core/models/query-model';
 import { Subscription } from 'rxjs';
 import { HasPermissionDirective } from '../../../core/directives/has-permission-directive';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { SelectModule } from 'primeng/select';
+import { DatePicker } from 'primeng/datepicker';
+import { PasswordValidatorDirective } from '../../../core/validators/password-validator.directive';
+import { ViewRolesDto } from '../../../core/models/role-model';
+import { RoleService } from '../../../core/services/role.service';
 
 @Component({
   selector: 'app-users',
@@ -37,6 +44,11 @@ import { HasPermissionDirective } from '../../../core/directives/has-permission-
     InputTextModule,
     PasswordModule,
     HasPermissionDirective,
+    IconFieldModule,
+    InputIconModule,
+    SelectModule,
+    DatePicker,
+    PasswordValidatorDirective,
   ],
   providers: [MessageService, DialogService],
 })
@@ -44,13 +56,14 @@ export class UsersComponent implements OnInit, OnDestroy {
   private dialogSerive = inject(DialogService);
   private msgService = inject(MessageService);
   private userService = inject(UserService);
+  private roleService = inject(RoleService);
   getUserApi = new Subscription();
 
   users = signal<ViewUserDto[]>([]);
   totalRecords = signal<number>(0);
   pageSize = signal<number>(4);
   loading = false;
-  currentUser = signal<ViewUserDto | undefined>(undefined);
+  currentUser = signal<ViewUserDto | null>(null);
 
   ref = signal<DynamicDialogRef | undefined>(undefined);
 
@@ -59,14 +72,20 @@ export class UsersComponent implements OnInit, OnDestroy {
   visibleResetPwd = false;
   resetPwd: ResetPasswordDto = { passwordHash: '' };
 
+  visibleLockUser = false;
+  lockEndTimeDto: LockEndTimeDto = { lockEndtime: null };
+
+  roles: ViewRolesDto[] = [];
+
   ngOnInit(): void {
-    // this.userService.getViewUsers().subscribe((res: any) => {
-    //   this.users.set(res);
-    //   console.log(this.users());
-    // });
     this.loadUsers({
       first: 0,
       rows: 4,
+    });
+    this.lockEndTimeDto = { lockEndtime: new Date() };
+
+    this.roleService.getRoles().subscribe((roles) => {
+      this.roles = roles;
     });
   }
 
@@ -75,7 +94,7 @@ export class UsersComponent implements OnInit, OnDestroy {
   }
 
   loadUsers(event: any) {
-    // console.log('Event:', event);
+    console.log('Event:', event);
     const pageNumber = event?.first != null && event?.rows ? event.first / event.rows + 1 : 1;
     this.pageSize.set(event.rows);
     this.loading = true;
@@ -106,7 +125,11 @@ export class UsersComponent implements OnInit, OnDestroy {
     // console.log('Query:', query);
     this.getUserApi = this.userService.getViewUsersPagination(query).subscribe({
       next: (res) => {
-        console.log(res);
+        res.items.forEach((u) => {
+          u.creationTime = new Date(u.creationTime + 'Z');
+          u.modificationTime = new Date(u.modificationTime + 'Z');
+          if (u.lockoutEndTime) u.lockoutEndTime = new Date(u.lockoutEndTime + 'Z');
+        });
         this.users.set(res.items);
         this.totalRecords.set(res.totalCount);
         this.loading = false;
@@ -139,12 +162,94 @@ export class UsersComponent implements OnInit, OnDestroy {
         label: 'Thiết đặt mật khẩu',
         command: () => this.clickVisibleResetPwd(),
       },
+
+      ...(this.isUserLocked(viewUser)
+        ? [
+            {
+              label: 'Khoá tài khoản',
+              command: () => this.clickVisibleLockEndTime(viewUser),
+            },
+            {
+              label: 'Gỡ khoá',
+              command: () => this.unlockEndTimeUser(viewUser),
+            },
+          ]
+        : [
+            {
+              label: 'Khoá tài khoản',
+              command: () => this.clickVisibleLockEndTime(viewUser),
+            },
+          ]),
       {
         label: 'Xoá',
         command: () => this.deleteUser(viewUser),
       },
     ]);
     menu.toggle(event);
+  }
+
+  clickVisibleLockEndTime(viewUser: ViewUserDto) {
+    this.visibleLockUser = true;
+    console.log(viewUser.lockoutEndTime);
+    if (!this.isUserLocked(viewUser)) this.lockEndTimeDto.lockEndtime = new Date();
+    else this.lockEndTimeDto.lockEndtime = new Date(viewUser.lockoutEndTime + 'Z');
+  }
+
+  isUserLocked(user: ViewUserDto): boolean {
+    if (!user?.lockoutEndTime) return false;
+    const lockoutEnd = new Date(user.lockoutEndTime + 'Z');
+    return lockoutEnd > new Date();
+  }
+
+  unlockEndTimeUser(viewUser: ViewUserDto) {
+    this.userService.unlockEndTimeApi(viewUser.userId).subscribe({
+      next: (result) => {
+        this.msgService.add({
+          severity: 'success',
+          summary: 'Thành công',
+          detail: result.data,
+        });
+        this.loadUsers({
+          first: 0,
+          rows: 4,
+        });
+      },
+      error: (err) => {
+        this.msgService.add({
+          severity: 'error',
+          detail: err.error,
+        });
+      },
+    });
+  }
+
+  lockoutUser(viewUser: ViewUserDto) {
+    console.log('Save:', this.lockEndTimeDto);
+    this.userService.lockEndTimeApi(viewUser.userId, this.lockEndTimeDto).subscribe({
+      next: (result) => {
+        this.msgService.add({
+          severity: 'success',
+          summary: 'Khoá thành công',
+          detail: result.message + ' đến ' + new Date(result.data).toLocaleString(),
+        });
+        this.loadUsers({
+          first: 0,
+          rows: 4,
+        });
+      },
+      error: (err) => {
+        console.log(err);
+        this.msgService.add({
+          severity: 'error',
+          detail: err.error,
+        });
+      },
+    });
+    this.visibleLockUser = false;
+  }
+
+  log(value: any) {
+    console.log(value);
   }
 
   deleteUser(viewUser: ViewUserDto) {
@@ -170,7 +275,10 @@ export class UsersComponent implements OnInit, OnDestroy {
               summary: 'Thành công',
               detail: `Xoá người dùng thành công`,
             });
-            this.users.update((oUsers) => oUsers.filter((u) => u.userId !== viewUser.userId));
+            this.loadUsers({
+              first: 0,
+              rows: 4,
+            });
           },
           error: (err) => {
             console.log(err);
@@ -186,16 +294,13 @@ export class UsersComponent implements OnInit, OnDestroy {
   }
 
   resetPassword(viewUser: ViewUserDto) {
-    console.log('vao');
-    console.log(this.resetPwd);
     this.userService.resetPassword(viewUser.userId, this.resetPwd).subscribe({
-      next: () => {
-        this.visibleResetPwd = false;
-      },
+      next: () => {},
       error: (err) => {
         console.log(err);
       },
     });
+    this.visibleResetPwd = false;
   }
 
   userPermissions(viewUser: ViewUserDto) {
@@ -276,7 +381,11 @@ export class UsersComponent implements OnInit, OnDestroy {
               }
             },
             error: (err) => {
-              console.log(err);
+              this.msgService.add({
+                severity: 'error',
+                summary: 'Thất bại',
+                detail: err.error.message,
+              });
             },
           });
         }
@@ -300,6 +409,10 @@ export class UsersComponent implements OnInit, OnDestroy {
           this.userService.addUser(res).subscribe({
             next: (viewUserDto) => {
               this.users.update((oUsers) => [...oUsers, viewUserDto]);
+              this.loadUsers({
+                first: 0,
+                rows: 4,
+              });
             },
             error: (err) => {
               if (err.error.errors) {

@@ -83,7 +83,7 @@ namespace LMSCourse.Services
             user.PasswordHash = _passwordHasher.HashPassword(user, dto.PasswordHash);
 
             user.TokenEmail = Guid.NewGuid().ToString();
-            user.TokenEmailExpires = DateTime.Now.AddHours(24);
+            user.TokenEmailExpires = DateTime.UtcNow.AddHours(24);
             //
 
             if (await _userRepository.CheckExistUserNameOrEmail(dto.UserName))
@@ -115,10 +115,11 @@ namespace LMSCourse.Services
             return _mapper.Map<IEnumerable<ViewUserDto>>(users);
         }
 
-        public async Task<ViewUserDto> AddUserAsync(UserDto userDto)
+        public async Task<ViewUserDto> AddUserAsync(UserDto userDto, int addUserId)
         {
             var user = _mapper.Map<User>(userDto);
-            if (await _userRepository.IsExistUserNameOrEmail(user.UserName, user.Email))
+            var addUser = await _userRepository.GetByIdAsync(addUserId);
+            if (await _userRepository.IsExistUserNameOrEmail(user.UserName, user.Email) || addUser == null)
                 return null;
             user.PasswordHash = HashPasswordUser(user, userDto.PasswordHash);
 
@@ -132,17 +133,20 @@ namespace LMSCourse.Services
                     RoleId = role.RoleId
                 });
             }
-            user.CreationTime = DateTime.Now;
-            user.ModificationTime = DateTime.Now;
+            user.CreationTime = DateTime.UtcNow;
+            user.ModificationTime = DateTime.UtcNow;
+            user.CreatedBy = addUser.Name;
             await _userRepository.AddAsync(user);
             return _mapper.Map<ViewUserDto>(user);
         }
 
-        public async Task<ViewUserDto> EditUserDto(int userId, EditUserDto editUserDto)
+        public async Task<ViewUserDto> EditUserDto(int userId, EditUserDto editUserDto, int editUserId)
         {
             var user = await _userRepository.GetUserWithRolesAsync(userId);
+            var editUser = await _userRepository.GetByIdAsync(editUserId);
 
-            if (user == null)
+
+            if (user == null || editUser == null)
             {
                 return null;
             }
@@ -165,7 +169,8 @@ namespace LMSCourse.Services
                 });
             }
             //}
-            user.ModificationTime = DateTime.Now;
+            user.ModificationTime = DateTime.UtcNow;
+            user.ModifiedBy = editUser.Name;
             await _userRepository.UpdateAsync(user);
 
             var viewUserDto = _mapper.Map<ViewUserDto>(user);
@@ -254,7 +259,7 @@ namespace LMSCourse.Services
         {
             var user = await _userRepository.GetByTokenEmailAsync(tokenEmail);
 
-            if (user != null && user.TokenEmailExpires > DateTime.Now)
+            if (user != null && user.TokenEmailExpires > DateTime.UtcNow)
             {
                 user.IsEmailConfirmed = true;
                 user.TokenEmailExpires = null;
@@ -278,7 +283,7 @@ namespace LMSCourse.Services
             if (dto.NewPassword != dto.ConfirmNewPassword)
                 return ApiResponse<ViewUserDto>.Fail("Hãy nhập lại mật khẩu mới");
             user.PasswordHash = _passwordHasher.HashPassword(user, dto.NewPassword);
-            user.PasswordUpdateTime = DateTime.Now;
+            user.PasswordUpdateTime = DateTime.UtcNow;
 
             var viewUserDto = _mapper.Map<ViewUserDto>(user);
 
@@ -312,11 +317,42 @@ namespace LMSCourse.Services
             if (user != null)
             {
                 if (lockoutDuration > 0)
-                    user.LockoutEndTime = DateTime.Now.AddSeconds(lockoutDuration);
+                    user.LockoutEndTime = DateTime.UtcNow.AddSeconds(lockoutDuration);
                 else user.LockoutEndTime = null;
                 await _userRepository.UpdateAsync(user);
             }
         }
 
+        public async Task<ApiResponse<DateTime?>> LockUserByIdAsync(int userId, DateTime dateEndTime)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user != null)
+            {
+                if (dateEndTime > DateTime.UtcNow)
+                {
+                    user.LockoutEndTime = dateEndTime;
+                    await _userRepository.UpdateAsync(user);
+                    return ApiResponse<DateTime?>.Ok(dateEndTime, $"Đã khoá người dùng {user.UserName}");
+                } else return ApiResponse<DateTime?>.Fail("Thời gian khoá không hợp lệ");
+            }
+            // NotFound
+            return ApiResponse<DateTime?>.Fail("Người dùng không tồn tại");
+        }
+
+        public async Task<ApiResponse> UnLockUserByIdAsync(int userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user != null)
+            {
+                if (user.LockoutEndTime != null)
+                {
+                    user.LockoutEndTime = null;
+                    await _userRepository.UpdateAsync(user);
+                    return ApiResponse.Ok($"Đã gỡ khoá cho người dùng {user.Name}");
+                }
+                return ApiResponse.Ok("Người dùng đã được gỡ khoá rồi!");
+            }
+            return ApiResponse.Fail("Người dùng không tồn tại");
+        }
     }
 }

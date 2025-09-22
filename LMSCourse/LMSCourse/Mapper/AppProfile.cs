@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using LMSCourse.Dtos;
 using LMSCourse.DTOs.Role;
 using LMSCourse.DTOs.Setting;
 using LMSCourse.DTOs.User;
@@ -51,6 +52,8 @@ namespace LMSCourse.Mapper
             CreateMap<LockoutSettingDto, LockoutSetting>();
             CreateMap<SignInSettingDto, SignInSetting>();
             CreateMap<UserSettingDto, UserSetting>();
+
+            CreateMap<AuditLog, AuditLogDto>();
         }
     } 
 }

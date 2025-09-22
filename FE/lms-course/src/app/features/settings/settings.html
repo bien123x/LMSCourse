@@ -9,7 +9,7 @@
       <div><h1>Chung</h1></div>
 
       } @else if (menuSelect === 'identity') {
-      <form [formGroup]="form" (ngSubmit)="onSave()">
+      <form [formGroup]="form" (ngSubmit)="onSave()" class="flex flex-col items-center m-5">
         <p-tabs value="0">
           <p-tablist>
             <p-tab value="0">Chính sách mật khẩu</p-tab>

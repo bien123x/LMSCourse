@@ -1,6 +1,7 @@
 import {
   ChangePasswordDto,
   EditUserDto,
+  LockEndTimeDto,
   ResetPasswordDto,
   UserDto,
   UserPermissionsDto,
@@ -59,5 +60,12 @@ export class UserService {
 
   changePassword(userId: number, changePasswordDto: ChangePasswordDto): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/change-password/${userId}`, changePasswordDto);
+  }
+
+  lockEndTimeApi(userId: number, dto: LockEndTimeDto): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/lock-user/${userId}`, dto);
+  }
+  unlockEndTimeApi(userId: number): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/unlock-user/${userId}`, null);
   }
 }

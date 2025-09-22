@@ -48,7 +48,7 @@ namespace LMSCourse.Services
             if (policy.ForceUsersToPeriodicallyChangePassword && policy.PasswordChangePeriodDays > 0)
             {
                 var expiredDate = lastChangePassword.AddDays(policy.PasswordChangePeriodDays);
-                return DateTime.Now > expiredDate;
+                return DateTime.UtcNow > expiredDate;
             }
 
             return false;
@@ -97,7 +97,7 @@ namespace LMSCourse.Services
 
             var lockout = identitySetting.Lockout;
 
-            if (lockout.AllowedForNewUsers && (lockoutEndTime == null || lockoutEndTime < DateTime.Now))
+            if (lockout.AllowedForNewUsers && (lockoutEndTime == null || lockoutEndTime < DateTime.UtcNow))
             {
                 if (failedAccessCount > lockout.MaxFailedAccessAttempts)
                 {
@@ -136,7 +136,7 @@ namespace LMSCourse.Services
                     return ApiResponse<ConfirmEmailDto>.Ok(new ConfirmEmailDto
                     {
                         IsConfirmEmail = true
-                    }, "Đã gửi link xác thực vào Email của bạn");
+                    }, "Đã gửi link xác thực đến Email của bạn. Vui lòng xác thực Email để đăng nhập!");
                 }
             }
 

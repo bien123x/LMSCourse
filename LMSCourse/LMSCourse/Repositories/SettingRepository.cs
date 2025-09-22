@@ -18,10 +18,7 @@ namespace LMSCourse.Repositories
             return await _context.IdentitySettings.FirstAsync();
         }
 
-        public async Task<PasswordPolicy> GetPolicyAsync()
-        {
-            return await _context.PasswordPolicies.FirstAsync();
-        }
+       
 
         public async Task UpdateIdentityAsync(IdentitySetting identitySetting)
         {
@@ -29,10 +26,6 @@ namespace LMSCourse.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdatePolicyAsync(PasswordPolicy policy)
-        {
-            _context.PasswordPolicies.Update(policy);
-            await _context.SaveChangesAsync();
-        }
+       
     }
 }

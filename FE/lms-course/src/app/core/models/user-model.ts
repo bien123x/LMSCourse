@@ -7,7 +7,7 @@ export interface ViewUserDto {
   phoneNumber: string;
   isActive: boolean;
   roles: string;
-  createBy: string;
+  createdBy: string;
   creationTime: Date;
   modifiedBy: string;
   modificationTime: Date;
@@ -44,6 +44,10 @@ export interface UserPermissionsDto {
 
 export interface ResetPasswordDto {
   passwordHash: string;
+}
+
+export interface LockEndTimeDto {
+  lockEndtime: Date | null;
 }
 
 export interface ChangePasswordDto {
