@@ -1,0 +1,144 @@
+<div class="flex flex-col gap-4">
+  <!-- Title -->
+  <h1 class="font-black text-2xl">Nhật ký</h1>
+
+  <!-- Data Table -->
+  <p-table
+    #dt
+    [value]="auditLogs()"
+    [lazy]="true"
+    [paginator]="true"
+    [rows]="pageSize()"
+    [totalRecords]="totalRecords()"
+    [loading]="loading"
+    [scrollable]="true"
+    [resizableColumns]="true"
+    [globalFilterFields]="['userName', 'httpMethod', 'ipAddress']"
+    scrollHeight="650px"
+    sortMode="multiple"
+    (onLazyLoad)="loadAuditLogsLazy($event)"
+  >
+    <!-- Caption -->
+    <ng-template pTemplate="caption">
+      <div class="flex justify-between items-center">
+        <span class="font-semibold">Danh sách Audit Logs</span>
+        <p-button label="Tải lại" icon="pi pi-refresh" (onClick)="clearTable(dt)"> </p-button>
+        <p-iconfield iconPosition="left">
+          <p-inputicon><i class="pi pi-search"></i></p-inputicon>
+          <input
+            #globalInput
+            pInputText
+            type="text"
+            (input)="dt.filterGlobal($event.target.value, 'contains')"
+            placeholder="Tìm kiếm..."
+            class="w-64"
+            [(ngModel)]="filterGlobalValue"
+          />
+        </p-iconfield>
+      </div>
+    </ng-template>
+
+    <!-- Header -->
+    <ng-template pTemplate="header">
+      <!-- Filter row -->
+      <tr>
+        <th></th>
+        <th>
+          <p-select
+            [options]="statusCodes"
+            [(ngModel)]="selectedStatusCode"
+            optionLabel="value"
+            optionValue="value"
+            placeholder="Tìm mã"
+            class="w-full md:w-56"
+            (onChange)="dt.filter($event.value, 'statusCode', 'equals')"
+            appendTo="body"
+            [showClear]="true"
+          />
+        </th>
+        <th>
+          <p-select
+            [options]="httpMethods"
+            optionLabel="value"
+            optionValue="value"
+            [(ngModel)]="selectedHttpMethod"
+            (onChange)="dt.filter($event.value, 'httpMethod', 'equals')"
+            placeholder="Tìm phương thức"
+            appendTo="body"
+            [showClear]="true"
+          ></p-select>
+        </th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th>
+          <p-date-picker
+            selectionMode="range"
+            (onSelect)="selectDTPicker($event, dt)"
+            placeholder="Chọn ngày"
+            [readonlyInput]="true"
+            [(ngModel)]="rangeDates"
+            appendTo="body"
+          >
+          </p-date-picker>
+        </th>
+        <th></th>
+      </tr>
+      <tr>
+        @if (auditLogs().length > 0) {
+        <th class="w-32">Thao tác</th>
+        <th pSortableColumn="statusCode">Mã HTTP <p-sortIcon field="statusCode"></p-sortIcon></th>
+        <th pSortableColumn="httpMethod">
+          Phương thức <p-sortIcon field="httpMethod"></p-sortIcon>
+        </th>
+        <th pSortableColumn="url">Đường dẫn <p-sortIcon field="url"></p-sortIcon></th>
+        <th pSortableColumn="userName">Người dùng <p-sortIcon field="userName"></p-sortIcon></th>
+        <th pSortableColumn="ipAddress">Địa chỉ IP <p-sortIcon field="ipAddress"></p-sortIcon></th>
+        <th pSortableColumn="createdAt">Ngày <p-sortIcon field="createdAt"></p-sortIcon></th>
+        <th>Thời gian (ms)</th>
+        } @else {
+        <th class="w-32">Thao tác</th>
+        <th>Mã HTTP</th>
+        <th>Phương thức</th>
+        <th>Đường dẫn</th>
+        <th>Người dùng</th>
+        <th>Địa chỉ IP</th>
+        <th>Ngày</th>
+        <th>Thời gian (ms)</th>
+        }
+      </tr>
+    </ng-template>
+
+    <!-- Body -->
+    <ng-template pTemplate="body" let-log>
+      <tr>
+        <td>
+          <p-button label="Chi tiết" size="small" (onClick)="viewDetailAuditLog(log)"></p-button>
+        </td>
+        <td>
+          <span
+            class="px-2 py-1 rounded-md text-sm font-medium"
+            [ngClass]="getStatusColor(log.statusCode)"
+          >
+            {{ log.statusCode }}
+          </span>
+        </td>
+        <td>
+          <span
+            class="px-2 py-1 rounded-md text-sm font-medium"
+            [ngClass]="getMethodColor(log.httpMethod)"
+          >
+            {{ log.httpMethod }}
+          </span>
+        </td>
+        <td class="max-w-[250px] truncate" title="{{ log.url }}">
+          {{ log.url }}
+        </td>
+        <td>{{ log.userName }}</td>
+        <td>{{ log.ipAddress }}</td>
+        <td>{{ log.createdAt | date : 'short' }}</td>
+        <td>{{ log.duration }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

@@ -61,9 +61,10 @@
           <small class="text-red-500">Email không hợp lệ</small>
           }
           <p-ifta-label>
-            <input
-              class="w-full"
-              pInputText
+            <p-input-mask
+              mask="999 999 9999"
+              placeholder="999 999 9999"
+              styleClass="w-full"
               name="phoneNumber"
               id="phoneNumber"
               formControlName="phoneNumber"
@@ -71,7 +72,7 @@
             <label for="phoneNumber">Số điện thoại</label>
           </p-ifta-label>
           @if (phoneNumber?.invalid && (phoneNumber?.touched || phoneNumber?.dirty)) {
-          <small class="text-red-500">Số điện thoại phải có 10 số</small>
+          <small class="text-red-500">Số điện thoại không hợp lệ</small>
           }
           <div class="flex gap-1 items-center">
             <p-checkbox
@@ -103,7 +104,8 @@
           <ng-template pTemplate="body" let-field>
             <tr>
               <td class="font-bold">{{ field.label }}</td>
-              @if (field.label === 'Thời gian tạo' || field.label === 'Cập nhật gần nhất') {
+              @if (field.label === 'Thời gian tạo' || field.label === 'Cập nhật gần nhất' ||
+              field.label === 'Thời điểm mở khoá') {
               <td>{{ field.value | date : 'short' }}</td>
               } @else {
               <td>{{ field.value }}</td>

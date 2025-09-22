@@ -1,6 +1,7 @@
 ﻿using Azure.Core;
 using LMSCourse.DTOs.Token;
 using LMSCourse.DTOs.User;
+using LMSCourse.Models;
 using LMSCourse.Services;
 using LMSCourse.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -20,13 +21,15 @@ namespace LMSCourse.Controllers
     {
         private readonly TokenService _tokenService;
         private readonly IUserService _userService;
-        private readonly ISettingsService _settingsService;
+        private readonly ISettingService _settingsService;
+        private readonly IEmailService _emailService;
 
-        public AuthController(TokenService tokenService, IUserService userService, ISettingsService settingsService)
+        public AuthController(TokenService tokenService, IUserService userService, ISettingService settingsService, IEmailService emailService)
         {
             this._tokenService = tokenService;
             this._userService = userService;
             _settingsService = settingsService;
+            _emailService = emailService;
         }
 
         [HttpPost("login")]
@@ -34,15 +37,69 @@ namespace LMSCourse.Controllers
         {
             var user = await _userService.GetUserByUserNameOrEmailAsync(dto.UserNameOrEmail);
 
-            if (user == null) {
-                return Unauthorized();
+            if (user == null)
+            {
+                return Unauthorized("Tài khoản không tồn tại.");
             }
-            if (!user.IsActive) 
+            if (!user.IsActive)
                 return BadRequest("Tài khoản đã bị khoá!");
 
-            if (!_userService.VerifyPassword(user, dto.Password))
-                return Unauthorized("Mật khẩu không đúng!");
+            if (user.LockoutEndTime != null && user.LockoutEndTime > DateTime.UtcNow)
+                return BadRequest($"Tài khoản đã bị khoá đến {user.LockoutEndTime}!");
+            else if (user.LockoutEndTime != null)
+            {
+                await _userService.SetLockEndTimeAsync(user.UserId, -1);
+                await _userService.ResetFailAccessCount(user.UserId);
 
+            }
+
+            if (!_userService.VerifyPassword(user, dto.Password))
+            {
+                var result = await _settingsService.IsLockOutAsync(user.LockoutEndTime, user.FailedAccessCount + 1);
+                // Lock
+                if (result.Success)
+                {
+                    // Set LockEndTime
+                    await _userService.SetLockEndTimeAsync(user.UserId, result.Data.LockoutDuration);
+                    return BadRequest(result);
+                }
+                // Update Count Access Fail
+                await _userService.IncreaseFailAccessCount(user.UserId);
+                return BadRequest(result);
+            }
+            else
+            {
+                await _userService.ResetFailAccessCount(user.UserId);
+            }
+
+            // Check force periodically change password
+            if (await _settingsService.IsPasswordExpiration(user.PasswordUpdateTime))
+                return Ok(new { requirePasswordChange = true, userId = user.UserId });
+
+            var resEmailConfirm = await _settingsService.IsConfirmEmailAsync(user.IsEmailConfirmed);
+            if (resEmailConfirm.Success)
+            {
+                user.TokenEmailExpires = DateTime.UtcNow.AddMinutes(30);
+                user.TokenEmail = Guid.NewGuid().ToString();
+                await _userService.UpdateUserAsync(user);
+                var verifyLink = $"https://localhost:7202/Auth/verify-email?token={user.TokenEmail}";
+
+                string htmlMessage = $@"
+                    <p>Nhấn nút bên dưới để xác minh tài khoản:</p>
+                    <a href='{verifyLink}' style='display:inline-block;padding:10px 20px;background-color:#4CAF50;color:white;text-decoration:none;border-radius:5px;'>Verify Email</a>
+                    ";
+                await _emailService.SendEmailAsync(user.Email, "Xác thực Email", htmlMessage);
+                return BadRequest(resEmailConfirm);
+            }
+
+            var isForceConfirmEmail = await _settingsService.IsForceConfirmEmailRegistor();
+            if (isForceConfirmEmail.Success)
+            {
+                if (!user.IsEmailConfirmed)
+                {
+                    return BadRequest(isForceConfirmEmail.Message);
+                }
+            }
             var accessToken = _tokenService.GenerateAccessToken(user);
             var refreshToken = _tokenService.GenerateRefreshToken(user);
 
@@ -51,6 +108,7 @@ namespace LMSCourse.Controllers
                 AccessToken = accessToken,
                 RefreshToken = refreshToken
             });
+            
         }
 
         [HttpPost("register")]
@@ -61,13 +119,39 @@ namespace LMSCourse.Controllers
             if (!isValid)
                 return BadRequest(new { Errors = errors });
 
-            var user = await _userService.RegisterUserAsync(dto);
+            var isForceConfirmEmail = await _settingsService.IsForceConfirmEmailRegistor();
 
+            var userDto = await _userService.RegisterUserAsync(dto);
+            if (userDto.Success)
+            {
+                if (isForceConfirmEmail.Success)
+                {
+                    var verifyLink = $"https://localhost:7202/Auth/verify-email?token={userDto.Data.TokenEmail}";
 
-            if (user != null) {
-                return Ok(user);
+                    string htmlMessage = $@"
+                    <p>Nhấn nút bên dưới để xác minh tài khoản:</p>
+                    <a href='{verifyLink}' style='display:inline-block;padding:10px 20px;background-color:#4CAF50;color:white;text-decoration:none;border-radius:5px;'>Verify Email</a>
+                    ";
+                    await _emailService.SendEmailAsync(userDto.Data.Email, "Xác thực Email", htmlMessage);
+
+                    return BadRequest(isForceConfirmEmail.Message);
+                } else
+                {
+                    return Ok(isForceConfirmEmail);
+                }
             }
-            return BadRequest("Tên đăng nhập/Email đã tồn tại!");
+            return BadRequest(userDto.Message);
+        }
+
+        [HttpGet("verify-email")]
+        public async Task<IActionResult> VerifyEmail(string token)
+        {
+            var user = await _userService.VerifyEmailByToken(token);
+
+            if (user == null)
+                return BadRequest("Không hợp lệ.");
+
+            return Ok("Xác thực Email thành công.");
         }
 
         [HttpPost("refresh")]

@@ -16,6 +16,5 @@ namespace LMSCourse.DTOs.User
 
 
         public List<string> Roles { get; set; } = new List<string>();
-
     }
 }

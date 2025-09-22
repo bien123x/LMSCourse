@@ -8,22 +8,21 @@
         public string? Name { get; set; } = string.Empty;
         public string? Surname { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-
-        // Email verification
         public bool IsEmailConfirmed { get; set; } = false;
-        public string EmailVerificationToken { get; set; } = string.Empty;
-        public DateTime? EmailVerificationTokenExpires { get; set; }
-
+        public string? TokenEmail { get; set; } = string.Empty;
+        public DateTime? TokenEmailExpires { get; set; }
         public string PhoneNumber { get; set; } = string.Empty;
         public bool IsActive { get; set; } = true;
         public string CreatedBy { get; set; } = string.Empty;
-        public DateTime CreationTime { get; set; } = DateTime.Now;
+        public DateTime CreationTime { get; set; } = DateTime.UtcNow;
         public string ModifiedBy { get; set; } = string.Empty;
-        public DateTime ModificationTime { get; set; } = DateTime.Now;
-        public DateTime PasswordUpdateTime { get; set; } = DateTime.Now;
+        public DateTime ModificationTime { get; set; } = DateTime.UtcNow;
+        public DateTime PasswordUpdateTime { get; set; } = DateTime.UtcNow;
         public DateTime? LockoutEndTime { get; set; }
         public int FailedAccessCount { get; set; } = 0;
         public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
         public ICollection<UserPermission> UserPermissions { get; set; } = new List<UserPermission>();
+        public ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
+        public ICollection<Course> Courses { get; set; } = new List<Course>();
     }
 }

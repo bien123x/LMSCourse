@@ -1,4 +1,5 @@
-﻿using LMSCourse.Models;
+﻿using LMSCourse.DTOs.Setting;
+using LMSCourse.Models;
 using LMSCourse.Repositories;
 using LMSCourse.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -9,28 +10,25 @@ namespace LMSCourse.Controllers
     [Route("[controller]")]
     public class SettingsController : ControllerBase
     {
-        private readonly ISettingsService _service;
+        private readonly ISettingService _service;
 
-        public SettingsController(ISettingsService service)
+        public SettingsController(ISettingService service)
         {
             _service = service;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetPolicy()
+        [HttpGet("identity")]
+        public async Task<IActionResult> GetIdentitySettings()
         {
-            var policy = await _service.GetPasswordPolicy();
-            if (policy == null) return NotFound("Không có policy");
-            return Ok(policy);
+            var identitySetting = await _service.GetIdentitySettingAsync();
+            return Ok(identitySetting);
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdatePolicy([FromBody] PasswordPolicy policy)
+        [HttpPut("identity")]
+        public async Task<IActionResult> UpdateIdentitySettings(IdentitySettingDto identitySettingDto)
         {
-            var policyUpdate = await _service.UpdatePasswordPolicy(policy);
-
-            if (policyUpdate == null) return NotFound(policy);
-            return Ok(new { Message = "Lưu chính sách mật khẩu thành công." });
+            var identitySetting = await _service.UpdateIdentitySettingAsync(identitySettingDto);
+            return Ok(identitySetting);
         }
 
         [HttpPost]
@@ -40,5 +38,14 @@ namespace LMSCourse.Controllers
 
             return Ok(new { isValid, errors });
         }
+
+        [HttpGet("user-policy")]
+        public async Task<IActionResult> GetUserSettingAsync()
+        {
+            var userPolicy = await _service.GetUserSettingAsync();
+
+            return Ok(userPolicy);
+        }
+
     }
 }

@@ -4,6 +4,7 @@ import { MenuItem, TreeNode } from 'primeng/api';
 import { DrawerModule } from 'primeng/drawer';
 import { ButtonModule } from 'primeng/button';
 import { PanelMenu } from 'primeng/panelmenu';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-left-sidebar',
@@ -12,6 +13,7 @@ import { PanelMenu } from 'primeng/panelmenu';
 })
 export class LeftSidebarComponent implements OnInit {
   private router = inject(Router);
+  private authService = inject(AuthService);
   items: MenuItem[] = [];
 
   ngOnInit(): void {
@@ -27,6 +29,7 @@ export class LeftSidebarComponent implements OnInit {
         command: () => this.router.navigate(['/dashboard']),
       },
       {
+        visible: this.authService.hasRole('Admin'),
         label: 'Quản trị',
         icon: 'pi pi-cog',
         items: [
@@ -49,7 +52,7 @@ export class LeftSidebarComponent implements OnInit {
           {
             label: 'Nhật ký',
             icon: 'pi pi-book',
-            command: () => this.router.navigate(['/logs']),
+            command: () => this.router.navigate(['/audit-logs']),
           },
           {
             label: 'Cài đặt',

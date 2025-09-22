@@ -109,6 +109,79 @@ namespace LMSCourse.Data
                 }
                 await context.SaveChangesAsync();
             }
+
+            if (!context.IdentitySettings.Any())
+            {
+                await context.IdentitySettings.AddAsync(new IdentitySetting
+                {
+                    Password = new PasswordSetting
+                    {
+                        RequiredLength = 3,
+                        RequiredUniqueChars = 1,
+                        RequireNonAlphanumeric = false,
+                        RequireLowercase = false,
+                        RequireUppercase = false,
+                        RequireDigit = false,
+                        ForceUsersToPeriodicallyChangePassword = false,
+                        PasswordChangePeriodDays = 0,
+                    },
+                    Lockout = new LockoutSetting
+                    {
+                        AllowedForNewUsers = true,
+                        LockoutDuration = 300,
+                        MaxFailedAccessAttempts = 5
+                    },
+                    SignIn = new SignInSetting
+                    {
+                        RequireConfirmedEmail = false,
+                        RequireEmailVerificationToRegister = false,
+                        EnablePhoneNumberConfirmation = true,
+                        RequireConfirmedPhoneNumber = false,
+                    },
+                    User = new UserSetting
+                    {
+                        IsUserNameUpdateEnabled = true,
+                        IsEmailUpdateEnabled = true,
+                    }
+                });
+
+                await context.SaveChangesAsync();
+            }
+
+            if (!context.Categories.Any())
+            {
+                await context.Categories.AddRangeAsync(
+                    new Category { Name = "Quản trị" },
+                    new Category { Name = "CNTT & Phần mềm" },
+                    new Category { Name = "Tiếp thị" },
+                    new Category {Name = "Tài chính" }, 
+                    new Category { Name = "Năng suất" }
+                );
+                await context.SaveChangesAsync();
+            }
+
+            // Languages
+            if (!context.Languages.Any())
+            {
+                await context.Languages.AddRangeAsync(
+                    new Language { Name = "Tiếng Việt" },
+                    new Language { Name = "Tiếng Anh" },
+                    new Language { Name = "Tiếng Pháp" },
+                    new Language { Name = "Tiếng Nhật" }
+                );
+                await context.SaveChangesAsync();
+            }
+
+            // Levels
+            if (!context.Levels.Any())
+            {
+                await context.Levels.AddRangeAsync(
+                    new Level { Name = "Cơ bản" },
+                    new Level { Name = "Trung cấp" },
+                    new Level { Name = "Nâng cao" }
+                );
+                await context.SaveChangesAsync();
+            }
         }
     }
 }

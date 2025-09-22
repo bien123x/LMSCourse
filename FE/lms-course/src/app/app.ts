@@ -5,10 +5,11 @@ import { RightSidebarComponent } from './shared/right-sidebar/right-sidebar';
 import { LeftSidebarComponent } from './shared/left-sidebar/left-sidebar';
 import { AuthService } from './core/services/auth.service';
 import { filter } from 'rxjs';
+import { Toast } from 'primeng/toast';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ButtonModule, RightSidebarComponent, LeftSidebarComponent],
+  imports: [RouterOutlet, ButtonModule, RightSidebarComponent, LeftSidebarComponent, Toast],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
