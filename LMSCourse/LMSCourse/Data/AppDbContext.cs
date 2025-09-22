@@ -17,6 +17,15 @@ namespace LMSCourse.Data
 
         public DbSet<IdentitySetting> IdentitySettings { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
+        
+        public DbSet<Level> Levels { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Language> Languages { get; set; }
+        public DbSet<Lesson> Lessons { get; set; }
+        public DbSet<CourseTopic> CourseTopics { get; set; }
+        public DbSet<FaqItem> FaqItems { get; set; }
+        public DbSet<FaqGroup> FaqGroups { get; set; }
+        public DbSet<Course> Courses { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

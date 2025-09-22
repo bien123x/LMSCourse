@@ -23,6 +23,8 @@ export const routes: Routes = [
       { path: 'roles', component: RolesComponent },
       { path: 'users', component: UsersComponent },
     ],
+    canActivate: [RoleGuard],
+    data: { roles: ['Admin'] },
   },
   {
     path: 'settings',

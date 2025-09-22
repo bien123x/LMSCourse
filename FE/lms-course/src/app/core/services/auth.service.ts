@@ -45,25 +45,6 @@ export class AuthService {
     localStorage.setItem(key, JSON.stringify(arr));
   }
 
-  // private decodeAndSetClaims(token: string) {
-
-  //   const decoded = jwtDecode<any>(token);
-
-  //   const roleClaim = decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-  //   const roles = Array.isArray(roleClaim) ? roleClaim : roleClaim ? [roleClaim] : [];
-  //   this.rolesSignal.set(roles);
-  //   this.saveArray(this.rolesKey, roles);
-
-  //   const permissionClaim = decoded.Permission;
-  //   const permissions = Array.isArray(permissionClaim)
-  //     ? permissionClaim
-  //     : permissionClaim
-  //     ? [permissionClaim]
-  //     : [];
-  //   this.permissionsSignal.set(permissions);
-  //   this.saveArray(this.permissionsKey, permissions);
-  // }
-
   private decodeAndSetClaims(token: string | null) {
     if (!token || typeof token !== 'string') {
       console.error('Token không hợp lệ:', token);
@@ -102,6 +83,10 @@ export class AuthService {
 
   hasPermission(permission: string): boolean {
     return this.permissionsSignal().includes(permission);
+  }
+
+  hasRole(role: string): boolean {
+    return this.rolesSignal().includes(role);
   }
 
   login(loginDto: LoginDto): Observable<any> {
