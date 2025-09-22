@@ -92,7 +92,7 @@ namespace LMSCourse.Repositories
 
         public async Task<bool> IsExistUserNameOrEmail(string userName, string email, int? userId = null)
         {
-            return await _context.Users.AnyAsync(u => (u.UserName == userName || u.Email == email) && 
+            return await _context.Users.AnyAsync(u => (u.UserName == userName || u.Email == email) &&
             (!userId.HasValue || u.UserId != userId)
             );
         }
@@ -154,8 +154,16 @@ namespace LMSCourse.Repositories
                     case "email":
                         users = users.Where(u => u.Email.Contains(filter.Value));
                         break;
-                    case "role":
+                    case "roles":
                         users = users.Where(u => u.UserRoles.Select(ur => ur.Role.RoleName).Contains(filter.Value));
+                        break;
+                    case "global":
+                        users = users.Where(u =>
+                        u.Email.Contains(filter.Value) ||
+                        u.UserName.Contains(filter.Value) ||
+                        u.Surname.Contains(filter.Value) ||
+                        u.Name.Contains(filter.Value) ||
+                        u.PhoneNumber.Contains(filter.Value));
                         break;
                 }
             }

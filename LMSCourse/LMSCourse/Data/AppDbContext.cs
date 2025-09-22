@@ -16,7 +16,6 @@ namespace LMSCourse.Data
         public DbSet<UserPermission> UserPermissions { get; set; }
 
         public DbSet<IdentitySetting> IdentitySettings { get; set; }
-        public DbSet<PasswordPolicy> PasswordPolicies { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
 
 
@@ -40,34 +39,10 @@ namespace LMSCourse.Data
                 entity.Property(u => u.PasswordHash)
                       .IsRequired();
 
-                entity.Property(u => u.CreationTime)
-                        .HasDefaultValueSql("GETDATE()");
-
-                entity.Property(u => u.ModificationTime)
-                       .HasDefaultValueSql("GETDATE()");
-
-                entity.Property(u => u.PasswordUpdateTime)
-                       .HasDefaultValueSql("GETDATE()");
-
                 entity.Property(u => u.FailedAccessCount)
                        .HasDefaultValue(0);
             });
 
-
-
-            modelBuilder.Entity<PasswordPolicy>()
-                .HasData(
-                    new PasswordPolicy
-                    {
-                        PasswordPolicyId = 1,
-                        MinLength = 6,
-                        RequiredUniqueChars = 3,
-                        RequireDigit = true,
-                        RequireLowercase = true,
-                        RequireUppercase = true,
-                        RequireNonAlphanumeric = true,
-                    }
-                );
         }
     }
 }

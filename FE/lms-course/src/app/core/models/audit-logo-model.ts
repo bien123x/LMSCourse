@@ -8,5 +8,13 @@ export interface AuditlogsDto {
   duration: number;
   browserInfo: string;
   exception: string;
-  createAt: Date;
+  createdAt: Date;
+}
+
+export interface StatusCodeValue {
+  value: string;
+}
+
+export interface HttpMethodValue {
+  value: string;
 }

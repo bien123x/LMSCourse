@@ -13,7 +13,8 @@ import { PasswordModule } from 'primeng/password';
 import { CheckboxModule } from 'primeng/checkbox';
 import { SettingsService } from '../../core/services/settings.service';
 import { passwordValidator } from '../../core/validators/settings-validator';
-import { map } from 'rxjs';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { InputMaskModule } from 'primeng/inputmask';
 
 @Component({
   selector: 'app-user-form',
@@ -29,6 +30,8 @@ import { map } from 'rxjs';
     CheckboxModule,
     TableModule,
     DatePipe,
+    InputNumberModule,
+    InputMaskModule,
   ],
 })
 export class UserFormComponent implements OnInit {
@@ -67,10 +70,7 @@ export class UserFormComponent implements OnInit {
           ],
           surname: [''],
           email: ['', [Validators.required, Validators.email]],
-          phoneNumber: [
-            '',
-            [Validators.required, Validators.minLength(10), Validators.maxLength(10)],
-          ],
+          phoneNumber: ['', [Validators.required]],
           isActive: [true],
           roles: [[]],
         });
@@ -85,10 +85,7 @@ export class UserFormComponent implements OnInit {
           name: [this.viewUser()?.name],
           surname: [this.viewUser()?.surname],
           email: [this.viewUser()?.email, [Validators.email]],
-          phoneNumber: [
-            this.viewUser()?.phoneNumber,
-            [Validators.required, Validators.minLength(10), Validators.maxLength(10)],
-          ],
+          phoneNumber: [this.viewUser()?.phoneNumber, [Validators.required]],
           isActive: [this.viewUser()?.isActive],
           roles: [rolesArray],
         });
@@ -101,7 +98,7 @@ export class UserFormComponent implements OnInit {
         if (this.mode() === 'viewDetail') {
           this.userForm.disable();
           this.general.set([
-            { label: 'Tạo bởi', value: this.viewUser()?.createBy },
+            { label: 'Tạo bởi', value: this.viewUser()?.createdBy },
             { label: 'Thời gian tạo', value: this.viewUser()?.creationTime },
             { label: 'Cập nhật gần nhất', value: this.viewUser()?.modificationTime },
             { label: 'Cập nhật bởi', value: this.viewUser()?.modifiedBy },

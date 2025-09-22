@@ -33,7 +33,7 @@ namespace LMSCourse.Repositories
 
         public async Task<LMSCourse.DTOs.Page.PagedResult<AuditLog>> GetAllByQueryAsync(QueryDto query)
         {
-            var auditLogs = _context.AuditLogs.AsQueryable().AsNoTracking();
+            var auditLogs = _context.AuditLogs.OrderByDescending(a => a.CreatedAt).AsQueryable().AsNoTracking();
 
             foreach (var filter in query.Filters)
             {
@@ -42,7 +42,7 @@ namespace LMSCourse.Repositories
                 switch (filter.Field.ToLower())
                 {
                     case "httpmethod":
-                        auditLogs = auditLogs.Where(a => a.HttpMethod.Contains(filter.Value));
+                        auditLogs = auditLogs.Where(a => a.HttpMethod.Equals(filter.Value));
                         break;
                     case "statuscode":
                         if (int.TryParse(filter.Value, out var code))
@@ -50,6 +50,17 @@ namespace LMSCourse.Repositories
                             auditLogs = auditLogs.Where(a => a.StatusCode == code);
                         }
                         break ;
+                    case "global":
+                        auditLogs = auditLogs.Where(a => a.UserName.Contains(filter.Value) || a.HttpMethod.Contains(filter.Value));
+                        break;
+                    case "createdat":
+                        var parts = filter.Value.Split('*', StringSplitOptions.TrimEntries);
+                        var startDate = DateTime.Parse(parts[0]); // ngày bắt đầu
+                        var endDate = DateTime.Parse(parts[1]).AddDays(1).AddTicks(-1); // cuối ngày
+                        var time = auditLogs.FirstOrDefault(a => a.AuditLogId == 709).CreatedAt;
+                        auditLogs = auditLogs
+                            .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate);
+                        break;
 
                 }
 

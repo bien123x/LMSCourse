@@ -35,7 +35,7 @@ namespace LMSCourse.Services
                 Exception = dto.Exception,
                 // Thêm các thuộc tính khác nếu cần thiết
                 ApplicationName = "LMSCourse",
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             };
 
             await _logRepository.AddLogAsync(logEntity);

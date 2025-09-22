@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { QueryDto } from '../models/query-model';
 import { PagedResult } from '../models/page-model';
 import { AuditlogsDto } from '../models/audit-logo-model';

@@ -11,10 +11,10 @@
         public bool IsActive { get; set; } = true;
         public string Roles { get; set; } = string.Empty;
         public string CreatedBy { get; set; } = string.Empty;
-        public DateTime CreationTime { get; set; } = DateTime.Now;
+        public DateTime CreationTime { get; set; } = DateTime.UtcNow;
         public string ModifiedBy { get; set; } = string.Empty;
-        public DateTime ModificationTime { get; set; } = DateTime.Now;
-        public DateTime PasswordUpdateTime { get; set; } = DateTime.Now;
+        public DateTime ModificationTime { get; set; } = DateTime.UtcNow;
+        public DateTime PasswordUpdateTime { get; set; } = DateTime.UtcNow;
         public DateTime? LockoutEndTime { get; set; }
         public int FailedAccessCount { get; set; } = 0;
     }

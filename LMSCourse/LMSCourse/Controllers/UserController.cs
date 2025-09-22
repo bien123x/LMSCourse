@@ -5,6 +5,7 @@ using LMSCourse.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OnlineCourseConstants;
+using System.Security.Claims;
 
 namespace LMSCourse.Controllers
 {
@@ -49,8 +50,13 @@ namespace LMSCourse.Controllers
 
             if (!isValid)
                 return BadRequest(new { Errors = errors });
-            var userAdd = await _userService.AddUserAsync(userDto);
-            if (userAdd == null) return BadRequest("Tên đang nhập/Email đã tồn tại!");
+
+            var addUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(addUserId))
+                return NotFound("Người thêm không tồn tại!");
+            var userAdd = await _userService.AddUserAsync(userDto, int.Parse(addUserId));
+            if (userAdd == null) return BadRequest("Tên đang nhập/Email đã tồn tại hoặc người tạo không xác thực!");
             return Ok(userAdd);
         }
 
@@ -58,17 +64,15 @@ namespace LMSCourse.Controllers
         [Authorize(Policy = PERMISSION.EditUsers)]
         public async Task<IActionResult> EditUserDto(int userId, EditUserDto editUserDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var userEdit = await _userService.EditUserDto(userId, editUserDto);
-
+            var editUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(editUserId))
+                return NotFound(new {
+                    Message = "Người sửa không tồn tại!"});
+            
+            var userEdit = await _userService.EditUserDto(userId, editUserDto, int.Parse(editUserId));
 
             if (userEdit == null)
-                return BadRequest(
-                    new { Message = "Không thể cập nhật user. Có thể user không tồn tại hoặc Username/Email đã được dùng." }
-                );
+                return BadRequest(new {Message = "Sửa người dùng thất bại! Đã tồn tại tên đăng nhập/Email!"});
             return Ok(userEdit);
         }
 
@@ -130,6 +134,30 @@ namespace LMSCourse.Controllers
             if (!result.Success)
                 return BadRequest(result);
             return Ok(result);
+        }
+
+        [HttpPut("lock-user/{userId:int}")]
+        public async Task<IActionResult> LockUserAsync(int userId, LockEndTimeDto dto)
+        {
+            var result = await _userService.LockUserByIdAsync(userId, dto.LockEndTime);
+
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            else
+                return NotFound(result.Message);
+        }
+
+        [HttpPut("unlock-user/{userId:int}")]
+        public async Task<IActionResult> UnlockUserAsync(int userId)
+        {
+            var result = await _userService.UnLockUserByIdAsync(userId);
+
+            if (result.Success) 
+                return Ok(result);
+            else
+                return NotFound(result.Message);
         }
     }
 }

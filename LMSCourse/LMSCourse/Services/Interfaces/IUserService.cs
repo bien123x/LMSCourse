@@ -18,8 +18,8 @@ namespace LMSCourse.Services.Interfaces
         string HashPasswordUser(User user, string password);
         Task UpdateUserAsync(User user);
         Task<IEnumerable<ViewUserDto>> GetAllViewUser();
-        Task<ViewUserDto> AddUserAsync(UserDto userDto);
-        Task<ViewUserDto> EditUserDto(int userId, EditUserDto editUserDto);
+        Task<ViewUserDto> AddUserAsync(UserDto userDto, int addUserId);
+        Task<ViewUserDto> EditUserDto(int userId, EditUserDto editUserDto, int editUserId);
         Task<bool> DeleteUser(int userId);
 
         Task<List<string>> GetRolesName();
@@ -33,5 +33,7 @@ namespace LMSCourse.Services.Interfaces
         Task IncreaseFailAccessCount(int userId);
         Task ResetFailAccessCount(int userId);
         Task SetLockEndTimeAsync(int userId, int lockoutDuration);
+        Task<ApiResponse<DateTime?>> LockUserByIdAsync(int userId, DateTime dateEndTime);
+        Task<ApiResponse> UnLockUserByIdAsync(int userId);
     }
 }
