@@ -1,5 +1,2 @@
-<<<<<<< HEAD
+
 change from main
-=======
-bien test
->>>>>>> 4288f2cabf54e96f1ce946c7d309ad9cf6d951d0
