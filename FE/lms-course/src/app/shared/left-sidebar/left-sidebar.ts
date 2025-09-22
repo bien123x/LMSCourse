@@ -29,6 +29,11 @@ export class LeftSidebarComponent implements OnInit {
         command: () => this.router.navigate(['/dashboard']),
       },
       {
+        label: 'Khóa học',
+        icon: 'pi pi-book',
+        command: () => this.router.navigate(['/courses']),
+      },
+      {
         visible: this.authService.hasRole('Admin'),
         label: 'Quản trị',
         icon: 'pi pi-cog',

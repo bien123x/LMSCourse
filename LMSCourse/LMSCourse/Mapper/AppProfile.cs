@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using LMSCourse.Dtos;
+using LMSCourse.DTOs.Course;
 using LMSCourse.DTOs.Role;
 using LMSCourse.DTOs.Setting;
 using LMSCourse.DTOs.User;
@@ -54,6 +55,29 @@ namespace LMSCourse.Mapper
             CreateMap<UserSettingDto, UserSetting>();
 
             CreateMap<AuditLog, AuditLogDto>();
+
+            CreateMap<CourseCreateUpdateDto, Course>();
+            CreateMap<FaqGroupCreateUpdateDto, FaqGroup>();
+            CreateMap<FaqItemCreateUpdateDto, FaqItem>();
+            CreateMap<CourseTopicCreateUpdateDto, CourseTopic>();
+            CreateMap<LessonCreateUpdateDto, Lesson>();
+
+            CreateMap<Course, CourseDto>()
+                .ForMember(dest => dest.TeacherName, opt => opt.MapFrom(c => c.Teacher.Name))
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(c => c.Category.Name))
+                .ForMember(dest => dest.LevelName, opt => opt.MapFrom(c => c.Level.Name))
+                .ForMember(dest => dest.LanguageName, opt => opt.MapFrom(c => c.Language.Name))
+                .ForMember(dest => dest.FaqGroups, opt => opt.MapFrom(src => src.FaqGroups))
+                .ForMember(dest => dest.CourseTopics, opt => opt.MapFrom(src => src.CourseTopics));
+
+            // FaqGroup -> FaqGroupDto
+            CreateMap<FaqGroup, FaqGroupDto>();
+
+            // FaqItem -> FaqItemDto
+            CreateMap<FaqItem, FaqItemDto>();
+
+            // CourseTopic -> CourseTopicDto
+            CreateMap<CourseTopic, CourseTopicDto>();
         }
     } 
 }

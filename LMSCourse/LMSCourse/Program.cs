@@ -82,6 +82,10 @@ builder.Services.AddScoped<IPermissionsRepository, PermissionsRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddScoped<ICourseService, CourseSevice>();
+builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+builder.Services.AddScoped<IGenericRepository<Course>, GenericRepository<Course>>();
+
 
 
 //JWT

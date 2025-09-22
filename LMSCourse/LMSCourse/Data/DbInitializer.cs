@@ -47,6 +47,30 @@ namespace LMSCourse.Data
                 await context.SaveChangesAsync();
             }
 
+            // Seed Teacher User
+            if (!context.Users.Any(u => u.Email == "22a1001d0032@students.hou.edu.vn"))
+            {
+                var teacherRole = await context.Roles.FirstAsync(r => r.RoleName == "Teacher");
+
+                var teacherUser = new User
+                {
+                    UserName = "teacher",
+                    Email = "22a1001d0032@students.hou.edu.vn",
+                    PasswordHash = new PasswordHasher<User>().HashPassword(null!, "123")
+                };
+
+                context.Users.Add(teacherUser);
+                await context.SaveChangesAsync();
+
+                // Gán Role cho User
+                context.UserRoles.Add(new UserRole
+                {
+                    UserId = teacherUser.UserId,
+                    RoleId = teacherRole.RoleId,
+                });
+                await context.SaveChangesAsync();
+            }
+
             // Seed Permissions
             if (!context.Permissions.Any())
             {
@@ -96,19 +120,69 @@ namespace LMSCourse.Data
             // Seed RolePermissions
             if (!context.RolePermissions.Any())
             {
-                var adminRole = await context.Roles.FirstAsync(r => r.RoleName == "Admin");
+                var roles = await context.Roles
+                    .Where(r => r.RoleName == "Admin" || r.RoleName == "Teacher" || r.RoleName == "Student")
+                    .ToListAsync();
+
                 var permissions = await context.Permissions.ToListAsync();
 
-                foreach (var p in permissions)
+                foreach (var role in roles)
                 {
-                    context.RolePermissions.Add(new RolePermission
+                    List<Permission> rolePermissions;
+
+                    switch (role.RoleName)
                     {
-                        RoleId = adminRole.RoleId,
-                        PermissionId = p.PermissionId
-                    });
+                        case "Admin":
+                            // Admin có tất cả permissions
+                            rolePermissions = permissions;
+                            break;
+
+                        case "Teacher":
+                            // Teacher chỉ có quản lý Course, Lesson, Enrollment
+                            rolePermissions = permissions.Where(p =>
+                                p.PermissionName == PERMISSION.ViewCourses ||
+                                p.PermissionName == PERMISSION.CreateCourses ||
+                                p.PermissionName == PERMISSION.EditCourses ||
+                                p.PermissionName == PERMISSION.DeleteCourses ||
+
+                                p.PermissionName == PERMISSION.ViewLessons ||
+                                p.PermissionName == PERMISSION.CreateLessons ||
+                                p.PermissionName == PERMISSION.EditLessons ||
+                                p.PermissionName == PERMISSION.DeleteLessons ||
+
+                                p.PermissionName == PERMISSION.ViewEnrollments ||
+                                p.PermissionName == PERMISSION.ManageEnrollments
+                            ).ToList();
+                            break;
+
+                        case "Student":
+                            // Student chỉ có quyền xem thông tin
+                            rolePermissions = permissions.Where(p =>
+                                p.PermissionName == PERMISSION.ViewCourses ||
+                                p.PermissionName == PERMISSION.ViewLessons ||
+                                p.PermissionName == PERMISSION.ViewEnrollments ||
+                                p.PermissionName == PERMISSION.ViewPayments
+                            ).ToList();
+                            break;
+
+                        default:
+                            rolePermissions = new List<Permission>();
+                            break;
+                    }
+
+                    foreach (var permission in rolePermissions)
+                    {
+                        context.RolePermissions.Add(new RolePermission
+                        {
+                            RoleId = role.RoleId,
+                            PermissionId = permission.PermissionId
+                        });
+                    }
                 }
+
                 await context.SaveChangesAsync();
             }
+
 
             if (!context.IdentitySettings.Any())
             {
