@@ -1,6 +1,5 @@
 ﻿using LMSCourse.Data;
 using LMSCourse.Dtos;
-using LMSCourse.DTOs.Page;
 using LMSCourse.DTOs.Page_Sort_Filter;
 using LMSCourse.Interfaces;
 using LMSCourse.Models;
@@ -31,7 +30,7 @@ namespace LMSCourse.Repositories
             return await _context.AuditLogs.OrderByDescending(x => x.CreatedAt).ToListAsync();
         }
 
-        public async Task<LMSCourse.DTOs.Page.PagedResult<AuditLog>> GetAllByQueryAsync(QueryDto query)
+        public async Task<DTOs.Page_Sort_Filter.PagedResult<AuditLog>> GetAllByQueryAsync(QueryDto query)
         {
             var auditLogs = _context.AuditLogs.OrderByDescending(a => a.CreatedAt).AsQueryable().AsNoTracking();
 
@@ -81,7 +80,7 @@ namespace LMSCourse.Repositories
 
             
 
-            return new DTOs.Page.PagedResult<AuditLog>
+            return new DTOs.Page_Sort_Filter.PagedResult<AuditLog>
             {
                 Items = items,
                 TotalCount = totalCount,

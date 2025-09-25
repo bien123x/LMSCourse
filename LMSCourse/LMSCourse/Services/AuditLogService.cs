@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using LMSCourse.Dtos;
-using LMSCourse.DTOs.Page;
 using LMSCourse.DTOs.Page_Sort_Filter;
 using LMSCourse.DTOs.User;
 using LMSCourse.Interfaces;

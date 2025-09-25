@@ -49,4 +49,29 @@ namespace LMSCourse.DTOs.Course
         public bool IsLifetime { get; set; }
         public int? DurationInMonths { get; set; }
     }
+    public class CourseTopicDto
+    {
+        public int CourseTopicId { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public List<LessonDto> Lessons { get; set; } = new List<LessonDto>();
+    }
+    public class LessonDto
+    {
+        public int LessonId { get; set; }
+        public string Title { get; set; }
+    }
+    public class FaqGroupDto
+    {
+        public int FaqGroupId { get; set; }
+        public string Title { get; set; } = string.Empty;
+
+        // Các FAQ items
+        public List<FaqItemDto> FaqItems { get; set; } = new List<FaqItemDto>();
+    }
+    public class FaqItemDto
+    {
+        public int FaqItemId { get; set; }
+        public string Question { get; set; } = string.Empty;
+        public string Answer { get; set; } = string.Empty;
+    }
 }

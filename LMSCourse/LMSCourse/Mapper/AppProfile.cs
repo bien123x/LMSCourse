@@ -39,8 +39,6 @@ namespace LMSCourse.Mapper
 
             CreateMap<EditUserDto, User>();
 
-            CreateMap<PasswordPolicy, PasswordPolicy>()
-                .ForMember(dest => dest.PasswordPolicyId, opt => opt.Ignore());
 
             CreateMap<IdentitySetting, IdentitySettingDto>();
             CreateMap<PasswordSetting, PasswordSettingDto>();
@@ -78,6 +76,7 @@ namespace LMSCourse.Mapper
 
             // CourseTopic -> CourseTopicDto
             CreateMap<CourseTopic, CourseTopicDto>();
+            CreateMap<Lesson, LessonDto>();
         }
     } 
 }

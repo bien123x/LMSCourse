@@ -1,21 +1,28 @@
 <p-toast></p-toast>
 @if (!isAuthPage()) {
 <div class="flex flex-col md:flex-row h-screen gap-2">
-  <!-- Left Sidebar -->
   <div class="bg-white flex-[2]">
     <app-left-sidebar></app-left-sidebar>
   </div>
 
-  <!-- Main Content -->
   <div class="bg-[rgb(240,244,247)] p-10 flex-[9] overflow-y-auto">
     <router-outlet />
   </div>
 
-  <!-- Right Sidebar -->
   <div class="bg-white flex-[1]">
     <app-right-sidebar></app-right-sidebar>
   </div>
 </div>
+
+<!-- <div class="main-wrapper bg-amber-400">
+  <header class="header bg-yellow-50">header</header>
+  <div class="container">container</div>
+  <footer class="footer bg-red-50">footer</footer>
+</div>
+<img
+  src="https://dreamslms.dreamstechnologies.com/html/template/assets/img/logo-white.svg"
+  alt=""
+/> -->
 
 } @else {
 <router-outlet />

@@ -1,5 +1,4 @@
-﻿using LMSCourse.DTOs.Page;
-using LMSCourse.DTOs.Page_Sort_Filter;
+﻿using LMSCourse.DTOs.Page_Sort_Filter;
 using LMSCourse.DTOs.User;
 using LMSCourse.Models;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;

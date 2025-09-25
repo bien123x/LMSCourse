@@ -7,6 +7,5 @@
 
         // Quan hệ
         public ICollection<Course> Courses { get; set; } = new List<Course>();
-
     }
 }

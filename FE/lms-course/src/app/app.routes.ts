@@ -12,6 +12,7 @@ import { AuthGuard } from './core/guards/auth-guard';
 import { RoleGuard } from './core/guards/role-guard';
 import { AuditLogsComponent } from './features/audit-logs/audit-logs';
 import { CourseComponent } from './features/course/course.component';
+import { CourseDetailComponent } from './features/course/course-detail/course-detail.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -27,7 +28,11 @@ export const routes: Routes = [
     canActivate: [RoleGuard],
     data: { roles: ['Admin'] },
   },
-  { path: 'courses', component: CourseComponent },
+  {
+    path: 'courses',
+    component: CourseComponent,
+  },
+  { path: 'courses/detail/:id', component: CourseDetailComponent },
   {
     path: 'settings',
     component: SettingsComponent,
