@@ -1,5 +1,4 @@
 ﻿using LMSCourse.Dtos;
-using LMSCourse.DTOs.Page;
 using LMSCourse.DTOs.Page_Sort_Filter;
 
 namespace LMSCourse.Interfaces
@@ -16,5 +15,8 @@ namespace LMSCourse.Interfaces
         Task<IEnumerable<AuditLogDto>> GetAllAuditLogsAsync();
 
         Task<PagedResult<AuditLogDto>> GetAllAuditLogsByQueryAsync(QueryDto queryDto);
+
+        Task<List<int>> GetDistinctStatusCodeAsync();
+        Task<List<string>> GetDistinctHttpMethod();
     }
 }

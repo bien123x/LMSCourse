@@ -2,4 +2,33 @@
 @import "tailwindcss";
 @plugin "tailwindcss-primeui";
 @import "primeicons/primeicons.css";
-@custom-variant dark (&:where(.my-app-dark, .my-app-dark *));
+
+@theme {}
+
+
+
+@layer base {
+    * {
+        @apply box-border m-0 p-0 font-sans;
+    }
+}
+
+@layer components {
+    .flex-row-center {
+        @apply flex flex-row items-center;
+    }
+
+    .flex-col-5 {
+        @apply flex flex-col gap-5;
+    }
+
+    .border-gray-1 {
+        @apply border-1 border-gray-300;
+    }
+
+    .radius-lg {
+        @apply rounded-lg overflow-hidden;
+    }
+}
+
+@layer utilities {}

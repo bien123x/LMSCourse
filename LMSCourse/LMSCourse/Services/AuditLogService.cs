@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using LMSCourse.Dtos;
-using LMSCourse.DTOs.Page;
 using LMSCourse.DTOs.Page_Sort_Filter;
 using LMSCourse.DTOs.User;
 using LMSCourse.Interfaces;
@@ -59,31 +58,16 @@ namespace LMSCourse.Services
             };
         }
 
-        //public async Task<PagedResult<AuditLogDto>> SearchLogsAsync(AuditLogSearchDto searchDto)
-        //{
-        //    // Gọi Repository để lấy dữ liệu đã được tìm kiếm và phân trang
-        //    var pagedLogs = await _logRepository.SearchLogsAsync(searchDto);
+        public async Task<List<string>> GetDistinctHttpMethod()
+        {
+            return await _logRepository.GetDistinctHttpMethod();
+        }
 
-        //    // Ánh xạ danh sách Entity (AuditLog) sang danh sách DTO (AuditLogDto)
-        //    var logDtos = pagedLogs.Items.Select(log => new AuditLogDto
-        //    {
-        //        HttpMethod = log.HttpMethod,
-        //        Url = log.Url,
-        //        StatusCode = log.StatusCode,
-        //        UserName = log.UserName,
-        //        IpAddress = log.IpAddress,
-        //        Duration = log.Duration,
-        //        BrowserInfo = log.BrowserInfo,
-        //        Exception = log.Exception,
-        //        CreatedAt = log.CreatedAt
-        //    }).ToList();
+        public async Task<List<int>> GetDistinctStatusCodeAsync()
+        {
+            return await _logRepository.GetDistinctStatusCode();
+        }
 
-        //    // Trả về kết quả đã được phân trang và ánh xạ
-        //    return new PagedResult<AuditLogDto>
-        //    {
-        //        Items = logDtos,
-        //        TotalCount = pagedLogs.TotalCount,
-        //    };
-        //}
+        
     }
 }

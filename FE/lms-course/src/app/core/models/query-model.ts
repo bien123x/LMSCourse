@@ -14,3 +14,26 @@ export interface FilterField {
   field: string;
   value: string;
 }
+
+export interface CourseFilterRequest {
+  teacherIds: number[];
+  categoryIds: number[];
+  levelIds: number[];
+  languageIds: number[];
+}
+
+export interface QueryCourseDto {
+  pageNumber: number;
+  pageSize: number;
+  sortField: string;
+  sortOrder: number;
+  courseFilterRequest: CourseFilterRequest;
+}
+
+export interface QueryCourseEnrolledDto {
+  pageNumber: number;
+  pageSize: number;
+  sortField?: string;
+  sortOrder: number;
+  status: string;
+}

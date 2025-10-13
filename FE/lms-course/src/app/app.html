@@ -1,22 +1,56 @@
-<p-toast></p-toast>
+<!-- Layout -->
 @if (!isAuthPage()) {
-<div class="flex flex-col md:flex-row h-screen gap-2">
-  <!-- Left Sidebar -->
-  <div class="bg-white flex-[2]">
-    <app-left-sidebar></app-left-sidebar>
+<div class="flex flex-col h-screen gap-2">
+  <div class="h-[70px] shrink-0 shadow rounded-xl">
+    <app-topbar></app-topbar>
   </div>
-
-  <!-- Main Content -->
-  <div class="bg-[rgb(240,244,247)] p-10 flex-[9] overflow-y-auto">
-    <router-outlet />
-  </div>
-
-  <!-- Right Sidebar -->
-  <div class="bg-white flex-[1]">
-    <app-right-sidebar></app-right-sidebar>
+  <div class="flex flex-col lg:flex-row gap-4 flex-1 overflow-hidden">
+    <div class="w-0 lg:w-[300px] shrink-0 lg:p-2 shadow rounded-xl">
+      <app-sidebar [items]="items()"></app-sidebar>
+    </div>
+    <div class="flex-1 overflow-auto p-3 bg-[#F5F6FA] rounded-xl shadow">
+      <app-breadcrumb></app-breadcrumb>
+      <router-outlet></router-outlet>
+    </div>
   </div>
 </div>
 
 } @else {
-<router-outlet />
+<router-outlet></router-outlet>
+}
+
+<!-- Toast -->
+@if (true) {
+<p-toast> </p-toast>
+
+<!-- ConfirmDialog -->
+<p-confirmdialog #cd>
+  <ng-template #headless let-message let-onAccept="onAccept" let-onReject="onReject">
+    <div class="flex flex-col items-center p-8 bg-surface-0 dark:bg-surface-900 rounded">
+      <div
+        class="rounded-full bg-primary text-primary-contrast inline-flex justify-center items-center h-24 w-24 -mt-20"
+      >
+        <!-- <i class="{{ message.icon }} !text-5xl"></i> -->
+        <i class="pi pi-question !text-5xl"></i>
+      </div>
+      <span class="font-bold text-2xl block mb-2 mt-6">{{ message.header }}</span>
+      <p class="mb-0">{{ message.message }}</p>
+      <div class="flex items-center gap-2 mt-6">
+        <p-button
+          [severity]="message.acceptButtonProps.severity"
+          [label]="message.acceptButtonProps.label"
+          (onClick)="onAccept()"
+          styleClass="w-32"
+        ></p-button>
+        <p-button
+          [severity]="message.rejectButtonProps.severity"
+          [label]="message.rejectButtonProps.label"
+          [outlined]="true"
+          (onClick)="onReject()"
+          styleClass="w-32"
+        ></p-button>
+      </div>
+    </div>
+  </ng-template>
+</p-confirmdialog>
 }

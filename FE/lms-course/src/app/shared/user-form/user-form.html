@@ -25,12 +25,12 @@
           <small class="text-red-500">Tên đăng nhập không hợp lệ</small>
           }
           <div class="flex gap-1">
-            <p-ifta-label>
+            <p-ifta-label class="flex-1">
               <input class="w-full" pInputText name="name" id="name" formControlName="name" />
               <label for="name">Tên</label>
             </p-ifta-label>
-            <p-ifta-label>
-              <input pInputText name="surname" id="surname" formControlName="surname" />
+            <p-ifta-label class="flex-1">
+              <input class="w-full" pInputText name="surname" id="surname" formControlName="surname" />
               <label for="surname">Họ</label>
             </p-ifta-label>
           </div>
@@ -40,6 +40,7 @@
             <p-password
               class="w-full"
               inputStyleClass="w-full"
+              [toggleMask]="true"
               name="passwordHash"
               id="passwordHash"
               formControlName="passwordHash"

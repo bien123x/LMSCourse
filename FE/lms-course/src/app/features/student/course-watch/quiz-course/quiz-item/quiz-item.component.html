@@ -1,0 +1,8 @@
+<div class="flex justify-between items-center">
+  <div class="flex flex-col gap-2">
+    <h5 class="font-bold">{{ quizItem()?.title }}</h5>
+    <p>Số lượng câu hỏi: {{ quizItem()?.noOfQuestions }}</p>
+  </div>
+  <p-button icon="pi pi-chevron-right" rounded="true" (onClick)="quizQestion(quizItem()?.quizId!)">
+  </p-button>
+</div>

@@ -90,10 +90,10 @@ export class UserFormComponent implements OnInit {
           roles: [rolesArray],
         });
 
-        this.settingsService.getUserPolicy().subscribe((res) => {
-          if (!res.isUserNameUpdateEnabled) this.userForm.get('userName')?.disable();
-          if (!res.isEmailUpdateEnabled) this.userForm.get('email')?.disable();
-        });
+        // this.settingsService.getUserPolicy().subscribe((res) => {
+        //   if (!res.isUserNameUpdateEnabled) this.userForm.get('userName')?.disable();
+        //   if (!res.isEmailUpdateEnabled) this.userForm.get('email')?.disable();
+        // });
 
         if (this.mode() === 'viewDetail') {
           this.userForm.disable();

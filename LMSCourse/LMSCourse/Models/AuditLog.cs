@@ -6,7 +6,7 @@
 
         public int? UserId { get; set; }
         public User? User { get; set; }
-        public string? HttpMethod { get; set; }
+        public string? HttpMethod { get; set; } = "GET";
         public string? Url { get; set; }
         public int StatusCode { get; set; }
         public string? UserName { get; set; }

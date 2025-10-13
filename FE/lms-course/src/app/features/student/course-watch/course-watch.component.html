@@ -1,0 +1,64 @@
+<div class="flex flex-col xl:flex-row gap-3">
+  <div class="flex flex-col gap-2 xl:min-w-[300px] xl:flex-1">
+    <h3 class="font-bold text-3xl mb-6">{{ course()?.title }}</h3>
+    <p-accordion [value]="0">
+      @for (topic of course()?.courseTopics; track topic.courseTopicId; let i = $index) {
+      <p-accordion-panel [value]="topic.courseTopicId">
+        <p-accordion-header>
+          <div class="flex flex-col gap-2">
+            <span>Phần {{ i + 1 }}</span>
+            <h6 class="font-bold text-sm">{{ topic.title }}</h6>
+          </div>
+        </p-accordion-header>
+        <p-accordion-content>
+          @for (lesson of topic.lessons; track lesson.lessonId) {
+          <div class="flex justify-between gap-4 p-2">
+            <div class="flex gap-2 items-center">
+              <p-button
+                icon="pi pi-play-circle"
+                rounded="true"
+                severity="danger"
+                [size]="'small'"
+                (onClick)="watchVideo(lesson)"
+              ></p-button>
+              <p class="font-bold text-sm">{{ lesson.title }}</p>
+            </div>
+          </div>
+
+          }
+        </p-accordion-content>
+      </p-accordion-panel>
+      }
+    </p-accordion>
+  </div>
+  <div
+    class="flex flex-col gap-2 shadow rounded-2xl overflow-hidden p-4 xl:max-w-[700px] xl:min-w-[500px]"
+  >
+    <div class="relative hover:cursor-pointer bg-amber-800">
+      <img
+        src="assets/images/{{ course()?.thumbnailUrl }}"
+        alt=""
+        class="aspect-video object-cover w-full"
+      />
+      <div class="absolute flex justify-center items-center inset-0">
+        <i class="pi pi-play-circle text-5xl text-white"></i>
+      </div>
+    </div>
+    <p-select-button
+      [options]="selectOptions"
+      [optionValue]="'value'"
+      [optionLabel]="'label'"
+      [(ngModel)]="selectOption"
+    >
+    </p-select-button>
+    @if (course()) { @if (selectOption == 'overview') {
+    <app-overview-course [course]="course()"></app-overview-course>
+    } @else if (selectOption == 'faq') {
+    <app-faq-course [faqGroups]="course()?.faqGroups"></app-faq-course>
+    } @else {
+    <!-- <app-quiz-course [quizzes]="quizzes()"></app-quiz-course> -->
+    <app-quiz-course [courseId]="courseId"></app-quiz-course>
+
+    } }
+  </div>
+</div>

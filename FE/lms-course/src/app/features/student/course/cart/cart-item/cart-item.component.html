@@ -1,0 +1,40 @@
+<div class="ring-1 rounded-2xl ring-gray-300 p-4 flex flex-col lg:flex-row gap-4 lg:items-center">
+  <div class="overflow-hidden">
+    <a routerLink="/student/courses/detail/{{ item()?.courseId }}">
+      <img
+        src="assets/images/{{ item()?.thumbnailUrl }}"
+        alt="img"
+        class="lg:max-w-[250px] aspect-square object-cover rounded-2xl"
+      />
+    </a>
+  </div>
+  <div class="flex-col gap-2 flex-1">
+    <div class="flex items-center gap-x-2">
+      <p-avatar image="assets/images/eagle.jpg" shape="circle"></p-avatar>
+      <span>{{ item()?.teacherName }}</span>
+    </div>
+    <h3 class="font-bold">{{ item()?.title }}</h3>
+    <div class="flex gap-x-2 items-center">
+      <div class="flex items-center gap-x-2">
+        <i class="pi pi-circle-on text-primary"></i>
+        <span>{{ item()?.levelName }}</span>
+      </div>
+    </div>
+    @if (!visibleDelete()) {
+    <span class="text-red-500">{{ price | currency : 'VND' : 'symbol' }}</span>
+    }
+  </div>
+  @if (visibleDelete()) {
+  <div class="flex justify-end gap-x-2 items-center">
+    <span class="text-red-500">{{ price | currency : 'VND' : 'symbol' }}</span>
+    <p-button
+      icon="pi pi-trash"
+      [rounded]="true"
+      [outlined]="true"
+      [severity]="'danger'"
+      [size]="'small'"
+      (onClick)="deleteItem()"
+    ></p-button>
+  </div>
+  }
+</div>

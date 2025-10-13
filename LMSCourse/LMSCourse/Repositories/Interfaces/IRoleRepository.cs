@@ -14,7 +14,7 @@ namespace LMSCourse.Repositories.Interfaces
         Task<int> CountUsersByRoleId(int roleId);
         Task<Role?> GetWithPermissionsAsync(int roleId);
         Task DeleteAllRolePermissionsByRoleId(int roleId);
-        Task<IEnumerable<Permission>> GetPermissionsByNamesAsync(List<string> permissionNames);
+        Task<IEnumerable<Permission>> GetPermissionsByCodesAsync(List<string> permissionCodes);
         Task SaveChangesAsync();
         Task<Role?> GetById(int roleId);
         Task DeleteAllUserRoleById(int roleId);

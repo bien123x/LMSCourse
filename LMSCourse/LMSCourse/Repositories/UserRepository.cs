@@ -1,5 +1,4 @@
 ﻿using LMSCourse.Data;
-using LMSCourse.DTOs.Page;
 using LMSCourse.DTOs.Page_Sort_Filter;
 using LMSCourse.DTOs.User;
 using LMSCourse.Models;
@@ -116,9 +115,9 @@ namespace LMSCourse.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<Permission>> GetPermissionsByPermissionsName(List<string> permissionsName)
+        public async Task<IEnumerable<Permission>> GetPermissionsByPermissionsCode(List<string> permissionsCode)
         {
-            return await _context.Permissions.Where(p => permissionsName.Contains(p.PermissionName)).ToListAsync();
+            return await _context.Permissions.Where(p => permissionsCode.Contains(p.PermissionCode)).ToListAsync();
         }
 
         public async Task SaveChangesAsync()
@@ -131,10 +130,11 @@ namespace LMSCourse.Repositories
             return await _context.Users
                 .Include(u => u.UserRoles)
                 .Include(u => u.UserPermissions)
+                .Include(u => u.AuditLogs)
                 .FirstOrDefaultAsync(u => u.UserId == userId);
         }
 
-        public async Task<LMSCourse.DTOs.Page.PagedResult<User>> GetPagedUsersAsync(QueryDto query)
+        public async Task<DTOs.Page_Sort_Filter.PagedResult<User>> GetPagedUsersAsync(QueryDto query)
         {
             var users = _context.Users.Where(u => u.IsActive == true)
                                 .Include(u => u.UserRoles)
@@ -185,7 +185,7 @@ namespace LMSCourse.Repositories
                 .Take(query.PageSize)
                 .ToListAsync();
 
-            return new LMSCourse.DTOs.Page.PagedResult<User>
+            return new DTOs.Page_Sort_Filter.PagedResult<User>
             {
                 Items = items,
                 TotalCount = totalCount

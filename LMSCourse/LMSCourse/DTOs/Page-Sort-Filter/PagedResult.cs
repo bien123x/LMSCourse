@@ -1,4 +1,4 @@
-﻿namespace LMSCourse.DTOs.Page
+﻿namespace LMSCourse.DTOs.Page_Sort_Filter
 {
     public class PagedResult<T>
     {

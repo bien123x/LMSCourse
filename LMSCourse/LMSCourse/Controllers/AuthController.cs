@@ -100,7 +100,7 @@ namespace LMSCourse.Controllers
                     return BadRequest(isForceConfirmEmail.Message);
                 }
             }
-            var accessToken = _tokenService.GenerateAccessToken(user);
+            var accessToken = await _tokenService.GenerateAccessToken(user);
             var refreshToken = _tokenService.GenerateRefreshToken(user);
 
             return Ok(new
@@ -173,7 +173,6 @@ namespace LMSCourse.Controllers
         }
 
         [HttpGet("me")]
-        [Authorize]
         public async Task<IActionResult> Me()
         {
             // Lấy userId từ claim
@@ -185,10 +184,7 @@ namespace LMSCourse.Controllers
             if (user == null)
                 return NotFound();
 
-            return Ok(new
-            {
-                user.UserName,
-            });
+            return Ok(user);
         }
 
         [HttpPost("forgot-password")]

@@ -1,0 +1,18 @@
+<div class="hidden lg:block">
+  <p-panelmenu [model]="items()">
+    <ng-template #item let-item>
+      <a class="flex items-center px-4 py-2 cursor-pointer group text-inherit no-underline">
+        <i [class]="item.icon + ' text-primary group-hover:text-inherit'"></i>
+        <span class="ml-2">
+          {{ item.label }}
+        </span>
+      </a>
+    </ng-template>
+  </p-panelmenu>
+</div>
+<div>
+  <p-drawer [(visible)]="visible" header="Sidebar">
+    <p-panelmenu [model]="items()" />
+  </p-drawer>
+  <p-button (onClick)="visible = !visible" icon="pi pi-bars" class="lg:hidden"></p-button>
+</div>

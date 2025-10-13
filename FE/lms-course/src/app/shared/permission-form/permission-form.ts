@@ -1,10 +1,10 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Tree } from 'primeng/tree';
-import { PERMISSIONS } from '../../core/models/constant';
 import { TreeNode } from 'primeng/api';
 import { TableModule } from 'primeng/table';
+import { PermissionService } from '../../core/services/permission.service';
 
 @Component({
   selector: 'app-permission-form',
@@ -12,6 +12,8 @@ import { TableModule } from 'primeng/table';
   imports: [ButtonModule, Tree, TableModule],
 })
 export class PermissionFormComponent implements OnInit {
+  private permisionService = inject(PermissionService);
+  private cd = inject(ChangeDetectorRef);
   mode = signal<string>('');
   permissions = signal<string[]>([]);
   disabledKeys = signal<string[]>([]);
@@ -31,28 +33,40 @@ export class PermissionFormComponent implements OnInit {
         this.permissions.set(userPerms);
         this.disabledKeys.set(rolePerms);
       }
-      console.log(config.data);
     }
   }
 
   ngOnInit() {
-    this.treePermissions = JSON.parse(JSON.stringify(PERMISSIONS));
-    this.selectedPermissions = this.getSelectedNodes(this.treePermissions, this.permissions());
-    console.log(this.selectedPermissions);
+    this.permisionService.getTreePermissions().subscribe((res) => {
+      this.treePermissions = res;
+      console.log('Tree', this.treePermissions);
+      this.selectedPermissions = this.getSelectedNodes(this.treePermissions, this.permissions());
+      console.log('Select', this.selectedPermissions);
+      console.log('Permission', this.permissions());
+      this.cd.markForCheck();
+    });
   }
 
   getSelectedNodes(nodes: TreeNode[], checkedKeys: string[]): TreeNode[] {
     let selected: TreeNode[] = [];
-    for (let nodeParent of nodes) {
-      for (let nodeChild of nodeParent.children!) {
-        if (checkedKeys.includes(nodeChild.key!)) {
-          selected.push({ ...nodeChild });
-        }
-        // Nếu user-permission và node thuộc role-permission → disable
-        if (this.mode() === 'user-permission' && this.disabledKeys().includes(nodeChild.key!)) {
-          selected.push({ ...nodeChild });
-          nodeChild.selectable = false;
-        }
+
+    for (let node of nodes) {
+      // Nếu node nằm trong danh sách quyền được chọn
+      if (checkedKeys.includes(node.data.code!)) {
+        node.expanded = true;
+        selected.push(node);
+      }
+
+      // Nếu đang ở user-permission và node thuộc role-permission → disable
+      if (this.mode() === 'user-permission' && this.disabledKeys().includes(node.data.code!)) {
+        node.selectable = false;
+        node.expanded = true;
+        selected.push(node);
+      }
+
+      // Duyệt đệ quy xuống children
+      if (node.children && node.children.length > 0) {
+        selected = [...selected, ...this.getSelectedNodes(node.children, checkedKeys)];
       }
     }
 
@@ -60,20 +74,41 @@ export class PermissionFormComponent implements OnInit {
   }
 
   saveRolePermissions(): (string | undefined)[] {
-    const selectedKeys = this.selectedPermissions
-      .filter((node) => !node.children || node.children.length === 0)
-      .map((node) => node.key);
-    console.log('Danh sách quyền đã chọn:', selectedKeys);
-    return selectedKeys;
+    let selected: string[] = [];
+
+    // lấy tick đầy đủ
+    const fullChecked = this.selectedPermissions.map((n: any) => n.data.code);
+    selected.push(...fullChecked);
+
+    // lấy tick partial
+    this.getPartialChecked(this.treePermissions, selected);
+
+    console.log('Danh sách quyền đã chọn (full + partial):', selected);
+    return selected;
+  }
+  private getPartialChecked(nodes: any[], selected: string[]) {
+    if (!nodes) return;
+
+    for (let node of nodes) {
+      if (node.partialSelected) {
+        selected.push(node.data.code);
+      }
+      this.getPartialChecked(node.children, selected);
+    }
   }
 
   saveUserPermissions() {
-    const selectedKeys = this.selectedPermissions
-      .filter((node) => !node.children || node.children.length === 0) // chỉ lấy leaf node
-      .map((node) => node.key);
+    let selected: string[] = [];
+
+    // lấy tick đầy đủ
+    const fullChecked = this.selectedPermissions.map((n: any) => n.data.code);
+    selected.push(...fullChecked);
+
+    // lấy tick partial
+    this.getPartialChecked(this.treePermissions, selected);
 
     // Loại bỏ các quyền bị disable (role-permission)
-    const filteredKeys = selectedKeys.filter((key) => !this.disabledKeys().includes(key!));
+    const filteredKeys = selected.filter((key) => !this.disabledKeys().includes(key!));
 
     console.log('User permissions (không gồm role):', filteredKeys);
     return filteredKeys;

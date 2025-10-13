@@ -1,36 +1,27 @@
-<p-toast />
 <div class="flex flex-col gap-2.5">
   <h3 class="font-bold">Đăng ký</h3>
   <hr />
-  @if (errorMsg()) {
-  <p-card header="Lỗi" class="bg-red-50">
-    <small class="text-red-500">
-      <pre>{{ errorMsg() }}</pre>
-    </small>
-  </p-card>
-  <hr />
-
-  }
   <p>
     Bạn đã có tài khoản?
     <a class="text-blue-500 underline cursor-pointer" routerLink="/auth/login">Đăng nhập</a>
   </p>
-  <form #registerForm="ngForm" (ngSubmit)="onSubmit(registerForm)" class="flex flex-col gap-2.5">
+  <form [formGroup]="formRegister" (ngSubmit)="onSubmit()" class="flex flex-col gap-2.5">
     <div>
       <p-iftalabel>
         <input
           class="w-full"
           pInputText
-          id="UserName"
-          [(ngModel)]="registerDto().UserName"
-          name="UserName"
+          id="userName"
+          formControlName="userName"
+          name="userName"
           required
-          #UserName="ngModel"
         />
-        <label for="UserName">Tên đăng nhập</label>
+        <label for="userName">Tên đăng nhập</label>
       </p-iftalabel>
-      @if (UserName.invalid && UserName.touched) { @if (UserName.hasError('required')) {
-      <div class="text-red-500 text-sm mt-1">Tên đăng nhập không được rỗng!</div>
+      @if (userName?.invalid && userName?.touched) { @if (userName?.hasError('required')) {
+      <span class="text-red-500 text-sm mt-1">Tên đăng nhập không được rỗng</span>
+      } @if (userName?.hasError('server')) {
+      <span class="text-red-500 text-sm mt-1">{{ userName?.getError('server') }}</span>
       } }
     </div>
 
@@ -39,18 +30,20 @@
         <input
           class="w-full"
           pInputText
-          id="Email"
-          [(ngModel)]="registerDto().Email"
-          name="Email"
+          id="email"
+          name="email"
+          formControlName="email"
           required
           email
-          #Email="ngModel"
         />
-        <label for="Email">Email</label>
+        <label for="email">Email</label>
       </p-iftalabel>
-      @if (Email.invalid && Email.touched) { @if (Email.hasError('required') ||
-      Email.hasError('email')) {
-      <div class="text-red-500 text-sm mt-1">Email không hợp lệ!</div>
+      @if (email?.invalid && email?.touched) { @if (email?.hasError('required') ||
+      email?.hasError('email')) {
+      <span class="text-red-500 text-sm mt-1">Email không hợp lệ!</span>
+      }
+    @if (email?.hasError('server')) {
+      <span class="text-red-500 text-sm mt-1">{{ email?.getError('server') }}</span>
       } }
     </div>
 
@@ -59,17 +52,21 @@
         <p-password
           class="w-full"
           inputStyleClass="w-full"
-          [(ngModel)]="registerDto().PasswordHash"
-          inputId="Password"
-          name="Password"
+          [toggleMask]="true"
+          formControlName="passwordHash"
+          inputId="password"
+          name="password"
           required
-          #Password="ngModel"
         ></p-password>
-        <label for="Password">Mật khẩu</label>
+        <label for="password">Mật khẩu</label>
       </p-iftalabel>
-      @if (Password.invalid && Password.touched) { @if (Password.hasError('required')) {
+      @if (password?.invalid && password?.touched) { @if (password?.hasError('required')) {
       <div class="text-red-500 text-sm mt-1">Mật khẩu không được rỗng!</div>
-      } }
+      }
+      @if (password?.hasError('passwordPolicy')) {
+      <pre class="text-red-500 text-sm mt-1">{{ passwordPolicy }}</pre>
+      }
+     }
     </div>
 
     <div>
@@ -77,7 +74,7 @@
         label="Đăng ký"
         type="submit"
         styleClass="w-full"
-        [disabled]="registerForm.invalid"
+        [disabled]="formRegister.invalid"
       />
     </div>
   </form>

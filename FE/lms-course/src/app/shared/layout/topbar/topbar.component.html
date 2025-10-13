@@ -1,0 +1,89 @@
+<div class="h-[70px] flex justify-between items-center p-7">
+  <a routerLink="/home" class="flex items-center space-x-1 text-inherit no-underline">
+    <img
+      src="assets/images/logo.png"
+      alt="logo"
+      class="aspect-video h-[40px] w-[35px] inline-block object-contain"
+    />
+    <span class="uppercase font-bold">Khoá học trực tuyến</span>
+  </a>
+
+  <p-menu #topbarMenu [model]="topbarItems" [popup]="true" styleClass="flex flex-col p-3 mt-1">
+    <ng-template #start>
+      <div class="flex items-center m-2">
+        <p-avatar image="assets/images/eagle.jpg" shape="circle"></p-avatar>
+        <div class="flex flex-col p-2">
+          <span class="font-semibold">{{ userLogin()?.name }}</span>
+          <p class="text-sm text-gray-700">{{ userLogin()?.email }}</p>
+        </div>
+      </div>
+    </ng-template>
+    <ng-template #item let-item>
+      <div class="hover:bg-gray-500/10 p-2">
+        <a class="flex items-center no-underline text-inherit">
+          <span [class]="item.icon"></span>
+          <span class="ml-2">{{ item.label }}</span>
+        </a>
+      </div>
+    </ng-template>
+    <ng-template #end></ng-template>
+  </p-menu>
+  <p-popover #op>
+    <ng-template #content>
+      <div class="flex flex-col">
+        <label
+          class="flex items-center border rounded-full border-gray-200 hover:border-0 hover:bg-gray-200 hover:text-green-500 p-1"
+        >
+          <p-button
+            icon="pi pi-user"
+            [rounded]="true"
+            (onClick)="topbarMenu.toggle($event)"
+          ></p-button>
+          <span class="mx-1.5">{{ userLogin()?.name }}</span>
+          <i class="pi pi-angle-down"></i>
+        </label>
+      </div>
+      <!-- Cart -->
+      <div class="flex justify-center">
+        <i class="pi pi-sun" style="font-size: 2rem"></i>
+      </div>
+      <div class="flex justify-center">
+        <p-overlaybadge severity="danger" class="inline-block">
+          <i class="pi pi-shopping-cart" style="font-size: 2rem"></i>
+        </p-overlaybadge>
+      </div>
+    </ng-template>
+  </p-popover>
+  <div class="items-center gap-x-2 hidden lg:flex">
+    <!-- Cart -->
+    <ng-container>
+      <!-- <span>
+        <i class="pi pi-sun" style="font-size: 2rem"></i>
+      </span> -->
+    </ng-container>
+
+    <ng-container *appHasRole="'Student'">
+      <a [routerLink]="'/student/cart'"
+        ><p-overlaybadge severity="danger" value="{{ badgeValue() }}">
+          <i class="pi pi-shopping-cart" style="font-size: 2rem"></i> </p-overlaybadge
+      ></a>
+    </ng-container>
+
+    <label
+      class="flex items-center border rounded-full border-gray-200 hover:border-0 hover:bg-gray-200 hover:text-green-500 p-1"
+    >
+      <p-button icon="pi pi-user" [rounded]="true" (onClick)="topbarMenu.toggle($event)"></p-button>
+      <span class="mx-1.5">{{ userLogin()?.name }}</span>
+      <i class="pi pi-angle-down"></i>
+    </label>
+  </div>
+
+  <p-button
+    icon="pi pi-ellipsis-v"
+    [rounded]="true"
+    [outlined]="true"
+    class="inline-block lg:hidden"
+    (onClick)="op.toggle($event)"
+  >
+  </p-button>
+</div>

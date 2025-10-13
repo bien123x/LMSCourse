@@ -15,7 +15,6 @@ import {
 } from '@angular/forms';
 import { PasswordModule } from 'primeng/password';
 import { MessageService } from 'primeng/api';
-import { Toast } from 'primeng/toast';
 import { UserService } from '../../../core/services/user.service';
 import { ChangePasswordDto } from '../../../core/models/user-model';
 import { DialogModule } from 'primeng/dialog';
@@ -31,12 +30,10 @@ import { SettingsService } from '../../../core/services/settings.service';
     InputTextModule,
     FormsModule,
     PasswordModule,
-    Toast,
     RouterLink,
     DialogModule,
     ReactiveFormsModule,
   ],
-  providers: [MessageService],
 })
 export class LoginComponent implements OnInit {
   private authService = inject(AuthService);
@@ -102,7 +99,19 @@ export class LoginComponent implements OnInit {
           this.userId = res.userId;
           this.visibleDialogChangePwd.set(true);
         } else {
-          this.router.navigate(['/home']);
+          // Login thanh cong
+          this.msgService.add({
+            severity: 'success',
+            summary: 'Thành công',
+            detail: `Đăng nhập thành công`,
+          });
+          if (this.authService.hasRole('Admin')) {
+            this.router.navigate(['/admin']);
+          } else if (this.authService.hasRole('Teacher')) {
+            this.router.navigate(['/teacher']);
+          } else if (this.authService.hasRole('Student')) {
+            this.router.navigate(['/student']);
+          }
         }
       },
       error: (err) => {
@@ -114,14 +123,12 @@ export class LoginComponent implements OnInit {
               severity: 'error',
               summary: 'Lỗi',
               detail: errorBody.message,
-              life: 3000,
             });
           } else if (errorBody.success == true) {
             this.msgService.add({
               severity: 'info',
               summary: 'Thông tin',
               detail: errorBody.message,
-              life: 3000,
             });
           }
         } else {
@@ -129,7 +136,6 @@ export class LoginComponent implements OnInit {
             severity: 'info',
             summary: 'Thông tin',
             detail: err.error,
-            life: 3000,
           });
         }
       },

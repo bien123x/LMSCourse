@@ -12,11 +12,19 @@ export class AuditLogsService {
   private apiUrl = 'https://localhost:7202/AuditLogs';
   private http = inject(HttpClient);
 
-  getAllAuditLogs(): Observable<AuditlogsDto[]> {
-    return this.http.get<AuditlogsDto[]>(`${this.apiUrl}`);
-  }
+  // getAllAuditLogs(): Observable<AuditlogsDto[]> {
+  //   return this.http.get<AuditlogsDto[]>(`${this.apiUrl}`);
+  // }
 
   getAllAuditLogByQuery(query: QueryDto): Observable<PagedResult<AuditlogsDto>> {
     return this.http.post<PagedResult<AuditlogsDto>>(`${this.apiUrl}/audit-logs`, query);
+  }
+
+  getDistinctStatusCode(): Observable<number[]> {
+    return this.http.get<number[]>(`${this.apiUrl}/distinct-status-code`);
+  }
+
+  getDistinctHttpMethod(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/distinct-http-method`);
   }
 }

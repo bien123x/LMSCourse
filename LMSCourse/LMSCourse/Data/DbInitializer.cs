@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OnlineCourseConstants;
+using static OnlineCourseConstants.PERMISSION.System;
 
 namespace LMSCourse.Data
 {
@@ -47,68 +48,193 @@ namespace LMSCourse.Data
                 await context.SaveChangesAsync();
             }
 
+            // Seed Teacher User
+            if (!context.Users.Any(u => u.Email == "22a1001d0032@students.hou.edu.vn"))
+            {
+                var teacherRole = await context.Roles.FirstAsync(r => r.RoleName == "Teacher");
+
+                var teacherUser = new User
+                {
+                    UserName = "teacher",
+                    Email = "22a1001d0032@students.hou.edu.vn",
+                    PasswordHash = new PasswordHasher<User>().HashPassword(null!, "123")
+                };
+
+                context.Users.Add(teacherUser);
+                await context.SaveChangesAsync();
+
+                // Gán Role cho User
+                context.UserRoles.Add(new UserRole
+                {
+                    UserId = teacherUser.UserId,
+                    RoleId = teacherRole.RoleId,
+                });
+                await context.SaveChangesAsync();
+            }
+
+            // Seed Student
+            if (!context.Users.Any(u => u.Email == "student@gmail.com"))
+            {
+                var studentRole = await context.Roles.FirstAsync(r => r.RoleName == "Student");
+
+                var studentUser = new User
+                {
+                    UserName = "student",
+                    Email = "student@gmail.com",
+                    PasswordHash = new PasswordHasher<User>().HashPassword(null!, "123")
+                };
+
+                context.Users.Add(studentUser);
+                await context.SaveChangesAsync();
+
+                // Gán Role cho User
+                context.UserRoles.Add(new UserRole
+                {
+                    UserId = studentUser.UserId,
+                    RoleId = studentRole.RoleId,
+                });
+                await context.SaveChangesAsync();
+            }
+
             // Seed Permissions
             if (!context.Permissions.Any())
             {
+                var system = new Permission { PermissionName = "Quản trị hệ thống", PermissionCode = PERMISSION.System.Module };
+                context.Permissions.Add(system);
+                await context.SaveChangesAsync();
+
+                // User Manager
+                var userManagement = new Permission
+                {
+                    PermissionName = "Quản lý người dùng",
+                    PermissionCode = "UserManagement",
+                    ParentId = system.PermissionId,
+                };
+                context.Permissions.Add(userManagement);
+                await context.SaveChangesAsync();
+
+                // Roles
+                var roleGroup = new Permission
+                {
+                    PermissionName = "Nhóm quyền",
+                    PermissionCode = "Roles",
+                    ParentId = userManagement.PermissionId
+                };
+                context.Permissions.Add(roleGroup);
+                await context.SaveChangesAsync();
+
                 context.Permissions.AddRange(
-                    // User management
-                    new Permission { PermissionName = PERMISSION.ViewUsers },
-                    new Permission { PermissionName = PERMISSION.CreateUsers },
-                    new Permission { PermissionName = PERMISSION.EditUsers },
-                    new Permission { PermissionName = PERMISSION.DeleteUsers },
-
-                    // Role management
-                    new Permission { PermissionName = PERMISSION.ViewRoles },
-                    new Permission { PermissionName = PERMISSION.CreateRoles },
-                    new Permission { PermissionName = PERMISSION.EditRoles },
-                    new Permission { PermissionName = PERMISSION.DeleteRoles },
-
-                    // Course management
-                    new Permission { PermissionName = PERMISSION.ViewCourses },
-                    new Permission { PermissionName = PERMISSION.CreateCourses },
-                    new Permission { PermissionName = PERMISSION.EditCourses },
-                    new Permission { PermissionName = PERMISSION.DeleteCourses },
-
-                    // Lesson management
-                    new Permission { PermissionName = PERMISSION.ViewLessons },
-                    new Permission { PermissionName = PERMISSION.CreateLessons },
-                    new Permission { PermissionName = PERMISSION.EditLessons },
-                    new Permission { PermissionName = PERMISSION.DeleteLessons },
-
-                    // Enrollment management
-                    new Permission { PermissionName = PERMISSION.ViewEnrollments },
-                    new Permission { PermissionName = PERMISSION.ManageEnrollments },
-
-                    // Payment management
-                    new Permission { PermissionName = PERMISSION.ViewPayments },
-                    new Permission { PermissionName = PERMISSION.ManagePayments },
-
-                    // Logs
-                    new Permission { PermissionName = PERMISSION.ViewLogs },
-
-                    // Permission management
-                    new Permission { PermissionName = PERMISSION.ViewPermissions },
-                    new Permission { PermissionName = PERMISSION.ManagePermissions }
+                    new Permission { PermissionName = "Xem nhóm quyền", PermissionCode = PERMISSION.System.Roles.View, ParentId = roleGroup.PermissionId },
+                    new Permission { PermissionName = "Tạo nhóm quyền", PermissionCode = PERMISSION.System.Roles.Create, ParentId = roleGroup.PermissionId },
+                    new Permission { PermissionName = "Sửa nhóm quyền", PermissionCode = PERMISSION.System.Roles.Edit, ParentId = roleGroup.PermissionId },
+                    new Permission { PermissionName = "Xoá nhóm quyền", PermissionCode = PERMISSION.System.Roles.Delete, ParentId = roleGroup.PermissionId }
                 );
+
+                // Users
+                var userGroup = new Permission { PermissionName = "Người dùng", PermissionCode = "Users", ParentId = userManagement.PermissionId };
+                context.Permissions.Add(userGroup); await context.SaveChangesAsync();
+
+                context.Permissions.AddRange(
+                    new Permission { PermissionName = "Xem người dùng", PermissionCode = PERMISSION.System.Users.View, ParentId = userGroup.PermissionId },
+                    new Permission { PermissionName = "Tạo người dùng", PermissionCode = PERMISSION.System.Users.Create, ParentId = userGroup.PermissionId },
+                    new Permission { PermissionName = "Sửa người dùng", PermissionCode = PERMISSION.System.Users.Edit, ParentId = userGroup.PermissionId },
+                    new Permission { PermissionName = "Xoá người dùng", PermissionCode = PERMISSION.System.Users.Delete, ParentId = userGroup.PermissionId }
+                );
+
+                var auditLogs = new Permission
+                {
+                    PermissionName = "Nhật ký hệ thống",
+                    PermissionCode = "AuditLogs",
+                    ParentId = system.PermissionId,
+                };
+                context.Permissions.Add(auditLogs);
+                await context.SaveChangesAsync();
+
+                context.Permissions.AddRange(
+                    new Permission { PermissionName = "Xem nhật ký", PermissionCode = PERMISSION.System.AuditLogs.View, ParentId = auditLogs.PermissionId },
+                    new Permission { PermissionName = "Xuất nhật ký", PermissionCode = PERMISSION.System.AuditLogs.Export, ParentId = auditLogs.PermissionId }
+                );
+
+                // Cài đặt
+                var settings = new Permission { PermissionName = "Cài đặt", PermissionCode = "Settings", ParentId = system.PermissionId };
+                context.Permissions.Add(settings); 
+                await context.SaveChangesAsync();
+
+                context.Permissions.AddRange(
+                    new Permission { PermissionName = "Xem cài đặt", PermissionCode = PERMISSION.System.Settings.View, ParentId = settings.PermissionId },
+                    new Permission { PermissionName = "Cập nhật cài đặt", PermissionCode = PERMISSION.System.Settings.Update, ParentId = settings.PermissionId }
+                ); 
                 await context.SaveChangesAsync();
             }
 
             // Seed RolePermissions
             if (!context.RolePermissions.Any())
             {
-                var adminRole = await context.Roles.FirstAsync(r => r.RoleName == "Admin");
+                var roles = await context.Roles
+                    .Where(r => r.RoleName == "Admin" || r.RoleName == "Teacher" || r.RoleName == "Student")
+                    .ToListAsync();
+
                 var permissions = await context.Permissions.ToListAsync();
 
-                foreach (var p in permissions)
+                foreach (var role in roles)
                 {
-                    context.RolePermissions.Add(new RolePermission
+                    List<Permission> rolePermissions;
+
+                    switch (role.RoleName)
                     {
-                        RoleId = adminRole.RoleId,
-                        PermissionId = p.PermissionId
-                    });
+                        case "Admin":
+                            // Admin có tất cả permissions
+                            rolePermissions = permissions;
+                            break;
+
+                        case "Teacher":
+                            // Teacher chỉ có quản lý Course, Lesson, Enrollment
+                            //rolePermissions = permissions.Where(p =>
+                            //    p.PermissionCode == PERMISSION.System ||
+                            //    p.PermissionCode == PERMISSION.CreateCourses ||
+                            //    p.PermissionCode == PERMISSION.EditCourses ||
+                            //    p.PermissionCode == PERMISSION.DeleteCourses ||
+
+                            //    p.PermissionCode == PERMISSION.ViewLessons ||
+                            //    p.PermissionCode == PERMISSION.CreateLessons ||
+                            //    p.PermissionCode == PERMISSION.EditLessons ||
+                            //    p.PermissionCode == PERMISSION.DeleteLessons ||
+
+                            //    p.PermissionCode == PERMISSION.ViewEnrollments ||
+                            //    p.PermissionCode == PERMISSION.ManageEnrollments
+                            //).ToList();
+                            rolePermissions = new List<Permission>();
+                            break;
+
+                        case "Student":
+                            // Student chỉ có quyền xem thông tin
+                            //rolePermissions = permissions.Where(p =>
+                            //    p.PermissionName == PERMISSION.ViewCourses ||
+                            //    p.PermissionName == PERMISSION.ViewLessons ||
+                            //    p.PermissionName == PERMISSION.ViewEnrollments ||
+                            //    p.PermissionName == PERMISSION.ViewPayments
+                            //).ToList();
+                            rolePermissions = new List<Permission>();
+                            break;
+
+                        default:
+                            rolePermissions = new List<Permission>();
+                            break;
+                    }
+
+                    foreach (var permission in rolePermissions)
+                    {
+                        context.RolePermissions.Add(new RolePermission
+                        {
+                            RoleId = role.RoleId,
+                            PermissionId = permission.PermissionId
+                        });
+                    }
                 }
+
                 await context.SaveChangesAsync();
             }
+
 
             if (!context.IdentitySettings.Any())
             {
@@ -154,7 +280,7 @@ namespace LMSCourse.Data
                     new Category { Name = "Quản trị" },
                     new Category { Name = "CNTT & Phần mềm" },
                     new Category { Name = "Tiếp thị" },
-                    new Category {Name = "Tài chính" }, 
+                    new Category { Name = "Tài chính" },
                     new Category { Name = "Năng suất" }
                 );
                 await context.SaveChangesAsync();
@@ -182,6 +308,153 @@ namespace LMSCourse.Data
                 );
                 await context.SaveChangesAsync();
             }
+
+            // Seeding Courses
+            if (!context.Courses.Any())
+            {
+                context.Courses.AddRange(
+                    new Course
+                    {
+                        Title = "Khóa học C# Cơ bản",
+                        IsPublic = true,
+                        MaxStudents = 100,
+                        ShortDescription = "Lập trình C# từ cơ bản đến nâng cao.",
+                        Description = "Khóa học cung cấp kiến thức C# chi tiết với nhiều ví dụ thực tế.",
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow,
+                        TeacherId = 2,          // Id giáo viên có sẵn
+                        CategoryId = 1,         // Id danh mục có sẵn
+                        LevelId = 1,            // Beginner
+                        LanguageId = 1,         // Tiếng Việt
+                        ThumbnailUrl = "/images/courses/csharp.jpg",
+                        VideoType = "YouTube",
+                        VideoUrl = "https://www.youtube.com/watch?v=xxxxxx",
+                        IsFree = false,
+                        Price = 1000000,
+                        HasDiscount = true,
+                        DiscountPrice = 700000,
+                        IsLifetime = true
+                    },
+                    new Course
+                    {
+                        Title = "Khóa học ASP.NET Core MVC",
+                        IsPublic = true,
+                        MaxStudents = 200,
+                        ShortDescription = "Xây dựng ứng dụng web với ASP.NET Core MVC.",
+                        Description = "Học cách phát triển ứng dụng web chuyên nghiệp bằng ASP.NET Core MVC.",
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow,
+                        TeacherId = 2,
+                        CategoryId = 2,
+                        LevelId = 2, // Intermediate
+                        LanguageId = 1,
+                        ThumbnailUrl = "/images/courses/aspnet.jpg",
+                        VideoType = "YouTube",
+                        VideoUrl = "https://www.youtube.com/watch?v=yyyyyy",
+                        IsFree = false,
+                        Price = 1500000,
+                        HasDiscount = false,
+                        DiscountPrice = null,
+                        IsLifetime = false,
+                        DurationInMonths = 12
+                    }
+                );
+
+                context.SaveChanges();
+            }
+
+            if (!context.FaqGroups.Any())
+            {
+                var courses = context.Courses.ToList();
+                foreach (var course in courses)
+                {
+                    context.FaqGroups.AddRange(
+                        new FaqGroup
+                        {
+                            Title = "FAQ " + course.Title,
+                            CourseId = course.CourseId,
+                        },
+                        new FaqGroup
+                        {
+                            Title = "FAQ2 " + course.Title,
+                            CourseId = course.CourseId,
+                        }
+                    );
+                }
+                context.SaveChanges();
+            }
+
+            if (!context.FaqItems.Any())
+            {
+                var faqGroups = context.FaqGroups.ToList();
+                foreach (var faqGroup in faqGroups)
+                {
+                    context.FaqItems.AddRange(
+                        new FaqItem
+                        {
+                            Question = "Làm thế nào để đăng ký khóa học?",
+                            Answer = "Bạn có thể đăng ký khóa học bằng cách nhấn nút Đăng ký trên trang chi tiết khóa học.",
+                            FaqGroupId = faqGroup.FaqGroupId
+                        },
+                        new FaqItem
+                        {
+                            Question = "Tôi có thể hủy khóa học sau khi đăng ký không?",
+                            Answer = "Bạn có thể hủy khóa học trong vòng 7 ngày kể từ ngày đăng ký.",
+                            FaqGroupId = faqGroup.FaqGroupId
+                        }
+                    );
+                }
+                context.SaveChanges();
+            }
+
+            if (!context.CourseTopics.Any())
+            {
+                var courses = context.Courses.ToList();
+                foreach (var course in courses)
+                {
+                    context.CourseTopics.AddRange(
+                        new CourseTopic
+                        {
+                            Title = "Chủ đề 1",
+                            CourseId = course.CourseId,
+                        },
+                        new CourseTopic
+                        {
+                            Title = "Chủ đề 2",
+                            CourseId = course.CourseId
+                        }
+                    );
+                }
+                context.SaveChanges();
+            }
+
+            if (!context.Lessons.Any())
+            {
+                var courseTopics = context.CourseTopics.ToList();
+                foreach(var courseTopic in courseTopics)
+                {
+                    context.Lessons.AddRange(
+                        new Lesson
+                        {
+                            Title = "Bài học 1",
+                            LessonContent = "https://www.youtube.com/embed/1trvO6dqQUI",
+                            Description = "Mô tả bài học",
+                            IsFreeOrPremium = true,
+                            CourseTopicId = courseTopic.CourseTopicId,
+                        },
+                        new Lesson
+                        {
+                            Title = "Bài học 2",
+                            LessonContent = "https://www.youtube.com/embed/1trvO6dqQUI",
+                            Description = "Mô tả bài học",
+                            IsFreeOrPremium = false,
+                            CourseTopicId = courseTopic.CourseTopicId,
+                        }
+                    );
+                }
+                context.SaveChanges();
+            }
+
         }
     }
 }

@@ -1,4 +1,8 @@
-﻿using LMSCourse.Data;
+﻿using FluentValidation;
+using FluentValidation.AspNetCore;
+using LMSCourse.Data;
+using LMSCourse.DTOs.ZaloPay;
+using LMSCourse.Extensions;
 using LMSCourse.Interfaces;
 using LMSCourse.Mapper;
 using LMSCourse.Models;
@@ -12,18 +16,28 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Environment.WebRootPath ??= Path.Combine(builder.Environment.ContentRootPath, "wwwroot");
+
 // Add services to the container.
 
 builder.Services.AddControllers();
+// Đăng ký FluentValidation (cách mới)
+builder.Services
+    .AddFluentValidationAutoValidation()       // Tự động validate khi ModelState
+    .AddFluentValidationClientsideAdapters();  // Nếu dùng MVC view, hỗ trợ client-side
+
+// Scan tất cả Validator trong assembly hiện tại
+builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "OnlineCourse API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "OnlineCoursed API", Version = "v1" });
 
     // Add JWT Bearer Authorization
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -70,19 +84,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 );
 
 //Thêm DI
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
+
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<TokenService>();
-builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-builder.Services.AddScoped<IRoleService, RoleService>();
-builder.Services.AddScoped<ISettingRepository, SettingRepository>();
-builder.Services.AddScoped<ISettingService, SettingService>();
-builder.Services.AddScoped<IPermissionsRepository, PermissionsRepository>();
-builder.Services.AddScoped<IEmailService, EmailService>();
-builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
-builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddServicesAndRepositorys();
 
+// ZaloPayOptions
+builder.Services.Configure<ZaloPayOptions>(
+    builder.Configuration.GetSection("ZaloPay"));
 
 //JWT
 builder.Services.AddAuthentication(options =>
@@ -131,6 +140,8 @@ app.UseAuthentication();
 app.UseMiddleware<AuditLogMiddleware>();
 app.UseAuthorization();
 
+app.UseStaticFiles();
+
 app.MapControllers();
 
 await using (var scope = app.Services.CreateAsyncScope())
@@ -138,7 +149,7 @@ await using (var scope = app.Services.CreateAsyncScope())
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await DbInitializer.InitializeAsync(context);
 
-    var permissionRepo = scope.ServiceProvider.GetRequiredService<IPermissionsRepository>();
+    var permissionRepo = scope.ServiceProvider.GetRequiredService<IPermissionRepository>();
     var permissions = await permissionRepo.GetAllAsync();
 
     var authOptions = scope.ServiceProvider
@@ -146,11 +157,9 @@ await using (var scope = app.Services.CreateAsyncScope())
     .Value;
     foreach (var perm in permissions)
     {
-        authOptions.AddPolicy(perm.PermissionName, policy =>
-            policy.RequireClaim("Permission", perm.PermissionName));
+        authOptions.AddPolicy(perm.PermissionCode, policy =>
+            policy.RequireClaim("Permission", perm.PermissionCode));
     }
-
-    
 }
 
 app.Run();

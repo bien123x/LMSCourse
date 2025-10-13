@@ -1,0 +1,5 @@
+<div class="flex flex-col gap-3">
+  @if (quizzes()!.length > 0) { @for (quiz of quizzes(); track quiz.quizId) {
+  <app-quiz-item [quizItem]="quiz"></app-quiz-item>
+  } }
+</div>

@@ -1,0 +1,6 @@
+::ng-deep .p-popover-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    /* tương ứng gap-2 trong Tailwind */
+}

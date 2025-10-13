@@ -1,0 +1,21 @@
+<div class="flex justify-between items-center p-2 shadow m-2 rounded-xl">
+  <div class="flex flex-col gap-2">
+    <div class="flex items-center gap-2">
+      <p-message severity="secondary" size="small"> #{{ invoice()?.appTransId }} </p-message>
+      <span class="text-red-500"
+        >Giá: <b>{{ invoice()?.amount | currency:'VND':'symbol'}}</b></span
+      >
+    </div>
+    <ul class="ml-5 ">
+      @for (course of invoice()?.courseDtos; track $index) {
+      <li class="font-bold text-sm">
+        {{ course.title }}
+      </li>
+      }
+    </ul>
+  </div>
+  <p-badge
+    value="{{ invoice()?.status }}"
+    [severity]="invoice()?.status === 'Paid' ? 'success' : 'info'"
+  ></p-badge>
+</div>

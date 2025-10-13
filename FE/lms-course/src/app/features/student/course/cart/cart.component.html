@@ -1,0 +1,53 @@
+<div class="mx-auto max-w-[400px] lg:max-w-[1200px] ring-1 ring-gray-300 rounded-2xl p-2">
+  <div class="flex justify-between p-2">
+    <span class="font-bold text-2xl">{{ totalItems().toString() }} khoá học</span>
+    <p-button
+      label="Xoá giỏ hàng"
+      severity="danger"
+      [rounded]="true"
+      icon="pi pi-times"
+      [outlined]="true"
+      [size]="'small'"
+      (onClick)="clearCart()"
+    ></p-button>
+  </div>
+  @if (cart().length > 0) {
+  <hr class="text-gray-300" />
+
+  <div class="flex flex-col gap-2 m-2">
+    @for (course of cart(); track $index) {
+    <app-cart-item
+      [item]="course"
+      (deleteCourseId)="onDeleteItem($event)"
+      [visibleDelete]="true"
+    ></app-cart-item>
+    }
+  </div>
+  <hr class="text-gray-300" />
+
+  <div
+    class="flex flex-col lg:items-center lg:flex-row lg:justify-between gap-2 bg-[#F8F8F8] m-2 p-2 ring-1 ring-gray-300 rounded-2xl"
+  >
+    <div class="flex flex-col">
+      <h3 class="font-bold">Tổng tiền</h3>
+      <span>Tất cả khoá học đều đảm bảo hoàn tiền trong 30 ngày</span>
+    </div>
+    <span class="self-end lg:self-auto text-red-500">{{ totalPrice | currency:'VND':'symbol'}}</span>
+  </div>
+
+  <div class="flex justify-end items-center gap-2 m-2">
+    <p-button
+      [rounded]="true"
+      severity="danger"
+      label="Tiếp tục xem khoá học"
+      (onClick)="continueShopping()"
+    ></p-button>
+    <p-button
+      [rounded]="true"
+      severity="help"
+      label="Thanh toán"
+      (onClick)="checkoutCart()"
+    ></p-button>
+  </div>
+  }
+</div>

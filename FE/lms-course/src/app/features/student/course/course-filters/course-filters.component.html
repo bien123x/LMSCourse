@@ -1,0 +1,74 @@
+<div class="container flex-col gap-2">
+  <div class="filter-clear flex items-end justify-between mb-5">
+    <h5><i class="pi pi-filter mr-1"></i>Lọc</h5>
+    <div><a class="text-red-500">Làm mới</a></div>
+  </div>
+  <div class="filters flex flex-col gap-4">
+    <p-accordion [value]="['0', '1', '2']" [multiple]="true" class="flex-col-5">
+      <p-accordion-panel value="0" class="border-1 border-gray-300 rounded-xl overflow-hidden">
+        <p-accordion-header>Loại</p-accordion-header>
+        <p-accordion-content>
+          @for (category of courseFilters()?.categories; track category.categoryId) {
+          <div class="flex-row-center gap-2">
+            <p-checkbox
+              name="category"
+              [value]="category.categoryId"
+              [(ngModel)]="selected.categoryIds"
+              (onChange)="toggleFilter($event)"
+            ></p-checkbox>
+            <label for="category">{{ category.name }} ({{ category.count }})</label>
+          </div>
+          }
+        </p-accordion-content>
+      </p-accordion-panel>
+      <p-accordion-panel value="1" class="border-1 border-gray-300 rounded-xl overflow-hidden">
+        <p-accordion-header>Giáo viên</p-accordion-header>
+        <p-accordion-content>
+          @for (teacher of courseFilters()?.teachers; track teacher.teacherId) {
+          <div class="flex-row-center gap-2">
+            <p-checkbox
+              name="teacher"
+              [value]="teacher.teacherId"
+              [(ngModel)]="selected.teacherIds"
+              (onChange)="toggleFilter($event)"
+            ></p-checkbox>
+            <label for="teacher">{{ teacher.name }} ({{ teacher.count }})</label>
+          </div>
+          }
+        </p-accordion-content>
+      </p-accordion-panel>
+      <p-accordion-panel value="2" class="border-1 border-gray-300 rounded-xl overflow-hidden">
+        <p-accordion-header>Mức độ</p-accordion-header>
+        <p-accordion-content>
+          @for (level of courseFilters()?.levels; track level.levelId) {
+          <div class="flex-row-center gap-2">
+            <p-checkbox
+              name="level"
+              [value]="level.levelId"
+              [(ngModel)]="selected.levelIds"
+              (onChange)="toggleFilter($event)"
+            ></p-checkbox>
+            <label for="level">{{ level.name }} ({{ level.count }})</label>
+          </div>
+          }
+        </p-accordion-content>
+      </p-accordion-panel>
+      <p-accordion-panel value="2" class="border-1 border-gray-300 rounded-xl overflow-hidden">
+        <p-accordion-header>Ngôn ngữ</p-accordion-header>
+        <p-accordion-content>
+          @for (language of courseFilters()?.languages; track language.languageId) {
+          <div class="flex-row-center gap-2">
+            <p-checkbox
+              name="language"
+              [value]="language.languageId"
+              [(ngModel)]="selected.languageIds"
+              (onChange)="toggleFilter($event)"
+            ></p-checkbox>
+            <label for="language">{{ language.name }} ({{ language.count }})</label>
+          </div>
+          }
+        </p-accordion-content>
+      </p-accordion-panel>
+    </p-accordion>
+  </div>
+</div>

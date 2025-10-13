@@ -10,6 +10,7 @@ namespace LMSCourse.Services
     public class RoleService : IRoleService
     {
         private readonly IRoleRepository _roleRepository;
+        private readonly IPermissionRepository _permissionsRepository;
         private readonly IMapper _mapper;
 
         public RoleService(IRoleRepository roleRepository, IMapper mapper)
@@ -86,7 +87,7 @@ namespace LMSCourse.Services
             if (role == null)
                 return new List<string>();
             var permissions = role.RolePermissions
-                .Select(rp => rp.Permission.PermissionName)
+                .Select(rp => rp.Permission.PermissionCode)
                 .ToList();
             return permissions;
         }
@@ -125,7 +126,7 @@ namespace LMSCourse.Services
             return viewRoleDto;
         }
 
-        public async Task<List<string>> UpdatePermissions(int roleId, List<string> permissionNames)
+        public async Task<List<string>> UpdatePermissions(int roleId, List<string> permissionCodes)
         {
             var roles = await _roleRepository.GetWithPermissionsAsync(roleId);
 
@@ -136,7 +137,7 @@ namespace LMSCourse.Services
             await _roleRepository.DeleteAllRolePermissionsByRoleId(roleId);
 
             // Lấy Permission đã có trong DB
-            var permissions = await _roleRepository.GetPermissionsByNamesAsync(permissionNames);
+            var permissions = await _roleRepository.GetPermissionsByCodesAsync(permissionCodes);
 
             // Thêm RolePermission mới
             foreach (var perm in permissions)

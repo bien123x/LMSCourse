@@ -1,0 +1,37 @@
+<p-card
+  class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-3 p-2 ring-1 ring-gray-300 rounded-2xl hover:ring-gray-400"
+>
+  <div class="flex flex-col gap-2">
+    <a class="overflow-hidden rounded-2xl">
+      <img
+        src="assets/images/{{ course()?.thumbnailUrl }}"
+        alt="img"
+        class="aspect-video object-cover transform hover:scale-105 transition duration-300 ease-in-out"
+      />
+    </a>
+    <div class="flex gap-2 items-center justify-between">
+      <div class="flex items-center gap-2">
+        <p-avatar image="assets/images/eagle.jpg" shape="circle"></p-avatar>
+        <a href="">{{ course()!.teacherName }}</a>
+      </div>
+      <span class="bg-gray-300 rounded-2xl px-2 py-1">{{ course()!.categoryName }}</span>
+    </div>
+    <h6 class="font-bold text-2xl">
+      <a href="" class="hover:text-red-500 transition duration-300 ease-in-out">{{
+        course()!.title
+      }}</a>
+    </h6>
+    <div class="flex items-center justify-between">
+      <span class="text-lg font-bold text-red-500">{{
+        course()!.price | currency : 'VND' : 'symbol'
+      }}</span>
+      <p-button
+        label="Xem khoá học"
+        severity="success"
+        rounded="true"
+        (onClick)="watch(course()!.courseId)"
+      >
+      </p-button>
+    </div>
+  </div>
+</p-card>

@@ -20,7 +20,7 @@ namespace LMSCourse.Controllers
         }
 
         [HttpGet("view-roles-dto")]
-        [Authorize(Policy = PERMISSION.ViewRoles)]
+        [Authorize(Policy = PERMISSION.System.Roles.View)]
         public async Task<IActionResult> GetViewRoles()
         {
             var viewRolesDto = await _roleService.GetViewRoles();
@@ -34,7 +34,7 @@ namespace LMSCourse.Controllers
         }
 
         [HttpPost("create-role")]
-        [Authorize(Policy = PERMISSION.CreateRoles)]
+        [Authorize(Policy = PERMISSION.System.Roles.Create)]
         public async Task<IActionResult> CreateRole(RoleDto dto)
         {
             var viewRoleDto = await _roleService.CreateRole(dto);
@@ -45,7 +45,7 @@ namespace LMSCourse.Controllers
         }
 
         [HttpPut("edit-role/{roleId:int}")]
-        [Authorize(Policy = PERMISSION.EditRoles)]
+        [Authorize(Policy = PERMISSION.System.Roles.Edit)]
         public async Task<IActionResult> EditRole(int roleId, RoleDto dto)
         {
             var viewRoleDto = await _roleService.UpdateRole(roleId, dto);
@@ -56,7 +56,7 @@ namespace LMSCourse.Controllers
         }
 
         [HttpGet("get-permissions/{roleId:int}")]
-        [Authorize(Policy = PERMISSION.ViewRoles)]
+        [Authorize(Policy = PERMISSION.System.Roles.View)]
         public async Task<IActionResult> GetPermissionsById(int roleId)
         {
             var permissions = await _roleService.GetPermissionsById(roleId);
@@ -67,7 +67,7 @@ namespace LMSCourse.Controllers
         }
 
         [HttpPut("update-permissions/{roleId:int}")]
-        [Authorize(Policy = PERMISSION.EditRoles)]
+        [Authorize(Policy = PERMISSION.System.Roles.Edit)]
         public async Task<IActionResult> EditRolePermissions(int roleId, List<string> permissionsName)
         {
             var permissions = await _roleService.UpdatePermissions(roleId, permissionsName);
@@ -78,7 +78,7 @@ namespace LMSCourse.Controllers
         }
 
         [HttpGet("count-users-role/{roleId:int}")]
-        [Authorize(Policy = PERMISSION.ViewRoles)]
+        [Authorize(Policy = PERMISSION.System.Users.View)]
         public async Task<IActionResult> CountUserRoles(int roleId)
         {
             var countUser = await _roleService.CountUserByRoleId(roleId);
@@ -91,7 +91,7 @@ namespace LMSCourse.Controllers
         }
 
         [HttpDelete("delete-role-unassign/{roleId:int}")]
-        [Authorize(Policy = PERMISSION.DeleteRoles)]
+        [Authorize(Policy = PERMISSION.System.Roles.Delete)]
         public async Task<IActionResult> DeleteRoleUnassign(int roleId)
         {
             var isDelete = await _roleService.DeleteRole(roleId);
@@ -101,7 +101,7 @@ namespace LMSCourse.Controllers
         }
 
         [HttpDelete("delete-role-assign/{roleId:int}/{roleIdAssign:int}")]
-        [Authorize(Policy = PERMISSION.DeleteRoles)]
+        [Authorize(Policy = PERMISSION.System.Roles.Delete)]
         public async Task<IActionResult> DeleteRoleAssign(int roleId, int roleIdAssign)
         {
             var isAssign = await _roleService.AssignRoleUserDelete(roleId, roleIdAssign);
@@ -113,7 +113,7 @@ namespace LMSCourse.Controllers
         }
 
         [HttpGet("roles-minus-role/{roleId:int}")]
-        [Authorize(Policy = PERMISSION.ViewRoles)]
+        [Authorize(Policy = PERMISSION.System.Roles.View)]
         public async Task<IActionResult> GetRolesMinusRoleId(int roleId)
         {
             var roles = await _roleService.GetRolesMinusRoleId(roleId);
