@@ -15,5 +15,8 @@ namespace LMSCourse.Interfaces
         Task<IEnumerable<AuditLogDto>> GetAllAuditLogsAsync();
 
         Task<PagedResult<AuditLogDto>> GetAllAuditLogsByQueryAsync(QueryDto queryDto);
+
+        Task<List<int>> GetDistinctStatusCodeAsync();
+        Task<List<string>> GetDistinctHttpMethod();
     }
 }

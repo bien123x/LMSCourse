@@ -115,9 +115,9 @@ namespace LMSCourse.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<Permission>> GetPermissionsByPermissionsName(List<string> permissionsName)
+        public async Task<IEnumerable<Permission>> GetPermissionsByPermissionsCode(List<string> permissionsCode)
         {
-            return await _context.Permissions.Where(p => permissionsName.Contains(p.PermissionName)).ToListAsync();
+            return await _context.Permissions.Where(p => permissionsCode.Contains(p.PermissionCode)).ToListAsync();
         }
 
         public async Task SaveChangesAsync()
@@ -130,6 +130,7 @@ namespace LMSCourse.Repositories
             return await _context.Users
                 .Include(u => u.UserRoles)
                 .Include(u => u.UserPermissions)
+                .Include(u => u.AuditLogs)
                 .FirstOrDefaultAsync(u => u.UserId == userId);
         }
 

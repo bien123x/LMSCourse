@@ -2,6 +2,7 @@ import {
   ChangePasswordDto,
   EditUserDto,
   LockEndTimeDto,
+  PersonalInfoDto,
   ResetPasswordDto,
   UserDto,
   UserPermissionsDto,
@@ -67,5 +68,9 @@ export class UserService {
   }
   unlockEndTimeApi(userId: number): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/unlock-user/${userId}`, null);
+  }
+
+  updatePersonalInfo(userId: number, dto: PersonalInfoDto): Observable<ViewUserDto> {
+    return this.http.put<ViewUserDto>(`${this.apiUrl}/update-personal-info/${userId}`, dto);
   }
 }

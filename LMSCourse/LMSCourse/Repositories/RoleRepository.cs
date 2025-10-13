@@ -73,10 +73,10 @@ namespace LMSCourse.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<Permission>> GetPermissionsByNamesAsync(List<string> permissionNames)
+        public async Task<IEnumerable<Permission>> GetPermissionsByCodesAsync(List<string> permissionCodes)
         {
             return await _context.Permissions
-                .Where(p => permissionNames.Contains(p.PermissionName))
+                .Where(p => permissionCodes.Contains(p.PermissionCode))
                 .ToListAsync();
         }
 

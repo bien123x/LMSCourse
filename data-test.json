@@ -1,0 +1,71 @@
+{
+    "title": "Khóa học Lập trình Web với ASP.NET Core MVC",
+    "isPublic": true,
+    "maxStudents": 200,
+    "shortDescription": "Khóa học giúp bạn xây dựng ứng dụng web hoàn chỉnh bằng ASP.NET Core MVC.",
+    "description": "Khóa học này dành cho lập trình viên muốn nắm vững ASP.NET Core MVC, từ kiến trúc mô hình MVC, Entity Framework Core đến Authentication, Authorization và triển khai thực tế. Bạn sẽ được hướng dẫn từng bước qua các dự án cụ thể như hệ thống quản lý nhân viên, khóa học trực tuyến, và thương mại điện tử cơ bản.",
+    "teacherId": 2,
+    "categoryId": 2,
+    "levelId": 2,
+    "languageId": 1,
+    "thumbnailUrl": "https://res.cloudinary.com/demo/image/upload/v1728700000/aspnet-core-course.png",
+    "videoType": "YouTube",
+    "videoUrl": "https://www.youtube.com/watch?v=hZ1DASYd9rk",
+    "isFree": false,
+    "price": 1200000,
+    "hasDiscount": true,
+    "discountPrice": 890000,
+    "isLifetime": true,
+    "durationInMonths": 6,
+    "faqGroups": [
+        {
+            "title": "Câu hỏi thường gặp về khóa học",
+            "faqItems": [
+                {
+                    "question": "Tôi có cần biết C# trước khi học khóa này không?",
+                    "answer": "Có, bạn nên có kiến thức cơ bản về C# và lập trình hướng đối tượng để theo kịp nội dung khóa học."
+                },
+                {
+                    "question": "Khóa học có cấp chứng chỉ không?",
+                    "answer": "Có, sau khi hoàn thành 100% nội dung và bài kiểm tra cuối khóa, bạn sẽ nhận được chứng chỉ hoàn thành khóa học."
+                }
+            ]
+        }
+    ],
+    "courseTopics": [
+        {
+            "title": "Giới thiệu về ASP.NET Core MVC",
+            "lessons": [
+                {
+                    "title": "Tổng quan về .NET 8 và ASP.NET Core",
+                    "lessonContent": "Giới thiệu về framework .NET, các thành phần chính của ASP.NET Core, và cách MVC hoạt động.",
+                    "description": "Hiểu mô hình MVC và pipeline xử lý request trong ASP.NET Core.",
+                    "isFreeOrPremium": true
+                },
+                {
+                    "title": "Cài đặt môi trường phát triển",
+                    "lessonContent": "Hướng dẫn cài đặt .NET SDK, Visual Studio và tạo project đầu tiên.",
+                    "description": "Thiết lập môi trường phát triển ASP.NET Core MVC.",
+                    "isFreeOrPremium": true
+                }
+            ]
+        },
+        {
+            "title": "Xây dựng ứng dụng thực tế",
+            "lessons": [
+                {
+                    "title": "Tạo mô hình dữ liệu với Entity Framework Core",
+                    "lessonContent": "Hướng dẫn tạo các entity, quan hệ và migration.",
+                    "description": "Áp dụng kỹ thuật Code First để tạo cơ sở dữ liệu.",
+                    "isFreeOrPremium": false
+                },
+                {
+                    "title": "Tích hợp Authentication và Authorization",
+                    "lessonContent": "Xây dựng hệ thống đăng ký, đăng nhập và phân quyền người dùng.",
+                    "description": "Ứng dụng Identity hoặc cơ chế tùy chỉnh để bảo mật hệ thống.",
+                    "isFreeOrPremium": false
+                }
+            ]
+        }
+    ]
+}

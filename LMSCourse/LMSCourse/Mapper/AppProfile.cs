@@ -1,9 +1,14 @@
 ﻿using AutoMapper;
 using LMSCourse.Dtos;
 using LMSCourse.DTOs.Course;
+using LMSCourse.DTOs.Enrollment;
+using LMSCourse.DTOs.PaymentDto;
+using LMSCourse.DTOs.Question;
+using LMSCourse.DTOs.Quiz;
 using LMSCourse.DTOs.Role;
 using LMSCourse.DTOs.Setting;
 using LMSCourse.DTOs.User;
+using LMSCourse.DTOs.UserQuiz;
 using LMSCourse.Models;
 
 namespace LMSCourse.Mapper
@@ -38,6 +43,8 @@ namespace LMSCourse.Mapper
                     opt => opt.MapFrom(src => src.UserRoles.Select(ur => ur.Role.RoleName).ToList()));
 
             CreateMap<EditUserDto, User>();
+
+            CreateMap<PersonalInfoDto, User>();
 
 
             CreateMap<IdentitySetting, IdentitySettingDto>();
@@ -77,6 +84,40 @@ namespace LMSCourse.Mapper
             // CourseTopic -> CourseTopicDto
             CreateMap<CourseTopic, CourseTopicDto>();
             CreateMap<Lesson, LessonDto>();
+
+            CreateMap<PaymentDto, Payment>();
+            CreateMap<Payment, PaymentDto>();
+
+            CreateMap<Course, CourseEnrolledDto>()
+                .ForMember(dest => dest.TeacherName, opt => opt.MapFrom(c => c.Teacher.Name))
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(c => c.Category.Name))
+                .ForMember(dest => dest.LevelName, opt => opt.MapFrom(c => c.Level.Name))
+                .ForMember(dest => dest.LanguageName, opt => opt.MapFrom(c => c.Language.Name))
+                .ForMember(dest => dest.FaqGroups, opt => opt.MapFrom(src => src.FaqGroups))
+                .ForMember(dest => dest.CourseTopics, opt => opt.MapFrom(src => src.CourseTopics));
+
+            CreateMap<CourseTopic, CourseTopicDetailDto>();
+            CreateMap<Lesson, LessonDetailDto>();
+
+            CreateMap<Enrollment, EnrollmentDto>()
+                .ForMember(dest => dest.Course, opt => opt.MapFrom(e => e.Course));
+
+            // Quiz
+            CreateMap<QuizDto, Quiz>();
+            CreateMap<Quiz, QuizViewDto>();
+
+            CreateMap<QuestionDto, Question>();
+            CreateMap<AnswerDto, Answer>();
+
+            CreateMap<Question, QuestionViewDto>();
+            CreateMap<Answer, AnswerViewDto>();
+
+            CreateMap<UserQuizDto, UserQuiz>();
+            CreateMap<UserAnswerDto, UserAnswer>();
+
+            CreateMap<UserQuiz, UserQuizViewDto>();
+            CreateMap<UserAnswer, UserAnswerViewDto>();
+
         }
     } 
 }

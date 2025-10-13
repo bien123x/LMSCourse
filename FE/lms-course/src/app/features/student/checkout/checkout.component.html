@@ -1,0 +1,32 @@
+<div class="flex flex-col m-auto max-w-[400px] lg:max-w-[1600px] gap-y-3">
+  <p-card class="flex flex-col">
+    <h5 class="font-bold text-3xl">Phương thức thanh toán</h5>
+    <p-selectButton
+      [options]="paymentOptions"
+      [(ngModel)]="paymentMethod"
+      optionLabel="label"
+      optionValue="value"
+    >
+    </p-selectButton>
+  </p-card>
+  <p-card class="flex flex-col">
+    <h5 class="font-bold text-3xl">Chi tiết thanh toán</h5>
+    <div class="flex flex-col gap-2 m-2 shadow">
+      @for (course of cart(); track $index) {
+      <app-cart-item [item]="course" [visibleDelete]="false"></app-cart-item>
+      }
+    </div>
+    <div class="flex justify-between">
+      <h6 class="font-bold text-3xl">Tổng</h6>
+      <h4 class="text-red-500 font-bold text-2xl">
+        {{ totalPrice | currency : 'VND' : 'symbol' }}
+      </h4>
+    </div>
+  </p-card>
+  <div class="flex justify-end p-4">
+    <p-button
+      label="Thanh toán {{ totalPrice | currency : 'VND' : 'symbol' }}"
+      (onClick)="createPayment()"
+    ></p-button>
+  </div>
+</div>

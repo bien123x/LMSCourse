@@ -4,9 +4,9 @@ export interface LoginDto {
 }
 
 export interface RegisterDto {
-  UserName: string;
-  Email: string;
-  PasswordHash: string;
+  userName: string;
+  email: string;
+  passwordHash: string;
 }
 
 export interface RefreshRequestDto {

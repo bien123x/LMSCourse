@@ -21,7 +21,7 @@ namespace LMSCourse.Controllers
         }
 
         [HttpGet("view-user/{userId:int}")]
-        [Authorize(Policy = PERMISSION.ViewUsers)]
+        [Authorize(Policy = PERMISSION.System.Users.View)]
         public async Task<IActionResult> GetUserById(int userId)
         {
             var viewUserDto = await _userService.GetUserByIdAsync(userId);
@@ -33,7 +33,7 @@ namespace LMSCourse.Controllers
         }
 
         [HttpGet("all-view-user")]
-        [Authorize(Policy = PERMISSION.ViewUsers)]
+        [Authorize(Policy = PERMISSION.System.Users.View)]
         public async Task<IActionResult> GetAllViewUsersDto()
         {
             var usersDto = await _userService.GetAllViewUser();
@@ -42,7 +42,7 @@ namespace LMSCourse.Controllers
         }
 
         [HttpPost("add-user")]
-        [Authorize(Policy = PERMISSION.CreateUsers)]
+        [Authorize(Policy = PERMISSION.System.Users.Create)]
         public async Task<IActionResult> AddUserDto(UserDto userDto)
         {
             var (isValid, errors) = await _settingsService.ValidateAsync(userDto.PasswordHash);
@@ -60,7 +60,7 @@ namespace LMSCourse.Controllers
         }
 
         [HttpPut("edit-user/{userId:int}")]
-        [Authorize(Policy = PERMISSION.EditUsers)]
+        [Authorize(Policy = PERMISSION.System.Users.Edit)]
         public async Task<IActionResult> EditUserDto(int userId, EditUserDto editUserDto)
         {
             var editUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -76,7 +76,6 @@ namespace LMSCourse.Controllers
         }
 
         [HttpGet("roles-name")]
-        [Authorize(Policy = PERMISSION.ViewRoles)]
         public async Task<IActionResult> GetRolesName()
         {
             var rolesName = await _userService.GetRolesName();
@@ -84,11 +83,11 @@ namespace LMSCourse.Controllers
         }
 
         [HttpGet("permissions-name/{userId:int}")]
-        [Authorize(Policy = PERMISSION.ViewUsers)]
+        [Authorize(Policy = PERMISSION.System.Users.View)]
         public async Task<IActionResult> GetPermissions(int userId)
         {
-            var userPermissions = await _userService.GetUserPermissionsNameById(userId);
-            var rolePermissions = await _userService.GetPermissionsNameByIdAsync(userId);
+            var userPermissions = await _userService.GetUserPermissionsCodeById(userId);
+            var rolePermissions = await _userService.GetPermissionsCodeByIdAsync(userId);
             return Ok(new UserPermissionsDto { UserPermissions = userPermissions, RolePermissions = rolePermissions });
         }
         [HttpPut("user-permissions/{userId:int}")]
@@ -101,16 +100,17 @@ namespace LMSCourse.Controllers
         }
 
         [HttpPut("reset-password/{userId:int}")]
-        [Authorize(Policy = PERMISSION.EditUsers)]
+        [Authorize(Policy = PERMISSION.System.Users.Edit)]
         public async Task<IActionResult> ResetPassword(int userId, SetPassword resetDto)
         {
             await _userService.ResetPassword(userId, resetDto.PasswordHash);
             return Ok();
         }
         [HttpDelete("delete-user/{userId:int}")]
-        [Authorize(Policy = PERMISSION.DeleteUsers)]
+        [Authorize(Policy = PERMISSION.System.Users.Delete)]
         public async Task<IActionResult> DeleteUser(int userId)
         {
+            
             var isDelete = await _userService.DeleteUser(userId);
             if (isDelete)
                 return Ok();
@@ -118,7 +118,7 @@ namespace LMSCourse.Controllers
         }
 
         [HttpPost("users")]
-        [Authorize(Policy = PERMISSION.ViewUsers)]
+        [Authorize(Policy = PERMISSION.System.Users.View)]
         public async Task<ActionResult<PagedResult<ViewUserDto>>> GetPagedUsers([FromBody] QueryDto query)
         {
             var result = await _userService.GetPagedUsers(query);
@@ -157,6 +157,16 @@ namespace LMSCourse.Controllers
                 return Ok(result);
             else
                 return NotFound(result.Message);
+        }
+
+        [HttpPut("update-personal-info/{userId:int}")]
+        public async Task<IActionResult> UpdatePersonalInfo(int userId, PersonalInfoDto dto)
+        {
+            var userView = await _userService.UpdatePersonalInfo(userId, dto);
+
+            if (userView == null) return NotFound("Người dùng không tồn tại!");
+
+            return Ok(userView);
         }
     }
 }

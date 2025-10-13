@@ -24,6 +24,7 @@ export class HasPermissionDirective {
       this.vcr.createEmbeddedView(this.templateRef);
     } else {
       this.vcr.clear();
+      // this.vcr.createEmbeddedView(this.templateRef);
     }
   }
 }

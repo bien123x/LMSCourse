@@ -21,7 +21,7 @@ public class AuditLogMiddleware
 
         // Bỏ qua các GET hoặc API log/không cần log
         if (context.Request.Method == HttpMethods.Get ||
-            (path.Contains("/auditlogs/audit-logs") && context.Request.Method == "POST") ||
+            (path.Contains("/auditlogs")) ||
             (path.Contains("/user/users") && context.Request.Method == "POST"))
         {
             await _next(context);
@@ -30,6 +30,7 @@ public class AuditLogMiddleware
 
         try
         {
+            
             // Thông tin cơ bản
             logDto.HttpMethod = context.Request.Method;
             logDto.Url = context.Request.Path;
@@ -62,7 +63,7 @@ public class AuditLogMiddleware
             {
                 context.Response.StatusCode = 500;
                 context.Response.ContentType = "application/json";
-                await context.Response.WriteAsJsonAsync(new { message = "Internal Server Error" });
+                await context.Response.WriteAsJsonAsync(ex.StackTrace);
             }
         }
         finally
@@ -73,7 +74,10 @@ public class AuditLogMiddleware
             // Ghi log async, không block response
             try
             {
-                await auditLogService.CreateLogAsync(logDto);
+                if (logDto.UserId != null)
+                {
+                    await auditLogService.CreateLogAsync(logDto);
+                }
             }
             catch
             {

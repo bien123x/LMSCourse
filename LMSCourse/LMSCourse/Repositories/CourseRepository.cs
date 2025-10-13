@@ -13,9 +13,11 @@ namespace LMSCourse.Repositories
         public CourseRepository(AppDbContext context) : base(context) { 
         }
 
-        public async Task<IEnumerable<Course>> GetAllWithDataDto()
+        public async Task<IEnumerable<Course>> GetAllWithDataDto(int userId)
         {
-            return await _context.Courses
+            var coursesId = _context.Enrollments.Where(e => e.UserId == userId).Select(e => e.CourseId);
+
+            return await _context.Courses.Where(c => !coursesId.Contains(c.CourseId))
                 .Include(c => c.Teacher)
                 .Include(c => c.Category)
                 .Include(c => c.Level)
@@ -26,9 +28,11 @@ namespace LMSCourse.Repositories
                 .ToListAsync();
         }
 
-        public async Task<PagedResult<Course>> GetAllWithFilters(QueryCourseDto dto)
+        public async Task<PagedResult<Course>> GetAllWithEnrolledDataDto(int userId, QueryCourseEnrolledDto dto)
         {
-            var courses = _context.Courses.Where(c => c.IsPublic == true)
+            var coursesId = _context.Enrollments.Where(e => e.UserId == userId && e.Status == dto.Status).Select(e => e.CourseId);
+
+            var courses = _context.Courses.Where(c => coursesId.Contains(c.CourseId))
                 .Include(c => c.Teacher)
                 .Include(c => c.Category)
                 .Include(c => c.Level)
@@ -36,6 +40,48 @@ namespace LMSCourse.Repositories
                 .Include(c => c.FaqGroups)
                     .ThenInclude(fg => fg.FaqItems)
                 .Include(c => c.CourseTopics)
+                    .ThenInclude(ct => ct.Lessons)
+                .AsQueryable();
+
+            switch (dto.SortField?.ToLower())
+            {
+                case "price":
+                    courses = dto.SortOrder == -1
+                        ? courses.OrderByDescending(c => c.Price)
+                        : courses.OrderBy(c => c.Price);
+                    break;
+                default:
+                    courses = courses.OrderBy(c => c.CreatedAt); // sort mặc định
+                    break;
+            }
+
+            var totalCount = await courses.CountAsync();
+
+            var items = await courses
+                .Skip((dto.PageNumber - 1) * dto.PageSize)
+                .Take(dto.PageSize)
+                .ToListAsync();
+
+            return new PagedResult<Course>
+            {
+                Items = items,
+                TotalCount = totalCount
+            };
+        }
+
+        public async Task<PagedResult<Course>> GetAllWithFilters(QueryCourseDto dto, int userId)
+        {
+            var coursesId = await _context.Enrollments.Where(e => e.UserId == userId).Select(e => e.CourseId).ToArrayAsync();
+
+            var courses = _context.Courses.Where(c => c.IsPublic == true && !coursesId.Contains(c.CourseId))
+                .Include(c => c.Teacher)
+                .Include(c => c.Category)
+                .Include(c => c.Level)
+                .Include(c => c.Language)
+                .Include(c => c.FaqGroups)
+                    .ThenInclude(fg => fg.FaqItems)
+                .Include(c => c.CourseTopics)
+                    .ThenInclude(ct => ct.Lessons)
                 .AsQueryable();
 
             // Lọc theo TeacherIds
@@ -102,6 +148,14 @@ namespace LMSCourse.Repositories
                 Items = items,
                 TotalCount = totalCount
             };
+        }
+
+        public async Task<int?> GetRemainingCapacity(int courseId)
+        {
+            return await _context.Courses.Include(c => c.Enrollments)
+                .Where(c => c.CourseId == courseId)
+                .Select(c => c.MaxStudents - (c.Enrollments.Any() ? c.Enrollments.Count() : 0))
+                .FirstOrDefaultAsync();
         }
 
         public async Task<Course?> GetWithDataDtoByIdAsync(int id)

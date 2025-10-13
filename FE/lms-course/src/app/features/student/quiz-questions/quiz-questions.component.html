@@ -1,0 +1,95 @@
+@if (questions().length > 0) {
+<div class="mx-10">
+  @if (isFinish) {
+  <p-card [header]="message()">
+    <div class="flex flex-col gap-2">
+      <p><b>Điểm đạt được: </b> <span class="text-red-500 font-bold">{{ score() }}</span></p>
+      @if (enrollment()?.status == "complete") {
+      <p class="font-bold text-2xl">Khoá học đã hoàn thành</p>
+      }
+      <p-button
+        label="Về trang Dashboard"
+        icon="pi pi-arrow-left"
+        iconPos="left"
+        (onClick)="goToDashboard()"
+        rounded
+      ></p-button>
+    </div>
+  </p-card>
+  } @else {
+  <p-stepper [value]="1">
+    <p-step-list>
+      @for (question of questions(); track question.questionId; let i = $index;) {
+      <p-step [value]="i + 1"></p-step>
+      }
+    </p-step-list>
+    <p-step-panels>
+      <form *ngIf="quizForm" [formGroup]="quizForm" (ngSubmit)="submitQuiz()">
+        @for (question of questions(); track question.questionId; let i = $index; let l = $last; let
+        f = $first) {
+        <p-step-panel [value]="i + 1">
+          <ng-template #content let-activateCallback="activateCallback">
+            <p-card class="flex flex-col px-5">
+              <div class="flex items-center justify-between">
+                <h3 class="font-bold text-2xl">{{ quiz()?.title }}</h3>
+                <span class="flex items-center gap-2"
+                  ><i class="pi pi-clock"></i>
+                  <span>
+                    <i class="font-light">{{ timeLeft() }}</i> / <b>{{ quiz()?.duration }}</b>
+                  </span></span
+                >
+              </div>
+              <div class="flex flex-col min-h-48" formArrayName="userAnswers">
+                <h3 class="font-bold">Câu {{ i + 1 }}: {{ question.questionStr }}</h3>
+                <div [formGroupName]="i">
+                  @for (answer of question.answers; track answer.answerId; let i = $index) {
+                  <div class="flex items-center gap-2">
+                    <p-radio-button
+                      [name]="question.questionId.toString()"
+                      [value]="answer.answerId"
+                      [inputId]="answer.answerId.toString()"
+                      formControlName="answerId"
+                    ></p-radio-button>
+                    <label [for]="answer.answerId.toString()"> {{ answer.answerStr }} </label>
+                  </div>
+                  }
+                </div>
+              </div>
+              <div class="flex justify-between">
+                @if (!f) {
+                <p-button
+                  label="Back"
+                  icon="pi pi-arrow-left"
+                  iconPos="left"
+                  (onClick)="activateCallback(i)"
+                />
+                } @else {
+                <div></div>
+                } @if (!l) {
+                <p-button
+                  label="Next"
+                  icon="pi pi-arrow-right"
+                  iconPos="right"
+                  (onClick)="activateCallback(i + 2)"
+                />
+                }@else {
+                <p-button
+                  label="Nộp"
+                  icon="pi pi-arrow-right"
+                  iconPos="right"
+                  type="submit"
+                  [disabled]="quizForm.get('userAnswers')?.invalid"
+                />
+                }
+              </div>
+            </p-card>
+          </ng-template>
+        </p-step-panel>
+        }
+      </form>
+    </p-step-panels>
+  </p-stepper>
+  }
+</div>
+
+}

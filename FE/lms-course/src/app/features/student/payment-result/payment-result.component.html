@@ -1,0 +1,7 @@
+<div class="font-bold text-4xl flex justify-center items-center h-full">
+  @if (status() === 1) {
+  <h1 class="text-blue-500">Thanh toán thành công đơn hàng {{ paymentData.apptransid }}</h1>
+  } @else {
+  <h1 class="text-red-500">Thanh toán thất bại</h1>
+  }
+</div>

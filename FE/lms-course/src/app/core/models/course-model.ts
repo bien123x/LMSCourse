@@ -1,3 +1,4 @@
+import { DashboardStudentComponent } from './../../features/student/dashboard-student/dashboard-student.component';
 export interface CourseFiltersDto {
   categories: CategoryDto[];
   teachers: TeacherDto[];
@@ -74,4 +75,40 @@ export interface FaqItemDto {
   faqItemId: number;
   question: string;
   answer: string;
+}
+
+// DTO chi tiết (đã đăng ký)
+export interface LessonDetailDto extends LessonDto {
+  lessonContent?: string;
+  description?: string;
+  isFreeOrPremium?: boolean;
+  courseTopicId?: number;
+}
+
+// Course có bài học chi tiết
+export interface CourseEnrolledDto extends CourseDto {
+  courseTopics: CourseTopicDetailDto[];
+}
+
+export interface CourseTopicDetailDto {
+  courseTopicId: number;
+  title: string;
+  lessons: LessonDetailDto[];
+}
+
+export interface EnrollmentDto {
+  enrollmentId: number;
+  userId: number;
+  courseId: number;
+  course: CourseEnrolledDto;
+  status: string;
+  enrollDate: Date;
+  progess: number;
+}
+
+export interface DashboardEnrollmentCourseDto {
+  countEnrolledCourse: number;
+  countActiveCourse: number;
+  countCompleteCourse: number;
+  recentEnrolledCourses: EnrollmentDto[];
 }

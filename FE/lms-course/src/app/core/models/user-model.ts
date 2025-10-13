@@ -55,3 +55,11 @@ export interface ChangePasswordDto {
   newPassword: string;
   confirmNewPassword: string;
 }
+
+export interface PersonalInfoDto {
+  userName: string;
+  name?: string;
+  surname?: string;
+  email: string;
+  phoneNumber?: string;
+}

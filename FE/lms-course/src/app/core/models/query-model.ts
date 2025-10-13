@@ -29,3 +29,11 @@ export interface QueryCourseDto {
   sortOrder: number;
   courseFilterRequest: CourseFilterRequest;
 }
+
+export interface QueryCourseEnrolledDto {
+  pageNumber: number;
+  pageSize: number;
+  sortField?: string;
+  sortOrder: number;
+  status: string;
+}

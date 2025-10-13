@@ -31,23 +31,14 @@ namespace LMSCourse.Controllers
             return Ok(new { message = "Log created successfully" });
         }
 
-        /// <summary>
-        /// Tìm kiếm, lọc, phân trang các log.
-        /// </summary>
-        //[HttpGet("search")]
-        //public async Task<IActionResult> Search([FromQuery] AuditLogSearchDto searchDto)
+
+        //[HttpGet]
+        //public async Task<IActionResult> GetAllAudiLogsAsync()
         //{
-        //    var result = await _auditLogService.SearchLogsAsync(searchDto);
-        //    return Ok(result);
+        //    var auditlogs = await _auditLogService.GetAllAuditLogsAsync();
+
+        //    return Ok(auditlogs);
         //}
-
-        [HttpGet]
-        public async Task<IActionResult> GetAllAudiLogsAsync()
-        {
-            var auditlogs = await _auditLogService.GetAllAuditLogsAsync();
-
-            return Ok(auditlogs);
-        }
 
         [HttpPost("audit-logs")]
         public async Task<IActionResult> GetAllAuditLogsByQuery([FromBody] QueryDto query)
@@ -55,6 +46,20 @@ namespace LMSCourse.Controllers
             var result = await _auditLogService.GetAllAuditLogsByQueryAsync(query);
 
             return Ok(result);
+        }
+
+        [HttpGet("distinct-status-code")]
+        public async Task<IActionResult> GetDistinctStatusCodeAsync()
+        {
+            var statusCodes = await _auditLogService.GetDistinctStatusCodeAsync();
+            return Ok(statusCodes);
+        }
+
+        [HttpGet("distinct-http-method")]
+        public async Task<IActionResult> GetDistinctHttpMethodAsync()
+        {
+            var httpMethods = await _auditLogService.GetDistinctHttpMethod();
+            return Ok(httpMethods);
         }
     }
 }

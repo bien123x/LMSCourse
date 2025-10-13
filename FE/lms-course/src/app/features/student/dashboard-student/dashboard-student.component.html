@@ -1,0 +1,36 @@
+<div class="flex flex-col gap-4">
+  <div class="flex flex-col lg:flex-row gap-3">
+    <p-card header="Số khoá học đã tham gia" class="flex-1">
+      <span class="font-bold text-2xl">{{ dashboardStudent()?.countEnrolledCourse }}</span>
+    </p-card>
+    <p-card header="Số khoá học đã được kích hoạt" class="flex-1">
+      <span class="font-bold text-2xl">{{ dashboardStudent()?.countActiveCourse }}</span>
+    </p-card>
+    <p-card header="Số khoá học đã hoàn thành" class="flex-1">
+      <span class="font-bold text-2xl">{{ dashboardStudent()?.countCompleteCourse }}</span>
+    </p-card>
+  </div>
+
+  <div class="flex flex-col justify-around gap-2">
+    <span class="font-bold text-2xl">Các khoá học đã tham gia gần đây</span>
+    <div class="grid grid-cols-12">
+      @for (item of courses(); track $index) {
+      <div class="col-span-12 md:col-span-6 xl:col-span-4 p-2">
+        <app-course-enrolled-item [course]="item"></app-course-enrolled-item>
+      </div>
+      }
+    </div>
+  </div>
+  <div class="flex flex-col lg:flex-row justify-around gap-3">
+    <p-card header="Hoá đơn gần đây" class="flex-1">
+      @for (payment of paymentRecent(); track payment.appTransId) {
+      <app-invoice [invoice]="payment"></app-invoice>
+      }
+    </p-card>
+    <p-card header="Bài tập đã làm mới nhất" class="flex-1">
+      @for (latestQuiz of latestQuizzes(); track latestQuiz.userQuizId) {
+      <app-latest-quiz [latestQuiz]="latestQuiz"></app-latest-quiz>
+      }
+    </p-card>
+  </div>
+</div>

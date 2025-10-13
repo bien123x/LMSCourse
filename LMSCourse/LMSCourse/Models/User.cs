@@ -24,5 +24,9 @@
         public ICollection<UserPermission> UserPermissions { get; set; } = new List<UserPermission>();
         public ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
         public ICollection<Course> Courses { get; set; } = new List<Course>();
+        public ICollection<Payment> Payments { get; set; } = new List<Payment>();
+        public ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
+        public ICollection<UserQuiz> UserQuizzes { get; set; } = new List<UserQuiz>();
+        public ICollection<CertificateTemplate> CertificateTemplates { get; set; } = new List<CertificateTemplate>();
     }
 }

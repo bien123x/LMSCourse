@@ -5,6 +5,7 @@ using LMSCourse.DTOs.Page_Sort_Filter;
 using LMSCourse.Models;
 using LMSCourse.Repositories.Interfaces;
 using LMSCourse.Services.Interfaces;
+using System.Security.Claims;
 
 namespace LMSCourse.Services
 {
@@ -25,16 +26,27 @@ namespace LMSCourse.Services
             return courseCreateUpdateDto;
         }
 
-        public async Task<IEnumerable<CourseDto>> GetAllAsync()
+        public async Task<IEnumerable<CourseDto>> GetAllAsync(int userId)
         {
-            var courses = await _repo.GetAllWithDataDto();
+            var courses = await _repo.GetAllWithDataDto(userId);
             var coursesDto = _mapper.Map<IEnumerable<CourseDto>>(courses);
             return coursesDto;
         }
 
-        public async Task<PagedResult<CourseDto>> GetAllWithFilter(QueryCourseDto dto)
+        public async Task<IEnumerable<CourseDto>> GetCoursesByListId(List<int> courseIds, int userId)
         {
-            var pagedCourses = await _repo.GetAllWithFilters(dto);
+            var coursesDto = new List<CourseDto>();
+            foreach (var courseId in courseIds)
+            {
+                var apiResponse = await GetCourseByIdAsync(courseId);
+                coursesDto.Add(apiResponse.Data!);
+            }
+            return coursesDto;
+        }
+
+        public async Task<PagedResult<CourseDto>> GetAllWithFilter(QueryCourseDto dto, int userId)
+        {
+            var pagedCourses = await _repo.GetAllWithFilters(dto, userId);
 
             return new PagedResult<CourseDto>
             {
@@ -54,10 +66,11 @@ namespace LMSCourse.Services
             }
         }
 
-        public async Task<CourseFiltersDto> GetCourseFilterAsync()
+        public async Task<CourseFiltersDto> GetCourseFilterAsync(int userId)
         {
+            
             var courseFilters = new CourseFiltersDto();
-            var courses = await _repo.GetAllWithDataDto();
+            var courses = await _repo.GetAllWithDataDto(userId);
             
              courseFilters.Teachers = courses
                 .GroupBy(c => new {c.TeacherId, c.Teacher!.Name})
@@ -101,6 +114,24 @@ namespace LMSCourse.Services
                 })
                 .ToList();
             return courseFilters;
+        }
+
+        public async Task<PagedResult<CourseDto>> GetCoursesEnrolled(int userId, QueryCourseEnrolledDto dto)
+        {
+            var courses = await _repo.GetAllWithEnrolledDataDto(userId, dto);
+
+            return new PagedResult<CourseDto>
+            {
+                Items = _mapper.Map<IEnumerable<CourseDto>>(courses.Items),
+                TotalCount = courses.TotalCount
+            };
+        }
+
+        public async Task<int?> GetRemainingCapacity(int courseId)
+        {
+            var remainingCapacity = await _repo.GetRemainingCapacity(courseId);
+
+            return remainingCapacity;
         }
     }
 }

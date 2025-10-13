@@ -35,10 +35,10 @@ namespace LMSCourse.Services
             var roles = await _userService.GetRolesNameByIdAsync(user.UserId);
 
             //Role Permissions
-            var permissions = await _userService.GetPermissionsNameByIdAsync(user.UserId);
+            var permissions = await _userService.GetPermissionsCodeByIdAsync(user.UserId);
 
             //User Permissions
-            permissions.AddRange(await _userService.GetUserPermissionsNameById(user.UserId));
+            permissions.AddRange(await _userService.GetUserPermissionsCodeById(user.UserId));
 
             claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
             claims.AddRange(permissions.Select(p => new Claim("Permission", p)));

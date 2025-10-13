@@ -1,0 +1,74 @@
+<p-tabs value="0">
+  <p-tablist>
+    <p-tab value="0">Thông tin cá nhân</p-tab>
+    <p-tab value="1">Đổi mật khẩu</p-tab>
+  </p-tablist>
+  <p-tabpanels>
+    <p-tabpanel value="0">
+      @if (user() && formInfo) {
+      <form [formGroup]="formInfo" (ngSubmit)="saveInfo()">
+        <div class="flex flex-col gap-2">
+          <div class="flex gap-x-2">
+            <p-ifta-label class="flex-1">
+              <input class="w-full" pInputText id="name" name="name" formControlName="name" />
+              <label for="name">Tên</label>
+            </p-ifta-label>
+
+            <p-ifta-label class="flex-1">
+              <input
+                class="w-full"
+                pInputText
+                id="surname"
+                name="surname"
+                formControlName="surname"
+              />
+              <label for="surname">Họ</label>
+            </p-ifta-label>
+          </div>
+          <div class="flex gap-x-2">
+            <div class="flex-1">
+              <p-ifta-label>
+                <input
+                  class="w-full"
+                  pInputText
+                  id="userName"
+                  name="userName"
+                  formControlName="userName"
+                />
+                <label for="userName">Tên đăng nhập</label>
+              </p-ifta-label>
+              @if ((userName?.touched || userName?.dirty) && userName?.invalid ) {
+              <small class="text-red-500">Tên đăng nhập không được để trống!</small>
+              }
+            </div>
+
+            <p-ifta-label class="flex-1">
+              <input
+                class="w-full"
+                pInputText
+                id="phoneNumber"
+                name="phoneNumber"
+                formControlName="phoneNumber"
+              />
+              <label for="phoneNumber">Số điện thoại</label>
+            </p-ifta-label>
+          </div>
+          <div class="flex flex-col gap-2">
+            <div>
+              <p-ifta-label class="w-full">
+                <input class="w-full" pInputText id="email" name="email" formControlName="email" />
+                <label for="email">Email</label>
+              </p-ifta-label>
+              @if ((email?.touched || email?.dirty) && email?.invalid ) {
+              <small class="text-red-500">Email không được để trống!</small>
+              }
+            </div>
+            <p-button type="submit" label="Lưu" class="w-full" styleClass="w-full"></p-button>
+          </div>
+        </div>
+      </form>
+      }
+    </p-tabpanel>
+    <p-tabpanel value="1"> Đổi mật khẩu</p-tabpanel>
+  </p-tabpanels>
+</p-tabs>

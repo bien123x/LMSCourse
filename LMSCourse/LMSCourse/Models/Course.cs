@@ -54,5 +54,9 @@
 
         public bool IsLifetime { get; set; } = true;        // true = lifetime, false = limited
         public int? DurationInMonths { get; set; }          // số tháng truy cập nếu limited
+
+        public ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
+        public ICollection<PaymentDetail> PaymentDetails { get; set; } = new List<PaymentDetail>();
+        public ICollection<Quiz> Quizzes { get; set; } = new List<Quiz>();
     }
 }

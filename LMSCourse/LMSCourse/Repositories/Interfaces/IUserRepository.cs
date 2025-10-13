@@ -27,7 +27,7 @@ namespace LMSCourse.Repositories.Interfaces
         Task<User?> GetWithUserPermissions(int userId);
         Task UpdateUserPermissions(UserPermission userPermission);
 
-        Task<IEnumerable<Permission>> GetPermissionsByPermissionsName(List<string> permissionsName);
+        Task<IEnumerable<Permission>> GetPermissionsByPermissionsCode(List<string> permissionsCode);
         Task SaveChangesAsync();
         Task<User?> GetWithUserRolesAndUserPermissions(int userId);
         Task<PagedResult<User>> GetPagedUsersAsync(QueryDto query);

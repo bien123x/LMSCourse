@@ -1,0 +1,37 @@
+<div class="flex mx-auto">
+  <p-data-view
+    #dv
+    [value]="courses()"
+    [rows]="5"
+    [paginator]="true"
+    [totalRecords]="totalRecode()"
+    [lazy]="true"
+    (onLazyLoad)="loadCoursesEnrolled($event)"
+    layout="grid"
+    class="w-full rounded-2xl overflow-hidden"
+  >
+    <ng-template #header>
+      <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+        <h5 class="font-bold text-2xl">Khoá học đã tham gia</h5>
+        <p-select-button
+          [options]="filters()"
+          optionValue="value"
+          optionLabel="label"
+          [(ngModel)]="status"
+          (onChange)="selectStatus($event)"
+        ></p-select-button>
+      </div>
+    </ng-template>
+    @if (courses().length > 0) {
+    <ng-template #grid let-items>
+      <div class="grid grid-cols-12 gap-4">
+        @for (course of items; track course.courseId) {
+        <div class="col-span-12 sm:col-span-6 lg:col-span-4 p-2">
+          <app-course-enrolled-item [course]="course"></app-course-enrolled-item>
+        </div>
+        }
+      </div>
+    </ng-template>
+    }
+  </p-data-view>
+</div>

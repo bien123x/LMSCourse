@@ -1,0 +1,13 @@
+<div class="flex justify-between items-center p-2 shadow m-2 rounded-xl">
+  <div class="flex flex-col gap-2">
+    <p class="font-bold text-xl">{{ latestQuiz()?.titleQuiz }}</p>
+    <span
+      >Số câu trả lời đúng:
+      <b>{{ latestQuiz()?.countCorrectAnswer }}/{{ latestQuiz()?.noOfQuestions }}</b></span
+    >
+  </div>
+  <p-badge
+    [value]="latestQuiz()?.percentageScore! + '%'"
+    [severity]="latestQuiz()?.percentageScore! > 80 ? 'success' : 'info'"
+  ></p-badge>
+</div>

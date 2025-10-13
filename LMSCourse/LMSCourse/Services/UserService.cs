@@ -44,7 +44,7 @@ namespace LMSCourse.Services
             return user.UserRoles.Select(ur => ur.Role.RoleName).ToList();
         }
 
-        public async Task<List<string>> GetPermissionsNameByIdAsync(int userId)
+        public async Task<List<string>> GetPermissionsCodeByIdAsync(int userId)
         {
             var user = await _userRepository.GetUserWithRolesAndPermissionsAsync(userId);
 
@@ -53,7 +53,7 @@ namespace LMSCourse.Services
 
             var permissions = user.UserRoles
                 .SelectMany(ur => ur.Role.RolePermissions)
-                .Select(rp => rp.Permission.PermissionName)
+                .Select(rp => rp.Permission.PermissionCode)
                 .ToList();
 
             return permissions;
@@ -187,7 +187,7 @@ namespace LMSCourse.Services
             return rolesName;
         }
 
-        public async Task<List<string>> GetUserPermissionsNameById(int userId)
+        public async Task<List<string>> GetUserPermissionsCodeById(int userId)
         {
             var user = await _userRepository.GetWithUserPermissions(userId);
             if (user == null)
@@ -197,7 +197,7 @@ namespace LMSCourse.Services
             var permissions = new List<string>();
             foreach (var userPermission in user.UserPermissions)
             {
-                permissions.Add(userPermission.Permission.PermissionName);
+                permissions.Add(userPermission.Permission.PermissionCode);
             }
 
             return permissions;
@@ -210,7 +210,7 @@ namespace LMSCourse.Services
                 return null;
             users.UserPermissions.Clear();
 
-            var permissions = await _userRepository.GetPermissionsByPermissionsName(permissionsName);
+            var permissions = await _userRepository.GetPermissionsByPermissionsCode(permissionsName);
 
             foreach (var permission in permissions)
             {
@@ -234,12 +234,20 @@ namespace LMSCourse.Services
 
         public async Task<bool> DeleteUser(int userId)
         {
+            try
+            {
             var user = await _userRepository.GetWithUserRolesAndUserPermissions(userId);
             if (user == null) return false;
             user.UserRoles.Clear();
             user.UserPermissions.Clear();
+            user.Courses.Clear();
+            user.AuditLogs.Clear();
             await _userRepository.DeleteAsync(user);
             await _userRepository.SaveChangesAsync();
+
+            } catch(Exception ex)  {
+            
+            }
             return true;
         }
 
@@ -352,6 +360,20 @@ namespace LMSCourse.Services
                 return ApiResponse.Ok("Người dùng đã được gỡ khoá rồi!");
             }
             return ApiResponse.Fail("Người dùng không tồn tại");
+        }
+
+        public async Task<ViewUserDto?> UpdatePersonalInfo(int userId, PersonalInfoDto dto)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+
+            if (user != null)
+            {
+                _mapper.Map(dto, user);
+                await _userRepository.UpdateAsync(user);
+                return _mapper.Map<ViewUserDto>(user);
+            }
+
+            return null;
         }
     }
 }

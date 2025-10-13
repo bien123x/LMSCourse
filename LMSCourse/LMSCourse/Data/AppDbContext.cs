@@ -26,11 +26,77 @@ namespace LMSCourse.Data
         public DbSet<FaqItem> FaqItems { get; set; }
         public DbSet<FaqGroup> FaqGroups { get; set; }
         public DbSet<Course> Courses { get; set; }
+        public DbSet<Enrollment> Enrollments { get; set; }
+        public DbSet<Payment> Payments { get; set; }
+        public DbSet<PaymentDetail> PaymentDetails { get; set; }
+        public DbSet<Quiz> Quizzes { get; set; }
+        public DbSet<Question> Questions { get; set; }
+        public DbSet<Answer> Answers { get; set; }
+        public DbSet<UserQuiz> UserQuizzes { get; set; }
+        public DbSet<UserAnswer> UserAnswers { get; set; }
+        public DbSet<Certificate> Certificates { get; set; }
+        public DbSet<CertificateTemplate> CertificateTemplates { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            //foreach (var fk in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
+            //{
+            //    fk.DeleteBehavior = DeleteBehavior.Restrict;
+            //}
+
+            // User → Enrollment (user is student)
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Enrollments)
+                .WithOne(e => e.User)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // (user is teacher)
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Courses)
+                .WithOne(c => c.Teacher)
+                .HasForeignKey(c => c.TeacherId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Course → Enrollment
+            modelBuilder.Entity<Course>()
+                .HasMany(c => c.Enrollments)
+                .WithOne(e => e.Course)
+                .HasForeignKey(e => e.CourseId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // User → Payment
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Payments)
+                .WithOne(p => p.User)
+                .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Course → Payment
+            modelBuilder.Entity<Course>()
+                .HasMany(c => c.PaymentDetails)
+                .WithOne(p => p.Course)
+                .HasForeignKey(p => p.CourseId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //Question
+            modelBuilder.Entity<Question>()
+                .HasMany(q => q.Answers)
+                .WithOne(a => a.Question)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Question>()
+                .HasMany(q => q.UserAnswers)
+                .WithOne(ua => ua.Question)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Certificate
+            modelBuilder.Entity<Certificate>()
+                .HasOne(c => c.Enrollment)
+                .WithOne(e => e.Certificate)
+                .OnDelete(DeleteBehavior.Restrict);
 
             //Cấu hình
             modelBuilder.Entity<User>(entity =>
