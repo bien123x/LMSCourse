@@ -10,7 +10,7 @@
   },
   "include": [
     "src/**/*.ts"
-  ],
+, "src/app/features/admin/audit-logs/detail-auditlogs"  ],
   "exclude": [
     "src/**/*.spec.ts"
   ]

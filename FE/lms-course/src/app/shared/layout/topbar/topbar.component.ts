@@ -1,3 +1,4 @@
+import { PERMISSION } from './../../../core/models/constant';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { MenuItem, MessageService } from 'primeng/api';
@@ -12,6 +13,9 @@ import { BadgeModule } from 'primeng/badge';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { HasRoleDirective } from '../../../core/directives/has-role-directive';
 import { CartService } from '../../../core/services/cart.service';
+import { HasPermissionDirective } from '../../../core/directives/has-permission-directive';
+import { TieredMenuModule } from 'primeng/tieredmenu';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-topbar',
@@ -24,11 +28,14 @@ import { CartService } from '../../../core/services/cart.service';
     TableModule,
     MenuModule,
     Avatar,
+    TieredMenuModule,
     PopoverModule,
     BadgeModule,
     OverlayBadgeModule,
-    HasRoleDirective,
     RouterLink,
+    HasPermissionDirective,
+    HasRoleDirective,
+    CommonModule,
   ],
 })
 export class TopbarComponent implements OnInit {
@@ -40,7 +47,13 @@ export class TopbarComponent implements OnInit {
 
   topbarItems!: MenuItem[];
 
+  changeRoleItems!: MenuItem[];
+
+  currentRole = computed(() => this.authService.getCurrentRole());
+
   badgeValue = computed(() => this.cartService.cart().length);
+
+  PERMISSION = PERMISSION;
 
   constructor() {}
   ngOnInit(): void {
@@ -54,16 +67,40 @@ export class TopbarComponent implements OnInit {
             icon: 'pi pi-user',
             command: () => this.myAccount(),
           },
-
           {
             label: 'Logout',
             icon: 'pi pi-sign-out',
             command: () => this.logout(),
           },
         ];
+
+        this.changeRoleItems = [
+          {
+            label: 'Admin',
+            visible: this.authService.hasRole('Admin'),
+            routerLink: '/admin',
+            command: () => this.authService.switchRole('Admin'),
+          },
+          {
+            label: 'Teacher',
+            visible: this.authService.hasRole('Teacher'),
+            routerLink: '/teacher',
+            command: () => this.authService.switchRole('Teacher'),
+          },
+          {
+            label: 'Student',
+            visible: this.authService.hasRole('Student'),
+            routerLink: '/student',
+            command: () => this.authService.switchRole('Student'),
+          },
+        ];
       },
       error: (err) => {},
     });
+  }
+
+  get isHasManyRoles() {
+    return this.authService.isHasManyRoles();
   }
 
   myAccount() {
@@ -72,13 +109,6 @@ export class TopbarComponent implements OnInit {
 
   logout() {
     this.authService.logout();
-    this.msgService.add({
-      severity: 'success',
-      summary: 'Thành công',
-      detail: `Đăng xuất tài khoản ${this.userLogin()?.userName}`,
-      icon: 'pi pi-user',
-      life: 3000,
-    });
     this.router.navigate(['/auth/login']);
   }
 }

@@ -1,6 +1,10 @@
 <div class="flex flex-col xl:flex-row gap-3">
   <div class="flex flex-col gap-2 xl:min-w-[300px] xl:flex-1">
     <h3 class="font-bold text-3xl mb-6">{{ course()?.title }}</h3>
+    <div class="flex flex-col gap-y-2">
+      <h3 class="font-bold text-xl">Tiến trình</h3>
+      <p-progressbar [value]="enrollment()?.progess" color="green" />
+    </div>
     <p-accordion [value]="0">
       @for (topic of course()?.courseTopics; track topic.courseTopicId; let i = $index) {
       <p-accordion-panel [value]="topic.courseTopicId">
@@ -15,6 +19,7 @@
           <div class="flex justify-between gap-4 p-2">
             <div class="flex gap-2 items-center">
               <p-button
+                *appHasPermission="PERMISSION.Students.Enrollments.ViewDetails.WatchVideo"
                 icon="pi pi-play-circle"
                 rounded="true"
                 severity="danger"
@@ -56,8 +61,10 @@
     } @else if (selectOption == 'faq') {
     <app-faq-course [faqGroups]="course()?.faqGroups"></app-faq-course>
     } @else {
-    <!-- <app-quiz-course [quizzes]="quizzes()"></app-quiz-course> -->
-    <app-quiz-course [courseId]="courseId"></app-quiz-course>
+    <app-quiz-course
+      [courseId]="courseId"
+      *appHasPermission="PERMISSION.Students.Enrollments.ViewDetails.DoQuiz"
+    ></app-quiz-course>
 
     } }
   </div>

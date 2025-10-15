@@ -25,4 +25,8 @@ export class EnrollmentService {
   isExistCertificate(enrollmentId: number): Observable<boolean> {
     return this.http.get<boolean>(`${this.apiUrl}/is-exist-certificate/${enrollmentId}`);
   }
+
+  updateProgress(enrollmentId: number): Observable<EnrollmentDto> {
+    return this.http.get<EnrollmentDto>(`${this.apiUrl}/update-progress/${enrollmentId}`);
+  }
 }

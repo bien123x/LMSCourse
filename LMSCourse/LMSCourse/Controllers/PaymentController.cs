@@ -2,7 +2,9 @@
 using LMSCourse.DTOs.ZaloPay;
 using LMSCourse.Services;
 using LMSCourse.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OnlineCourseConstants;
 using System.Security.Claims;
 using System.Text.Json;
 
@@ -19,6 +21,7 @@ namespace LMSCourse.Controllers
         }
 
         [HttpPost("create")]
+        [Authorize(Policy = PERMISSION.Students.Payments.Checkout)]
         public async Task<IActionResult> CreateOrder([FromBody] PaymentDto dto)
         {
 
@@ -31,7 +34,6 @@ namespace LMSCourse.Controllers
         public IActionResult Callback([FromBody] ZaloPayCallbackDto cbdata)
         {
             var result = _paymentService.HandleCallback(cbdata);
-
             return Ok(result);
         }
 

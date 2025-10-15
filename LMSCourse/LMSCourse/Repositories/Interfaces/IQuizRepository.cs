@@ -7,6 +7,7 @@ namespace LMSCourse.Repositories.Interfaces
     {
         Task<IEnumerable<Quiz>?> GetQuizzesByCourseId(int courseId);
         Task<int> GetTotalMarksByCourseId(int courseId);
+        Task<int> GetTotalQuizOfCourse(int courseId);
 
     }
 }

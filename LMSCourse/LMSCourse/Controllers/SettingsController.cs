@@ -2,7 +2,9 @@
 using LMSCourse.Models;
 using LMSCourse.Repositories;
 using LMSCourse.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OnlineCourseConstants;
 
 namespace LMSCourse.Controllers
 {
@@ -18,6 +20,7 @@ namespace LMSCourse.Controllers
         }
 
         [HttpGet("identity")]
+        [Authorize(Policy = PERMISSION.System.Settings.Module)]
         public async Task<IActionResult> GetIdentitySettings()
         {
             var identitySetting = await _service.GetIdentitySettingAsync();
@@ -25,6 +28,7 @@ namespace LMSCourse.Controllers
         }
 
         [HttpPut("identity")]
+        [Authorize(Policy = PERMISSION.System.Settings.Edit)]
         public async Task<IActionResult> UpdateIdentitySettings(IdentitySettingDto identitySettingDto)
         {
             var identitySetting = await _service.UpdateIdentitySettingAsync(identitySettingDto);

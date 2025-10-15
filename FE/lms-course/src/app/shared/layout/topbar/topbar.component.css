@@ -1,6 +1,10 @@
 ::ng-deep .p-popover-content {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 1rem;
     /* tương ứng gap-2 trong Tailwind */
+}
+
+::ng-deep .p-overlaybadge {
+    display: inline-block;
 }

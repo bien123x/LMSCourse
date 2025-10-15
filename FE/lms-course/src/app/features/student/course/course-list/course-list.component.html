@@ -24,7 +24,7 @@
     <div class="grid grid-cols-12">
       @for (item of items; track $index; let f = $first; let l = $last) {
       <div class="col-span-12 bg-white">
-        <div class="flex flex-col sm:flex-row sm:items-center p-6 gap-4">
+        <div class="flex flex-col md:flex-row md:items-center p-6 gap-4">
           <div class="md:w-40 relative">
             <img
               class="block xl:block mx-auto rounded-border w-full"
@@ -39,24 +39,25 @@
             />
           </div>
           <div class="flex flex-col md:flex-row justify-between md:items-center flex-1 gap-6">
-            <div class="flex flex-row md:flex-col justify-between items-start gap-2">
+            <div class="flex flex-col justify-between items-start gap-2">
               <p>Giáo viên: {{ item.teacherName }}</p>
               <h3>{{ item.title }}</h3>
               <p>Loại: {{ item.categoryName }}</p>
               <p>Mức độ: {{ item.levelName }}</p>
               <p>Ngôn ngữ: {{ item.languageName }}</p>
             </div>
-            <div class="flex flex-row md:flex-col justify-between items-start gap-2">
-              <p class="text-red-500">
-                Giá: {{ item.price | currency : 'VND' : 'symbol' : '1.0-0' }}
-              </p>
-              <p-button
-                label="Xem chi tiết"
-                icon="pi pi-eye"
-                class="p-button-sm p-0"
-                (onClick)="viewDetail(item.courseId)"
-              ></p-button>
-            </div>
+          </div>
+          <div class="flex flex-row sm:flex-col justify-between items-center sm:items-start gap-2">
+            <p class="text-red-500">
+              Giá: {{ item.price | currency : 'VND' : 'symbol' : '1.0-0' }}
+            </p>
+            <p-button
+              *appHasPermission="PERMISSION.Students.Courses.ViewDetails.Module"
+              label="Xem chi tiết"
+              icon="pi pi-eye"
+              class="p-button-sm p-0"
+              (onClick)="viewDetail(item.courseId)"
+            ></p-button>
           </div>
         </div>
       </div>

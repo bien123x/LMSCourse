@@ -35,7 +35,7 @@ export const routes: Routes = [
   {
     path: 'admin',
     children: [
-      { path: '', redirectTo: 'identity/users', pathMatch: 'full' },
+      { path: '', redirectTo: '/home', pathMatch: 'full' },
       {
         path: 'identity',
         component: IdentityComponent,
@@ -56,7 +56,7 @@ export const routes: Routes = [
   {
     path: 'student',
     children: [
-      { path: '', redirectTo: 'courses', pathMatch: 'full' },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'courses', component: CourseComponent },
       { path: 'courses/detail/:id', component: CourseDetailComponent },
       { path: 'cart', component: CartComponent },

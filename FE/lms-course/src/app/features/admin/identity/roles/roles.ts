@@ -10,16 +10,19 @@ import { RoleDto, ViewRolesDto } from '../../../../core/models/role-model';
 import { DeleteConfirmComponent } from '../../../../shared/delete-confirm/delete-confirm';
 import { PermissionFormComponent } from '../../../../shared/permission-form/permission-form';
 import { RoleFormComponent } from '../../../../shared/role-form/role-form';
+import { HasPermissionDirective } from '../../../../core/directives/has-permission-directive';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-roles',
   templateUrl: './roles.html',
-  imports: [ButtonModule, TableModule, CommonModule, Menu],
+  imports: [ButtonModule, TableModule, CommonModule, Menu, HasPermissionDirective],
 })
 export class RolesComponent implements OnInit {
   private roleService = inject(RoleService);
   private dialogService = inject(DialogService);
   private msgService = inject(MessageService);
+  private authService = inject(AuthService);
 
   roles = signal<ViewRolesDto[]>([]);
 
@@ -54,7 +57,6 @@ export class RolesComponent implements OnInit {
             role: viewRoleDto,
             msg: res !== null ? res.msg : '',
           },
-          
         })
       );
 
@@ -119,20 +121,34 @@ export class RolesComponent implements OnInit {
 
   setCurrentRole(role: ViewRolesDto, event: Event, menu: any) {
     this.currentRole.set(role);
-    this.menuItems.set([
-      {
-        label: 'Sửa',
-        command: () => this.editRole(role),
-      },
-      {
-        label: 'Phân quyền',
-        command: () => this.editPermissions(role),
-      },
-      {
-        label: 'Xoá',
-        command: () => this.deleteRole(role),
-      },
-    ]);
+    const listRoleNameDisable = ['Admin', 'Teacher', 'Student'];
+    if (listRoleNameDisable.includes(role.roleName)) {
+      this.menuItems.set([
+        {
+          label: 'Phân quyền',
+          command: () => this.editPermissions(role),
+          visible: this.authService.hasPermission('Roles.ChangePermissions'),
+        },
+      ]);
+    } else {
+      this.menuItems.set([
+        {
+          visible: this.authService.hasPermission('Roles.Edit'),
+          label: 'Sửa',
+          command: () => this.editRole(role),
+        },
+        {
+          visible: this.authService.hasPermission('Roles.ChangePermissions'),
+          label: 'Phân quyền',
+          command: () => this.editPermissions(role),
+        },
+        {
+          visible: this.authService.hasPermission('Roles.Delete'),
+          label: 'Xoá',
+          command: () => this.deleteRole(role),
+        },
+      ]);
+    }
     menu.toggle(event);
   }
 

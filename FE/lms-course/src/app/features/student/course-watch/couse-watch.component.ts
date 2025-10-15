@@ -1,3 +1,4 @@
+import { PERMISSION } from './../../../core/models/constant';
 import { QuizViewDto } from './../../../core/models/quiz-model';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -19,6 +20,8 @@ import { OverviewCourseComponent } from './overview-course/overview-course.compo
 import { FAQCourseComponent } from './faq-course/faq-course.component';
 import { QuizCourseComponent } from './quiz-course/quiz-course.component';
 import { QuizService } from '../../../core/services/quiz.service';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { HasPermissionDirective } from "../../../core/directives/has-permission-directive";
 
 @Component({
   selector: 'app-course-watch',
@@ -32,7 +35,9 @@ import { QuizService } from '../../../core/services/quiz.service';
     OverviewCourseComponent,
     FAQCourseComponent,
     QuizCourseComponent,
-  ],
+    ProgressBarModule,
+    HasPermissionDirective
+],
 })
 export class CourseWatchComponent implements OnInit {
   private route = inject(ActivatedRoute);
@@ -52,6 +57,8 @@ export class CourseWatchComponent implements OnInit {
   selectOption: string = 'overview';
 
   quizzes: QuizViewDto[] = [];
+
+  PERMISSION = PERMISSION;
 
   ngOnInit(): void {
     this.route.params.subscribe((param) => {

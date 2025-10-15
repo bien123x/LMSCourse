@@ -25,7 +25,7 @@ export const appConfig: ApplicationConfig = {
     ConfirmationService,
     provideRouter(routes),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
-    // provideClientHydration(withEventReplay()),
+    provideClientHydration(withEventReplay()),
     provideAnimationsAsync(),
     providePrimeNG({
       theme: {

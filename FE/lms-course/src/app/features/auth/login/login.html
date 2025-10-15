@@ -57,44 +57,79 @@
 </div>
 
 <p-dialog
-  header="Đổi mật khẩu"
+  header="Mật khẩu đã hết hạn. Hãy đổi mật khẩu để đăng nhập!"
+  [style]="{ width: '50rem' }"
   modal="true"
   [(visible)]="visibleDialogPwd"
   (onHide)="visibleDialogPwd = false"
 >
-  <form [formGroup]="formChangePwd" (ngSubmit)="changePwdClick()" class="w-[400px]">
+  <form [formGroup]="formChangePwd" (ngSubmit)="changePwdClick()" class="">
     <div class="flex flex-col gap-3 w-full">
-      <p-iftalabel>
-        <input
-          pInputText
-          id="nowPassword"
-          formControlName="nowPassword"
-          name="nowPassword"
-          required
-        />
-        <label for="nowPassword">Mật khẩu hiện tại</label>
-      </p-iftalabel>
-      <p-iftalabel>
-        <input
-          pInputText
-          id="newPassword"
-          formControlName="newPassword"
-          name="newPassword"
-          required
-        />
-        <label for="newPassword">Mật khẩu mới</label>
-      </p-iftalabel>
-      <p-iftalabel>
-        <input
-          pInputText
-          id="confirmNewPassword"
-          formControlName="confirmNewPassword"
-          name="confirmNewPassword"
-          required
-        />
-        <label for="confirmNewPassword">Nhập lại mật khẩu mới</label>
-      </p-iftalabel>
-      <p-button type="submit" label="Đổi mật khẩu"></p-button>
+      <div>
+        <p-iftalabel>
+          <p-password
+            class="w-full"
+            inputStyleClass="w-full"
+            id="nowPassword"
+            formControlName="nowPassword"
+            [feedback]="false"
+            [toggleMask]="true"
+            name="nowPassword"
+          />
+          <label for="nowPassword">Mật khẩu hiện tại</label>
+        </p-iftalabel>
+        @if (nowPassword?.invalid && (nowPassword?.dirty || nowPassword?.touched)) { @if
+        (nowPassword?.hasError('passwordPolicy')) {
+        <small class="text-red-500">{{ nowPassword?.getError('passwordPolicy') }}</small>
+        } @else if (nowPassword?.hasError('serverError')) {
+        <small class="text-red-500">{{ nowPassword?.getError('serverError') }}</small>
+        } @else if (nowPassword?.hasError('required')) {
+        <small class="text-red-500">Không được để trống</small>
+        } }
+      </div>
+      <div>
+        <p-iftalabel>
+          <p-password
+            inputStyleClass="w-full"
+            class="w-full"
+            id="newPassword"
+            [feedback]="false"
+            [toggleMask]="true"
+            formControlName="newPassword"
+            name="newPassword"
+          />
+          <label for="newPassword">Mật khẩu mới</label>
+        </p-iftalabel>
+        @if (newPassword?.invalid && (newPassword?.dirty || newPassword?.touched)) { @if
+        (newPassword?.hasError('passwordPolicy')) {
+        <small class="text-red-500">{{ newPassword?.getError('passwordPolicy') }}</small>
+        } @else if (newPassword?.hasError('serverError')) {
+        <small class="text-red-500">{{ newPassword?.getError('serverError') }}</small>
+        } @else if (newPassword?.hasError('required')) {
+        <small class="text-red-500">Không được để trống</small>
+        } }
+      </div>
+      <div>
+        <p-iftalabel>
+          <p-password
+            class="w-full"
+            inputStyleClass="w-full"
+            id="confirmNewPassword"
+            [toggleMask]="true"
+            [feedback]="false"
+            formControlName="confirmNewPassword"
+            name="confirmNewPassword"
+          />
+          <label for="confirmNewPassword">Nhập lại mật khẩu mới</label>
+        </p-iftalabel>
+        @if (confirmNewPassword?.invalid && (confirmNewPassword?.dirty ||
+        confirmNewPassword?.touched)) { @if (confirmNewPassword?.hasError('required')) {
+        <small class="text-red-500">Không được để trống</small>
+        } @else if (confirmNewPassword?.hasError('serverError')) {
+        <small class="text-red-500">{{ confirmNewPassword?.getError('serverError') }}</small>
+        } }
+      </div>
+      <p-button class="w-full" styleClass="w-full" type="submit" label="Đổi mật khẩu"></p-button>
     </div>
   </form>
 </p-dialog>

@@ -28,11 +28,13 @@
     </ng-template>
     <ng-template #end></ng-template>
   </p-menu>
+
+  <p-menu #changeRole [model]="changeRoleItems" [popup]="true"> </p-menu>
   <p-popover #op>
     <ng-template #content>
-      <div class="flex flex-col">
+      <div class="flex flex-col justify-center">
         <label
-          class="flex items-center border rounded-full border-gray-200 hover:border-0 hover:bg-gray-200 hover:text-green-500 p-1"
+          class="flex justify-between items-center border rounded-full border-gray-200 hover:border-0 hover:bg-gray-200 hover:text-green-500 p-1"
         >
           <p-button
             icon="pi pi-user"
@@ -44,13 +46,24 @@
         </label>
       </div>
       <!-- Cart -->
-      <div class="flex justify-center">
+      <!-- <div class="flex justify-center">
         <i class="pi pi-sun" style="font-size: 2rem"></i>
+      </div> -->
+      <div class="text-center" *ngIf="isHasManyRoles">
+        <p-button
+          label="Chuyển vai trò"
+          icon="pi pi-shield"
+          severity="success"
+          [rounded]="true"
+        ></p-button>
       </div>
-      <div class="flex justify-center">
-        <p-overlaybadge severity="danger" class="inline-block">
-          <i class="pi pi-shopping-cart" style="font-size: 2rem"></i>
-        </p-overlaybadge>
+      <div *appHasRole="'Student'" class="text-center">
+        <ng-container *appHasPermission="PERMISSION.Students.Payments.Module">
+          <a [routerLink]="'/student/cart'"
+            ><p-overlaybadge severity="danger" value="{{ badgeValue() }}">
+              <i class="pi pi-shopping-cart" style="font-size: 2rem"></i> </p-overlaybadge
+          ></a>
+        </ng-container>
       </div>
     </ng-template>
   </p-popover>
@@ -62,12 +75,24 @@
       </span> -->
     </ng-container>
 
-    <ng-container *appHasRole="'Student'">
+    <div class="text-center" *ngIf="isHasManyRoles">
+      <p-button
+        label="Đổi vai trò"
+        icon="pi pi-shield"
+        severity="success"
+        [rounded]="true"
+        (onClick)="changeRole.toggle($event)"
+      ></p-button>
+    </div>
+
+    @if (currentRole() == 'Student') {
+    <ng-container *appHasPermission="PERMISSION.Students.Payments.Module">
       <a [routerLink]="'/student/cart'"
         ><p-overlaybadge severity="danger" value="{{ badgeValue() }}">
           <i class="pi pi-shopping-cart" style="font-size: 2rem"></i> </p-overlaybadge
       ></a>
     </ng-container>
+    }
 
     <label
       class="flex items-center border rounded-full border-gray-200 hover:border-0 hover:bg-gray-200 hover:text-green-500 p-1"

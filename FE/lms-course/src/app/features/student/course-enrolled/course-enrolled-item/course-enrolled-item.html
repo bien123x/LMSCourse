@@ -1,6 +1,4 @@
-<p-card
-  class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-3 p-2 ring-1 ring-gray-300 rounded-2xl hover:ring-gray-400"
->
+<p-card class="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-3 h-[100%]">
   <div class="flex flex-col gap-2">
     <a class="overflow-hidden rounded-2xl">
       <img
@@ -26,6 +24,7 @@
         course()!.price | currency : 'VND' : 'symbol'
       }}</span>
       <p-button
+        *appHasPermission="PERMISSION.Students.Enrollments.ViewDetails.Module"
         label="Xem khoá học"
         severity="success"
         rounded="true"

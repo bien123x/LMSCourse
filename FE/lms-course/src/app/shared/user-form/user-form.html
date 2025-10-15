@@ -17,20 +17,28 @@
               name="userName"
               id="userName"
               formControlName="userName"
-              autofocus
             />
             <label for="userName">Tên đăng nhập</label>
           </p-ifta-label>
-          @if (userName?.invalid && (userName?.touched || userName?.dirty) ) {
-          <small class="text-red-500">Tên đăng nhập không hợp lệ</small>
-          }
+          @if (userName?.invalid && (userName?.touched || userName?.dirty) ) { @if
+          (userName?.hasError('required')) {
+          <small class="text-red-500">Tên đăng nhập không được để trống</small>
+          } @else if (userName?.hasError('serverError')) {
+          <small class="text-red-500">{{ userName?.getError('serverError') }}</small>
+          } }
           <div class="flex gap-1">
             <p-ifta-label class="flex-1">
               <input class="w-full" pInputText name="name" id="name" formControlName="name" />
               <label for="name">Tên</label>
             </p-ifta-label>
             <p-ifta-label class="flex-1">
-              <input class="w-full" pInputText name="surname" id="surname" formControlName="surname" />
+              <input
+                class="w-full"
+                pInputText
+                name="surname"
+                id="surname"
+                formControlName="surname"
+              />
               <label for="surname">Họ</label>
             </p-ifta-label>
           </div>
@@ -41,9 +49,11 @@
               class="w-full"
               inputStyleClass="w-full"
               [toggleMask]="true"
+              [feedback]="false"
               name="passwordHash"
               id="passwordHash"
               formControlName="passwordHash"
+              autofocus="false"
             />
             <label for="passwordHash">Mật khẩu</label>
           </p-ifta-label>
@@ -58,23 +68,30 @@
             <input class="w-full" pInputText name="email" id="email" formControlName="email" />
             <label for="email">Email</label>
           </p-ifta-label>
-          @if (email?.invalid && (email?.touched || email?.dirty)) {
+          @if (email?.invalid && (email?.touched || email?.dirty)) { @if
+          (email?.hasError('required')) {
+          <small class="text-red-500">Email không được để trống</small>
+          } @else if (email?.hasError('email')) {
           <small class="text-red-500">Email không hợp lệ</small>
-          }
+          } @else if (email?.hasError('serverError')) {
+          <small class="text-red-500">{{ email?.getError('serverError') }}</small>
+          } }
           <p-ifta-label>
-            <p-input-mask
-              mask="999 999 9999"
-              placeholder="999 999 9999"
-              styleClass="w-full"
+            <input
+              pInputText
+              class="w-full"
               name="phoneNumber"
               id="phoneNumber"
               formControlName="phoneNumber"
             />
             <label for="phoneNumber">Số điện thoại</label>
           </p-ifta-label>
-          @if (phoneNumber?.invalid && (phoneNumber?.touched || phoneNumber?.dirty)) {
-          <small class="text-red-500">Số điện thoại không hợp lệ</small>
-          }
+          @if (phoneNumber?.invalid && (phoneNumber?.touched || phoneNumber?.dirty)) { @if
+          (phoneNumber?.hasError('required')) {
+          <small class="text-red-500">Số điện thoại không được để trống</small>
+          } @else if (phoneNumber?.hasError('serverError')) {
+          <small class="text-red-500">{{ phoneNumber?.getError('serverError') }}</small>
+          } }
           <div class="flex gap-1 items-center">
             <p-checkbox
               formControlName="isActive"
@@ -122,7 +139,7 @@
   <div class="flex gap-1 justify-around">
     <p-button label="Đóng" (onClick)="close()"></p-button>
     @if (mode() !== 'viewDetail') {
-    <p-button label="Lưu" type="submit" [disabled]="userForm.invalid"></p-button>
+    <p-button label="Lưu" type="submit"></p-button>
     }
   </div>
 </form>

@@ -14,7 +14,6 @@ import { ButtonModule } from 'primeng/button';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Menu } from 'primeng/menu';
 import { TableModule } from 'primeng/table';
-import { ToastModule } from 'primeng/toast';
 import { DialogModule } from 'primeng/dialog';
 import { IftaLabel } from 'primeng/iftalabel';
 import { FormsModule } from '@angular/forms';
@@ -31,11 +30,12 @@ import { RoleService } from '../../../../core/services/role.service';
 import { UserService } from '../../../../core/services/user.service';
 import { LockEndTimeDto, ResetPasswordDto, ViewUserDto } from '../../../../core/models/user-model';
 import { ViewRolesDto } from '../../../../core/models/role-model';
-import { CodePermission } from '../../../../core/models/constant';
 import { FilterField, QueryDto, SortField } from '../../../../core/models/query-model';
 import { DeleteConfirmComponent } from '../../../../shared/delete-confirm/delete-confirm';
 import { PermissionFormComponent } from '../../../../shared/permission-form/permission-form';
 import { UserFormComponent } from '../../../../shared/user-form/user-form';
+import { PERMISSION } from '../../../../core/models/constant';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-users',
@@ -46,7 +46,6 @@ import { UserFormComponent } from '../../../../shared/user-form/user-form';
     IftaLabel,
     CommonModule,
     Menu,
-    ToastModule,
     DatePipe,
     DialogModule,
     FormsModule,
@@ -66,6 +65,7 @@ export class UsersComponent implements OnInit, OnDestroy {
   private userService = inject(UserService);
   private roleService = inject(RoleService);
   private cd = inject(ChangeDetectorRef);
+  private authService = inject(AuthService);
   getUserApi = new Subscription();
 
   users = signal<ViewUserDto[]>([]);
@@ -86,7 +86,7 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   roles: ViewRolesDto[] = [];
 
-  CodePermission = CodePermission;
+  PERMISSION = PERMISSION;
 
   ngOnInit(): void {
     this.loadUsers({
@@ -158,18 +158,24 @@ export class UsersComponent implements OnInit, OnDestroy {
       {
         label: 'Xem chi tiết',
         command: () => this.viewDetail(viewUser),
+        visible: this.authService.hasPermission(PERMISSION.System.UserManagement.Users.ViewDetails),
       },
       {
         label: 'Sửa',
         command: () => this.editUser(viewUser),
+        visible: this.authService.hasPermission(PERMISSION.System.UserManagement.Users.Edit),
       },
       {
         label: 'Phân quyền',
         command: () => this.userPermissions(viewUser),
+        visible: this.authService.hasPermission(
+          PERMISSION.System.UserManagement.Users.ChangePermissions
+        ),
       },
       {
         label: 'Thiết đặt mật khẩu',
         command: () => this.clickVisibleResetPwd(),
+        visible: this.authService.hasPermission(PERMISSION.System.UserManagement.Users.ResetPwd),
       },
 
       ...(this.isUserLocked(viewUser)
@@ -177,21 +183,31 @@ export class UsersComponent implements OnInit, OnDestroy {
             {
               label: 'Khoá tài khoản',
               command: () => this.clickVisibleLockEndTime(viewUser),
+              visible: this.authService.hasPermission(
+                PERMISSION.System.UserManagement.Users.LockAccount
+              ),
             },
             {
               label: 'Gỡ khoá',
               command: () => this.unlockEndTimeUser(viewUser),
+              visible: this.authService.hasPermission(
+                PERMISSION.System.UserManagement.Users.UnLockAccount
+              ),
             },
           ]
         : [
             {
               label: 'Khoá tài khoản',
               command: () => this.clickVisibleLockEndTime(viewUser),
+              visible: this.authService.hasPermission(
+                PERMISSION.System.UserManagement.Users.LockAccount
+              ),
             },
           ]),
       {
         label: 'Xoá',
         command: () => this.deleteUser(viewUser),
+        visible: this.authService.hasPermission(PERMISSION.System.UserManagement.Users.Delete),
       },
     ]);
     menu.toggle(event);
@@ -201,7 +217,7 @@ export class UsersComponent implements OnInit, OnDestroy {
     this.visibleLockUser = true;
     console.log(viewUser.lockoutEndTime);
     if (!this.isUserLocked(viewUser)) this.lockEndTimeDto.lockEndtime = new Date();
-    else this.lockEndTimeDto.lockEndtime = new Date(viewUser.lockoutEndTime + 'Z');
+    else this.lockEndTimeDto.lockEndtime = new Date(viewUser.lockoutEndTime);
   }
 
   isUserLocked(user: ViewUserDto): boolean {
@@ -250,6 +266,7 @@ export class UsersComponent implements OnInit, OnDestroy {
         console.log(err);
         this.msgService.add({
           severity: 'error',
+          summary: 'Khoá thất bại',
           detail: err.error,
         });
       },
@@ -278,11 +295,12 @@ export class UsersComponent implements OnInit, OnDestroy {
     this.ref()?.onClose.subscribe((res) => {
       if (res != null) {
         this.userService.deleteUser(viewUser.userId).subscribe({
-          next: () => {
+          next: (result) => {
+            console.log(result);
             this.msgService.add({
               severity: 'success',
               summary: 'Thành công',
-              detail: `Xoá người dùng thành công`,
+              detail: result.data,
             });
             this.loadUsers({
               first: 0,
@@ -290,7 +308,13 @@ export class UsersComponent implements OnInit, OnDestroy {
             });
           },
           error: (err) => {
-            console.log(err);
+            if (err.error) {
+              this.msgService.add({
+                severity: 'error',
+                summary: 'Thất bại',
+                detail: err.error,
+              });
+            }
           },
         });
       }
@@ -304,7 +328,13 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   resetPassword(viewUser: ViewUserDto) {
     this.userService.resetPassword(viewUser.userId, this.resetPwd).subscribe({
-      next: () => {},
+      next: () => {
+        this.msgService.add({
+          severity: 'success',
+          summary: 'Thành công',
+          detail: 'Đổi mật khẩu thành công',
+        });
+      },
       error: (err) => {
         console.log(err);
       },
@@ -374,29 +404,15 @@ export class UsersComponent implements OnInit, OnDestroy {
         })
       );
 
-      this.ref()?.onClose.subscribe((res) => {
-        console.log(res);
-        if (res !== undefined) {
-          this.userService.editUser(viewUser.userId, res).subscribe({
-            next: (editUserDto) => {
-              this.users.update((oUsers) =>
-                oUsers.map((u) => (u.userId === viewUser.userId ? editUserDto : u))
-              );
-              if (editUserDto.isActive === false) {
-                this.users.update((oUsers) =>
-                  oUsers.filter((u) => u.userId !== editUserDto.userId)
-                );
-                this.totalRecords.update((oTotal) => oTotal - 1);
-              }
-            },
-            error: (err) => {
-              this.msgService.add({
-                severity: 'error',
-                summary: 'Thất bại',
-                detail: err.error.message,
-              });
-            },
-          });
+      this.ref()?.onClose.subscribe((editUserDto) => {
+        if (editUserDto) {
+          this.users.update((oUsers) =>
+            oUsers.map((u) => (u.userId === viewUser.userId ? editUserDto : u))
+          );
+          if (editUserDto.isActive === false) {
+            this.users.update((oUsers) => oUsers.filter((u) => u.userId !== editUserDto.userId));
+            this.totalRecords.update((oTotal) => oTotal - 1);
+          }
         }
       });
     });
@@ -413,31 +429,12 @@ export class UsersComponent implements OnInit, OnDestroy {
         })
       );
 
-      this.ref()?.onClose.subscribe((res) => {
-        if (res !== undefined) {
-          this.userService.addUser(res).subscribe({
-            next: (viewUserDto) => {
-              this.users.update((oUsers) => [...oUsers, viewUserDto]);
-              this.loadUsers({
-                first: 0,
-                rows: this.pageSize(),
-              });
-            },
-            error: (err) => {
-              if (err.error.errors) {
-                this.msgService.add({
-                  severity: 'error',
-                  summary: 'Lỗi',
-                  detail: err.error.errors.join('\n'),
-                });
-              } else if (err.error) {
-                this.msgService.add({
-                  severity: 'error',
-                  summary: 'Lỗi',
-                  detail: err.error,
-                });
-              }
-            },
+      this.ref()?.onClose.subscribe((viewUserDto) => {
+        if (viewUserDto) {
+          this.users.update((oUsers) => [...oUsers, viewUserDto]);
+          this.loadUsers({
+            first: 0,
+            rows: this.pageSize(),
           });
         }
       });

@@ -18,6 +18,10 @@ export class RoleFormComponent {
       if (this.mode() === 'edit') {
         const role = config.data.role;
         this.roleName.setValue(role.roleName);
+        const listRoleNameDisable = ['Admin', 'Student', 'Teacher'];
+        if (listRoleNameDisable.includes(this.roleName.value!)) {
+          this.roleName.disable();
+        }
       }
     }
   }

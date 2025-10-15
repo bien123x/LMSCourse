@@ -69,6 +69,86 @@
       </form>
       }
     </p-tabpanel>
-    <p-tabpanel value="1"> Đổi mật khẩu</p-tabpanel>
+    <p-tabpanel value="1">
+      @if (formChangePwd) {
+
+      <form [formGroup]="formChangePwd" (ngSubmit)="changePwd()">
+        <div class="flex flex-col gap-2">
+          <div>
+            <p-ifta-label class="w-full">
+              <p-password
+                class="w-full"
+                id="nowPassword"
+                [feedback]="false"
+                autocomplete="off"
+                [showClear]="true"
+                [toggleMask]="true"
+                name="nowPassword"
+                formControlName="nowPassword"
+                inputStyleClass="w-full"
+              />
+              <label for="nowPassword">Mật khẩu hiện tại</label>
+            </p-ifta-label>
+            @if (nowPassword?.invalid && (nowPassword?.touched || nowPassword?.dirty)) { @if
+            (nowPassword?.hasError('required')) {
+            <small class="text-red-500">Không được để trống</small>
+            }@else if (nowPassword?.hasError('passwordPolicy')) {
+            <small class="text-red-500">{{ nowPassword?.getError('passwordPolicy') }}</small>
+            } }
+          </div>
+          <div>
+            <p-ifta-label class="w-full">
+              <p-password
+                class="w-full"
+                id="newPassword"
+                [feedback]="false"
+                autocomplete="off"
+                [showClear]="true"
+                [toggleMask]="true"
+                name="newPassword"
+                formControlName="newPassword"
+                inputStyleClass="w-full"
+              />
+              <label for="newPassword">Mật khẩu mới</label>
+            </p-ifta-label>
+            @if (newPassword?.invalid && (newPassword?.touched || newPassword?.dirty)) { @if
+            (newPassword?.hasError('required')) {
+            <small class="text-red-500">Không được để trống</small>
+            } @else if (newPassword?.hasError('passwordPolicy')) {
+            <small class="text-red-500">{{ newPassword?.getError('passwordPolicy') }}</small>
+            } }
+          </div>
+          <div>
+            <p-ifta-label class="w-full">
+              <p-password
+                inputStyleClass="w-full"
+                [feedback]="false"
+                autocomplete="off"
+                [showClear]="true"
+                [toggleMask]="true"
+                class="w-full"
+                id="confirmNewPassword"
+                name="confirmNewPassword"
+                formControlName="confirmNewPassword"
+              />
+              <label for="confirmNewPassword">Xác nhận mật khẩu mới</label>
+            </p-ifta-label>
+            @if (confirmNewPassword?.invalid && (confirmNewPassword?.touched ||
+            confirmNewPassword?.dirty)) { @if (confirmNewPassword?.hasError('required')) {
+            <small class="text-red-500">Không được để trống</small>
+            } @else if (confirmNewPassword?.hasError('serverError')) {
+            <small class="text-red-500">{{ confirmNewPassword?.getError('serverError') }}</small>
+            } }
+          </div>
+          <p-button
+            class="w-full"
+            styleClass="w-full"
+            label="Đổi mật khẩu"
+            type="submit"
+          ></p-button>
+        </div>
+      </form>
+      }
+    </p-tabpanel>
   </p-tabpanels>
 </p-tabs>

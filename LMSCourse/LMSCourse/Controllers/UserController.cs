@@ -21,7 +21,7 @@ namespace LMSCourse.Controllers
         }
 
         [HttpGet("view-user/{userId:int}")]
-        [Authorize(Policy = PERMISSION.System.Users.View)]
+        [Authorize(Policy = PERMISSION.System.UserManagement.Users.ViewDetails)]
         public async Task<IActionResult> GetUserById(int userId)
         {
             var viewUserDto = await _userService.GetUserByIdAsync(userId);
@@ -33,7 +33,6 @@ namespace LMSCourse.Controllers
         }
 
         [HttpGet("all-view-user")]
-        [Authorize(Policy = PERMISSION.System.Users.View)]
         public async Task<IActionResult> GetAllViewUsersDto()
         {
             var usersDto = await _userService.GetAllViewUser();
@@ -42,25 +41,25 @@ namespace LMSCourse.Controllers
         }
 
         [HttpPost("add-user")]
-        [Authorize(Policy = PERMISSION.System.Users.Create)]
+        [Authorize(Policy = PERMISSION.System.UserManagement.Users.Create)]
         public async Task<IActionResult> AddUserDto(UserDto userDto)
         {
-            var (isValid, errors) = await _settingsService.ValidateAsync(userDto.PasswordHash);
-
-            if (!isValid)
-                return BadRequest(new { Errors = errors });
-
             var addUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(addUserId))
                 return NotFound("Người thêm không tồn tại!");
-            var userAdd = await _userService.AddUserAsync(userDto, int.Parse(addUserId));
-            if (userAdd == null) return BadRequest("Tên đang nhập/Email đã tồn tại hoặc người tạo không xác thực!");
-            return Ok(userAdd);
+            var result = await _userService.AddUserAsync(userDto, int.Parse(addUserId));
+            if (!result.Success)
+            {
+                return BadRequest(result.Message);
+            } else
+            {
+                return Ok(result.Data);
+            }
         }
 
         [HttpPut("edit-user/{userId:int}")]
-        [Authorize(Policy = PERMISSION.System.Users.Edit)]
+        [Authorize(Policy = PERMISSION.System.UserManagement.Users.Edit)]
         public async Task<IActionResult> EditUserDto(int userId, EditUserDto editUserDto)
         {
             var editUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -83,7 +82,6 @@ namespace LMSCourse.Controllers
         }
 
         [HttpGet("permissions-name/{userId:int}")]
-        [Authorize(Policy = PERMISSION.System.Users.View)]
         public async Task<IActionResult> GetPermissions(int userId)
         {
             var userPermissions = await _userService.GetUserPermissionsCodeById(userId);
@@ -91,6 +89,7 @@ namespace LMSCourse.Controllers
             return Ok(new UserPermissionsDto { UserPermissions = userPermissions, RolePermissions = rolePermissions });
         }
         [HttpPut("user-permissions/{userId:int}")]
+        [Authorize(Policy = PERMISSION.System.UserManagement.Users.ChangePermissions)]
         public async Task<IActionResult> UpdateUserPermissions(int userId, List<string> permissions)
         {
             var updatePermissions = await _userService.UpdateUserPermissions(userId, permissions);
@@ -100,25 +99,26 @@ namespace LMSCourse.Controllers
         }
 
         [HttpPut("reset-password/{userId:int}")]
-        [Authorize(Policy = PERMISSION.System.Users.Edit)]
+        [Authorize(Policy = PERMISSION.System.UserManagement.Users.ResetPwd)]
         public async Task<IActionResult> ResetPassword(int userId, SetPassword resetDto)
         {
             await _userService.ResetPassword(userId, resetDto.PasswordHash);
             return Ok();
         }
         [HttpDelete("delete-user/{userId:int}")]
-        [Authorize(Policy = PERMISSION.System.Users.Delete)]
+        [Authorize(Policy = PERMISSION.System.UserManagement.Users.Delete)]
         public async Task<IActionResult> DeleteUser(int userId)
         {
             
-            var isDelete = await _userService.DeleteUser(userId);
-            if (isDelete)
-                return Ok();
-            return BadRequest("Không có user này");
+            var result = await _userService.DeleteUser(userId);
+            if (result.Success)
+                return Ok(result);
+            else
+                return BadRequest(result.Message);
         }
 
         [HttpPost("users")]
-        [Authorize(Policy = PERMISSION.System.Users.View)]
+        [Authorize(Policy = PERMISSION.System.UserManagement.Users.Module)]
         public async Task<ActionResult<PagedResult<ViewUserDto>>> GetPagedUsers([FromBody] QueryDto query)
         {
             var result = await _userService.GetPagedUsers(query);
@@ -136,6 +136,7 @@ namespace LMSCourse.Controllers
         }
 
         [HttpPut("lock-user/{userId:int}")]
+        [Authorize(Policy = PERMISSION.System.UserManagement.Users.LockAccount)]
         public async Task<IActionResult> LockUserAsync(int userId, LockEndTimeDto dto)
         {
             var result = await _userService.LockUserByIdAsync(userId, dto.LockEndTime);
@@ -149,6 +150,7 @@ namespace LMSCourse.Controllers
         }
 
         [HttpPut("unlock-user/{userId:int}")]
+        [Authorize(Policy = PERMISSION.System.UserManagement.Users.UnLockAccount)]
         public async Task<IActionResult> UnlockUserAsync(int userId)
         {
             var result = await _userService.UnLockUserByIdAsync(userId);

@@ -32,7 +32,6 @@ import { passwordValidator } from '../../../core/validators/settings-validator';
     CardModule,
     ReactiveFormsModule,
   ],
-  providers: [MessageService],
 })
 export class RegisterComponent implements OnInit {
   private authService = inject(AuthService);
@@ -72,17 +71,25 @@ export class RegisterComponent implements OnInit {
   onSubmit() {
     this.authService.register(this.formRegister.value).subscribe({
       next: (res) => {
-        this.msgService.add({
-          severity: 'success',
-          summary: 'Thành công',
-          detail: 'Đăng ký tài khoản thành công. Vui lòng kiểm tra email để xác minh.',
-          life: 3000,
-        });
+        if (res.message) {
+          this.msgService.add({
+            severity: 'info',
+            summary: 'Thông tin',
+            detail: res.message,
+          });
+        } else {
+          this.msgService.add({
+            severity: 'success',
+            summary: 'Thành công',
+            detail: 'Đăng ký tài khoản thành công. Vui lòng kiểm tra email để xác minh.',
+          });
+        }
 
         this.router.navigate(['/auth/login']);
       },
       error: (err) => {
         console.log(err);
+        console.log(err.error);
         console.log(err.error?.errors);
         if (err.status && err.status == 400 && err.error?.errors) {
           const errors = err.error.errors;
@@ -94,6 +101,12 @@ export class RegisterComponent implements OnInit {
               control.setErrors({ server: errors[key][0] });
               console.log(control);
             }
+          });
+        } else if (err.error) {
+          this.msgService.add({
+            severity: 'error',
+            summary: 'Thất bại',
+            detail: err.error,
           });
         }
       },

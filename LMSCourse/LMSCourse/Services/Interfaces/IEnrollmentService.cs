@@ -9,5 +9,6 @@ namespace LMSCourse.Services.Interfaces
         Task<EnrollmentDto> UpdateStatus(int courseId, int userId);
         Task<bool> IsCompleteCourse(int courseId, int userId);
         Task<bool> IsExistCertificate(int enrollmentId);
+        Task<EnrollmentDto?> UpdateProgress(int enrollmentId);
     }
 }

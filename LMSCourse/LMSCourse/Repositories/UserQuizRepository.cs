@@ -26,6 +26,12 @@ namespace LMSCourse.Repositories
                 .SumAsync();
         }
 
+        public async Task<UserQuiz?> GetUserQuizHasMaxScore(int quizId, int userId)
+        {
+            return await _context.UserQuizzes.Where(uq => uq.QuizId == quizId && uq.UserId == userId).OrderByDescending(uq => uq.Score)
+        .FirstOrDefaultAsync();
+        }
+
         public async Task<UserQuiz?> GetWithQuizById(int userQuizId)
         {
             return await _context.UserQuizzes.Include(uq => uq.Quiz)

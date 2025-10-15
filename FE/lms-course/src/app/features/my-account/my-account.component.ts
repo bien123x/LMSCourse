@@ -11,6 +11,8 @@ import { IftaLabelModule } from 'primeng/iftalabel';
 import { UserService } from '../../core/services/user.service';
 import { MessageService } from 'primeng/api';
 import { SettingsService } from '../../core/services/settings.service';
+import { passwordValidator } from '../../core/validators/settings-validator';
+import { PasswordModule } from 'primeng/password';
 
 @Component({
   selector: 'app-my-account',
@@ -22,6 +24,7 @@ import { SettingsService } from '../../core/services/settings.service';
     ButtonModule,
     InputTextModule,
     IftaLabelModule,
+    PasswordModule,
   ],
 })
 export class MyAccountComponent implements OnInit, OnDestroy {
@@ -40,6 +43,8 @@ export class MyAccountComponent implements OnInit, OnDestroy {
   user = signal<ViewUserDto | null>(null);
 
   formInfo!: FormGroup;
+
+  formChangePwd!: FormGroup;
 
   ngOnInit(): void {
     this.authService
@@ -61,6 +66,12 @@ export class MyAccountComponent implements OnInit, OnDestroy {
           if (!res.isUserNameUpdateEnabled) this.formInfo.get('userName')?.disable();
           if (!res.isEmailUpdateEnabled) this.formInfo.get('email')?.disable();
         });
+
+        this.formChangePwd = this.fb.group({
+          nowPassword: ['', Validators.required, passwordValidator(this.settingsService)],
+          newPassword: ['', Validators.required, passwordValidator(this.settingsService)],
+          confirmNewPassword: ['', Validators.required],
+        });
       });
   }
 
@@ -74,6 +85,44 @@ export class MyAccountComponent implements OnInit, OnDestroy {
         });
       },
     });
+  }
+
+  changePwd() {
+    console.log(this.formChangePwd.value);
+    this.userService.changePassword(this.user()?.userId!, this.formChangePwd.value).subscribe({
+      next: (result) => {
+        this.msgService.add({
+          severity: 'success',
+          summary: 'Thành công',
+          detail: 'Đổi mật khẩu thành công',
+        });
+      },
+      error: (err) => {
+        if (err.error && err.error.errors) {
+          const validationErrors = err.error.errors;
+
+          Object.keys(validationErrors).forEach((field) => {
+            const normalizedKey = field.charAt(0).toLowerCase() + field.slice(1);
+            const control = this.formChangePwd.get(normalizedKey);
+            if (control) {
+              control.setErrors({ serverError: validationErrors[field][0] });
+            }
+          });
+        }
+      },
+    });
+  }
+
+  get nowPassword() {
+    return this.formChangePwd.get('nowPassword');
+  }
+
+  get newPassword() {
+    return this.formChangePwd.get('newPassword');
+  }
+
+  get confirmNewPassword() {
+    return this.formChangePwd.get('confirmNewPassword');
   }
 
   get userName() {

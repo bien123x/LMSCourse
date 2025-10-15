@@ -1,2 +1,14 @@
 <h1>Home</h1>
 <!-- <p-button label="Test ConfirmationDialog" (onClick)="confirmDialog($event)"></p-button> -->
+
+<p-auto-complete
+  [(ngModel)]="filterItemsAdvance"
+  [suggestions]="filterItems"
+  [dropdown]="true"
+  (completeMethod)="search($event)"
+>
+  <ng-template #header>header</ng-template>
+  <ng-template #item let-country>{{ country }}</ng-template>
+
+  <ng-template #footer>footer</ng-template>
+</p-auto-complete>

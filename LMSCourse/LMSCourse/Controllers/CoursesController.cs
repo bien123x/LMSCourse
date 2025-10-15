@@ -1,7 +1,9 @@
 ﻿using LMSCourse.DTOs.Course;
 using LMSCourse.DTOs.Page_Sort_Filter;
 using LMSCourse.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OnlineCourseConstants;
 using System.Security.Claims;
 
 namespace LMSCourse.Controllers
@@ -20,6 +22,7 @@ namespace LMSCourse.Controllers
 
 
         [HttpGet("all/{userId:int}")]
+        [Authorize(Policy = PERMISSION.Students.Courses.Module)]
         public async Task<IActionResult> GetAll(int userId)
         {
             var coursesDto = await _courseService.GetAllAsync(userId);
@@ -34,6 +37,7 @@ namespace LMSCourse.Controllers
         }
 
         [HttpGet("filters")]
+        [Authorize(Policy = PERMISSION.Students.Courses.Module)]
         public async Task<IActionResult> GetCourseFiltersAsync()
         {
             if (UserId == null)
@@ -45,6 +49,7 @@ namespace LMSCourse.Controllers
         }
 
         [HttpPost("all-with-filter")]
+        [Authorize(Policy = PERMISSION.Students.Courses.Module)]
         public async Task<IActionResult> GetAllWithFilter([FromBody] QueryCourseDto dto)
         {
             if (UserId == null)
@@ -55,6 +60,7 @@ namespace LMSCourse.Controllers
             return Ok(pageCourses);
         }
         [HttpGet("{courseId:int}")]
+        [Authorize(Policy = PERMISSION.Students.Courses.ViewDetails.Module)]
         public async Task<IActionResult> GetCourseByIdAsync(int courseId)
         {
             var result = await _courseService.GetCourseByIdAsync(courseId);
@@ -67,6 +73,7 @@ namespace LMSCourse.Controllers
         }
 
         [HttpPost("enrolled")]
+        [Authorize(Policy = PERMISSION.Students.Enrollments.Module)]
         public async Task<IActionResult> GetAllCoursesEnrolledAsync([FromBody] QueryCourseEnrolledDto dto)
         {
             if (UserId == null)
@@ -79,6 +86,7 @@ namespace LMSCourse.Controllers
         }
 
         [HttpPost("get-courses-by-listId")]
+        [Authorize(Policy = PERMISSION.Students.Courses.Module)]
         public async Task<IActionResult> GetCoursesByListId(List<int> courseIds)
         {
             if (UserId == null)
