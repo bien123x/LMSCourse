@@ -50,7 +50,7 @@ namespace LMSCourse.Repositories
                         }
                         break ;
                     case "global":
-                        auditLogs = auditLogs.Where(a => a.UserName.Contains(filter.Value) || a.HttpMethod.Contains(filter.Value));
+                        auditLogs = auditLogs.Where(a => a.UserName.Contains(filter.Value) || a.HttpMethod.Contains(filter.Value) || a.Url.Contains(filter.Value));
                         break;
                     case "createdat":
                         var parts = filter.Value.Split('*', StringSplitOptions.TrimEntries);

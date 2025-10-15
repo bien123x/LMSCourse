@@ -22,6 +22,8 @@ namespace LMSCourse.Repositories.Interfaces
         Task AddUserRoles(UserRole userRole);
         Task<Role> GetRoleByRoleName(string roleName);
         Task<bool> IsExistUserNameOrEmail(string userName, string email, int? userId = null);
+        Task<bool> IsExistUserName(string userName);
+        Task<bool> IsExistEmail(string email);
 
         Task<IEnumerable<Role>> GetAllRoles();
         Task<User?> GetWithUserPermissions(int userId);

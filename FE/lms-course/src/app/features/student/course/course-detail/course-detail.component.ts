@@ -1,3 +1,4 @@
+import { PERMISSION } from './../../../../core/models/constant';
 import { ChangeDetectorRef, Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AccordionModule } from 'primeng/accordion';
@@ -7,11 +8,13 @@ import { CourseService } from '../../../../core/services/course.service';
 import { CourseDto } from '../../../../core/models/course-model';
 import { CartService } from '../../../../core/services/cart.service';
 import { switchMap } from 'rxjs';
+import { HasPermissionDirective } from "../../../../core/directives/has-permission-directive";
+import { CardModule } from 'primeng/card';
 
 @Component({
   selector: 'app-course-detail',
   templateUrl: './course-detail.component.html',
-  imports: [AccordionModule, CurrencyPipe, ButtonModule],
+  imports: [AccordionModule, CurrencyPipe, ButtonModule, HasPermissionDirective, CardModule],
 })
 export class CourseDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
@@ -22,6 +25,8 @@ export class CourseDetailComponent implements OnInit {
   private router = inject(Router);
 
   private cd = inject(ChangeDetectorRef);
+
+  PERMISSION = PERMISSION;
 
   remainingCapacity: number = 0;
 

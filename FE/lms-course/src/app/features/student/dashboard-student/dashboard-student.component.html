@@ -22,7 +22,11 @@
     </div>
   </div>
   <div class="flex flex-col lg:flex-row justify-around gap-3">
-    <p-card header="Hoá đơn gần đây" class="flex-1">
+    <p-card
+      header="Hoá đơn gần đây"
+      class="flex-1"
+      *appHasPermission="PERMISSION.Students.Payments.ViewHistory"
+    >
       @for (payment of paymentRecent(); track payment.appTransId) {
       <app-invoice [invoice]="payment"></app-invoice>
       }

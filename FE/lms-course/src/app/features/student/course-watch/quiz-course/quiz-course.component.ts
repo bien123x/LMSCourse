@@ -11,6 +11,7 @@ import { QuizViewDto } from '../../../../core/models/quiz-model';
 export class QuizCourseComponent implements OnInit {
   // quizzes = input<QuizViewDto[] | undefined>(undefined);
   private quizService = inject(QuizService);
+
   courseId = input<number>(1);
   quizzes = signal<QuizViewDto[]>([]);
   ngOnInit(): void {

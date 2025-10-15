@@ -21,5 +21,10 @@ namespace LMSCourse.Repositories
         {
             return await _context.Quizzes.Where(q => q.CourseId == courseId).Select(q => q.TotalMarks).SumAsync();
         }
+
+        public async Task<int> GetTotalQuizOfCourse(int courseId)
+        {
+            return await _context.Quizzes.Where(q => q.CourseId == courseId).CountAsync();
+        }
     }
 }

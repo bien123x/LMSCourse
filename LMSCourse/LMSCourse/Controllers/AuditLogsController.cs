@@ -1,7 +1,9 @@
 ﻿using LMSCourse.Dtos;
 using LMSCourse.DTOs.Page_Sort_Filter;
 using LMSCourse.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OnlineCourseConstants;
 
 namespace LMSCourse.Controllers
 {
@@ -16,9 +18,7 @@ namespace LMSCourse.Controllers
             _auditLogService = auditLogService;
         }
 
-        /// <summary>
-        /// Tạo một bản ghi log mới.
-        /// </summary>
+        
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AuditLogDto dto)
         {
@@ -41,6 +41,7 @@ namespace LMSCourse.Controllers
         //}
 
         [HttpPost("audit-logs")]
+        [Authorize(Policy = PERMISSION.System.AuditLogs.Module)]
         public async Task<IActionResult> GetAllAuditLogsByQuery([FromBody] QueryDto query)
         {
             var result = await _auditLogService.GetAllAuditLogsByQueryAsync(query);

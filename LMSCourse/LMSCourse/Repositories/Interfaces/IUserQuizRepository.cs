@@ -7,5 +7,6 @@ namespace LMSCourse.Repositories.Interfaces
         Task<UserQuiz?> GetWithQuizById(int userQuizId);
         IQueryable<UserQuiz> GetAllQuery();
         Task<int> GetMarkByCourseId(int courseId, int userId);
+        Task<UserQuiz?> GetUserQuizHasMaxScore(int quizId, int userId);
     }
 }

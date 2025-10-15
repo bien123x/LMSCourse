@@ -9,11 +9,28 @@ namespace LMSCourse.Services
     public class QuizService : IQuizService
     {
         private readonly IQuizRepository _repo;
+        private readonly IUserQuizRepository _userQuizRepo;
         private readonly IMapper _mapper;
-        public QuizService(IQuizRepository repo, IMapper mapper)
+        public QuizService(IQuizRepository repo, IMapper mapper, IUserQuizRepository userQuizRepo)
         {
             _repo = repo;
             _mapper = mapper;
+            _userQuizRepo = userQuizRepo;
+        }
+
+        public async Task<int> CountUserQuizPassQuiz(int courseId, int userId)
+        {
+            var quizzes = await _repo.GetQuizzesByCourseId(courseId);
+            int count = 0;
+            foreach (var quiz in  quizzes!)
+            {
+                var userQuiz = await _userQuizRepo.GetUserQuizHasMaxScore(quiz.QuizId, userId);
+                if (userQuiz.Score >= quiz.PassMark)
+                {
+                    count += 1;
+                }
+            }
+            return count;
         }
 
         public async Task<QuizViewDto?> CreateQuiz(QuizDto dto)

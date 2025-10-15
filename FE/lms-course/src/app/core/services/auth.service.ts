@@ -5,9 +5,9 @@ import { Observable, tap } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import { ViewUserDto } from '../models/user-model';
 import { MenuItem } from 'primeng/api';
-import { CodePermission } from '../models/constant';
 import { Router } from '@angular/router';
 import { CartService } from './cart.service';
+import { PERMISSION } from '../models/constant';
 
 @Injectable({
   providedIn: 'root',
@@ -19,6 +19,7 @@ export class AuthService {
 
   private accessTokenKey = 'access_token';
   private refreshTokenKey = 'refresh_token';
+  private currentRoleKey = 'current_role';
   private rolesKey = 'roles';
   private permissionsKey = 'permissions';
 
@@ -32,23 +33,23 @@ export class AuthService {
       command: () => this.router.navigate(['/home']),
     },
     {
-      visible: this.hasPermission(CodePermission.System),
+      visible: this.hasPermission(PERMISSION.System.Module),
       label: 'Quản trị',
       icon: 'pi pi-cog',
       items: [
         {
-          visible: this.hasPermission(CodePermission.UserManagement),
+          visible: this.hasPermission(PERMISSION.System.UserManagement.Module),
           label: 'Quản lý tài khoản',
           icon: 'pi pi-users',
           items: [
             {
-              visible: this.hasPermission(CodePermission.Roles),
+              visible: this.hasPermission(PERMISSION.System.UserManagement.Roles.Module),
               label: 'Quyền',
               icon: 'pi pi-lock',
               command: () => this.router.navigate(['/admin/identity/roles']),
             },
             {
-              visible: this.hasPermission(CodePermission.Users),
+              visible: this.hasPermission(PERMISSION.System.UserManagement.Users.Module),
               label: 'Người dùng',
               icon: 'pi pi-user',
               command: () => this.router.navigate(['/admin/identity/users']),
@@ -56,13 +57,13 @@ export class AuthService {
           ],
         },
         {
-          visible: this.hasPermission(CodePermission.AuditLogs),
+          visible: this.hasPermission(PERMISSION.System.Auditlogs.Module),
           label: 'Nhật ký',
           icon: 'pi pi-book',
           command: () => this.router.navigate(['/admin/audit-logs']),
         },
         {
-          visible: this.hasPermission(CodePermission.Settings),
+          visible: this.hasPermission(PERMISSION.System.Settings.Module),
           label: 'Cài đặt',
           icon: 'pi pi-sliders-h',
           command: () => this.router.navigate(['/admin/settings']),
@@ -75,28 +76,24 @@ export class AuthService {
 
   private studentMenu = computed<MenuItem[]>(() => [
     {
-      visible: this.hasPermission(CodePermission.ViewUsers),
-
-      label: 'Dashboard',
-      icon: 'pi pi-chart-line',
-      command: () => this.router.navigate(['/dashboard']),
-    },
-    {
       label: 'Dashboard',
       icon: 'pi pi-chart-line',
       command: () => this.router.navigate(['/student/dashboard']),
     },
     {
+      visible: this.hasPermission(PERMISSION.Students.Enrollments.Module),
       label: 'Khoá học đã tham gia',
       icon: 'pi pi-chart-line',
       command: () => this.router.navigate(['/student/courses-enrolled']),
     },
     {
+      visible: this.hasPermission(PERMISSION.Students.Courses.Module),
       label: 'Khóa học',
       icon: 'pi pi-book',
       command: () => this.router.navigate(['student/courses']),
     },
     {
+      visible: this.hasPermission(PERMISSION.Students.Certificates.Module),
       label: 'Chứng chỉ',
       icon: 'pi pi-wallet',
       command: () => this.router.navigate(['student/certificates']),
@@ -112,6 +109,8 @@ export class AuthService {
   private rolesSignal = signal<string[]>(this.loadArray(this.rolesKey));
   private permissionsSignal = signal<string[]>(this.loadArray(this.permissionsKey));
 
+  private currentRoleSignal = signal<string | null>(this.loadCurrentRole());
+
   constructor() {
     const token = typeof localStorage !== 'undefined' ? localStorage.getItem('access_token') : null;
 
@@ -121,8 +120,20 @@ export class AuthService {
   }
 
   // --- Helpers ---
+  private saveCurrentRole(role: string) {
+    typeof localStorage !== 'undefined' ? localStorage.setItem(this.currentRoleKey, role) : '';
+    this.currentRoleSignal.set(role);
+  }
+
+  private loadCurrentRole(): string | null {
+    const role =
+      typeof localStorage !== 'undefined' ? localStorage.getItem(this.currentRoleKey) : null;
+    return role ? role : null;
+  }
+
   private hasValidToken(): boolean {
-    const token = typeof localStorage !== 'undefined' ? localStorage.getItem('access_token') : null;
+    const token =
+      typeof localStorage !== 'undefined' ? localStorage.getItem(this.accessTokenKey) : null;
     if (token) return true;
     return false;
   }
@@ -165,15 +176,24 @@ export class AuthService {
 
   private buildMenu() {
     // tuỳ role mà set menu
-    if (this.rolesSignal().includes('Admin')) {
-      this.menuItems.set(this.adminMenu());
-    } else if (this.rolesSignal().includes('Teacher')) {
-      this.menuItems.set(this.teacherMenu());
-    } else if (this.rolesSignal().includes('Student')) {
-      this.menuItems.set(this.studentMenu());
+    // const currentRole = this.currentRoleSignal();
+    // console.log('CurrentRole', currentRole);
+
+    // if (!currentRole) {
+    const roles = this.rolesSignal();
+    console.log('List Role', roles);
+    if (roles.includes('Admin')) {
+      this.saveCurrentRole('Admin');
+    } else if (roles.includes('Teacher')) {
+      this.saveCurrentRole('Teacher');
+    } else if (roles.includes('Student')) {
+      this.saveCurrentRole('Student');
     } else {
-      this.menuItems.set([]);
+      this.saveCurrentRole('');
     }
+    // }
+
+    this.loadMenuItem(this.currentRoleSignal());
   }
 
   // --- Public API ---
@@ -185,12 +205,20 @@ export class AuthService {
     return this.permissionsSignal();
   }
 
+  getCurrentRole(): string | null {
+    return this.currentRoleSignal();
+  }
+
   hasPermission(permission: string): boolean {
     return this.permissionsSignal().includes(permission);
   }
 
   hasRole(role: string): boolean {
     return this.rolesSignal().includes(role);
+  }
+
+  isHasManyRoles(): boolean {
+    return this.rolesSignal().length > 1;
   }
 
   me(): Observable<ViewUserDto> {
@@ -239,8 +267,37 @@ export class AuthService {
     this.loggedIn.set(false);
     localStorage.removeItem(this.rolesKey);
     localStorage.removeItem(this.permissionsKey);
+    localStorage.removeItem(this.currentRoleKey);
     localStorage.setItem('my_cart', JSON.stringify([]));
     this.cartService.clearCart();
+  }
+
+  loadMenuItem(currentRole: string | null) {
+    switch (currentRole) {
+      case 'Admin':
+        this.menuItems.set(this.adminMenu());
+        break;
+      case 'Teacher':
+        this.menuItems.set(this.teacherMenu());
+        break;
+      case 'Student':
+        this.menuItems.set(this.studentMenu());
+        break;
+      default:
+        this.menuItems.set([]);
+        break;
+    }
+  }
+
+  switchRole(role: string) {
+    if (!this.rolesSignal().includes(role)) {
+      console.warn(`Role ${role} không thuộc người dùng`);
+      return;
+    }
+
+    this.saveCurrentRole(role);
+    console.log(this.currentRoleSignal());
+    this.loadMenuItem(this.currentRoleSignal());
   }
 
   loadCurrentUser(): Observable<any> {

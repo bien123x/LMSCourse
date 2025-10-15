@@ -1,3 +1,4 @@
+import { PERMISSION } from './../../../../core/models/constant';
 import { Component, inject, input, model, OnInit, output } from '@angular/core';
 import { DataViewModule } from 'primeng/dataview';
 import { CommonModule } from '@angular/common';
@@ -7,12 +8,13 @@ import { SelectModule } from 'primeng/select';
 import { SelectItem } from 'primeng/api';
 import { FormsModule } from '@angular/forms';
 import { CourseDto } from '../../../../core/models/course-model';
+import { HasPermissionDirective } from "../../../../core/directives/has-permission-directive";
 
 @Component({
   selector: 'app-course-list',
   templateUrl: './course-list.component.html',
   styleUrl: './course-list.component.css',
-  imports: [CommonModule, DataViewModule, Tag, ButtonModule, SelectModule, FormsModule],
+  imports: [CommonModule, DataViewModule, Tag, ButtonModule, SelectModule, FormsModule, HasPermissionDirective],
 })
 export class CourseListComponent implements OnInit {
   courses = model<CourseDto[]>([]);
@@ -29,6 +31,8 @@ export class CourseListComponent implements OnInit {
   sortKey: string = '';
 
   sortChange = output<{ field: string; order: number }>();
+
+  PERMISSION = PERMISSION;
 
   ngOnInit(): void {
     this.sortOptions = [

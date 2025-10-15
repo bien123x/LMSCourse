@@ -17,9 +17,9 @@ namespace LMSCourse.Services.Interfaces
         string HashPasswordUser(User user, string password);
         Task UpdateUserAsync(User user);
         Task<IEnumerable<ViewUserDto>> GetAllViewUser();
-        Task<ViewUserDto> AddUserAsync(UserDto userDto, int addUserId);
+        Task<ApiResponse<ViewUserDto>> AddUserAsync(UserDto userDto, int addUserId);
         Task<ViewUserDto> EditUserDto(int userId, EditUserDto editUserDto, int editUserId);
-        Task<bool> DeleteUser(int userId);
+        Task<ApiResponse> DeleteUser(int userId);
 
         Task<List<string>> GetRolesName();
         Task<List<string>> GetUserPermissionsCodeById(int userId);

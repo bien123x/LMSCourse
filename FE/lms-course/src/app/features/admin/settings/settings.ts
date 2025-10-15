@@ -1,4 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { PERMISSION } from './../../../core/models/constant';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MenuItem, MessageService } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
@@ -9,7 +10,8 @@ import { Checkbox } from 'primeng/checkbox';
 import { ButtonModule } from 'primeng/button';
 import { IdentitySettingDto } from '../../../core/models/settings-model';
 import { SettingsService } from '../../../core/services/settings.service';
-import { Card, CardModule } from "primeng/card";
+import { Card, CardModule } from 'primeng/card';
+import { HasPermissionDirective } from "../../../core/directives/has-permission-directive";
 
 @Component({
   selector: 'app-settings',
@@ -22,17 +24,22 @@ import { Card, CardModule } from "primeng/card";
     ButtonModule,
     IftaLabel,
     Checkbox,
-    CardModule
+    CardModule,
+    HasPermissionDirective
 ],
 })
 export class SettingsComponent implements OnInit {
   private fb = inject(FormBuilder);
   private settingsService = inject(SettingsService);
   private msgService = inject(MessageService);
+  private cd = inject(ChangeDetectorRef);
   items: MenuItem[] | undefined = undefined;
   menuSelect: string = '';
   form!: FormGroup;
   identitySettingDto: IdentitySettingDto | undefined = undefined;
+
+  PERMISSION = PERMISSION;
+
   ngOnInit(): void {
     this.settingsService.getIdentitySetting().subscribe({
       next: (res: any) => {
@@ -47,10 +54,11 @@ export class SettingsComponent implements OnInit {
             requireNonAlphanumeric: [this.identitySettingDto?.password.requireNonAlphanumeric],
             forceUsersToPeriodicallyChangePassword: [
               this.identitySettingDto?.password.forceUsersToPeriodicallyChangePassword,
+              Validators.required,
             ],
             passwordChangePeriodDays: [
               this.identitySettingDto?.password.passwordChangePeriodDays,
-              Validators.min(0),
+              [Validators.min(0), Validators.required],
             ],
           }),
           lockout: this.fb.group({
@@ -75,6 +83,8 @@ export class SettingsComponent implements OnInit {
             isEmailUpdateEnabled: [this.identitySettingDto?.user.isEmailUpdateEnabled],
           }),
         });
+
+        this.cd.markForCheck();
       },
       error: (err) => {
         console.log(err);

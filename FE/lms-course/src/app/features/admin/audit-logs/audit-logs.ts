@@ -17,6 +17,8 @@ import {
   HttpMethodValue,
   StatusCodeValue,
 } from '../../../core/models/audit-logo-model';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DetailAuditlogsComponent } from './detail-auditlogs/detail-auditlogs';
 
 @Component({
   selector: 'app-audit-logs',
@@ -35,6 +37,7 @@ import {
     DatePicker,
     DatePickerModule,
   ],
+  providers: [DynamicDialogRef],
 })
 export class AuditLogsComponent implements OnInit, OnDestroy {
   private auditLogsService = inject(AuditLogsService);
@@ -59,6 +62,9 @@ export class AuditLogsComponent implements OnInit, OnDestroy {
   filterGlobalValue: string = '';
   rangeDates: Date[] | undefined;
 
+  private dynamicDialogRef = inject(DynamicDialogRef);
+  private dialogService = inject(DialogService);
+
   ngOnInit(): void {
     this.auditLogsService
       .getDistinctStatusCode()
@@ -73,7 +79,7 @@ export class AuditLogsComponent implements OnInit, OnDestroy {
       )
       .subscribe((res) => {
         this.statusCodes = res;
-        this.cd.markForCheck();
+        this.cd.detectChanges();
       });
     this.auditLogsService
       .getDistinctHttpMethod()
@@ -88,7 +94,7 @@ export class AuditLogsComponent implements OnInit, OnDestroy {
       )
       .subscribe((res) => {
         this.httpMethods = res;
-        this.cd.markForCheck();
+        this.cd.detectChanges();
       });
 
     this.loadAuditLogs$
@@ -162,13 +168,13 @@ export class AuditLogsComponent implements OnInit, OnDestroy {
     };
     // console.log('Query:', query);
     this.loadAuditLogs$.next(query);
-
   }
 
   clearTable(dt: any) {
     this.selectedStatusCode = undefined;
     this.selectedHttpMethod = undefined;
     this.filterGlobalValue = '';
+    this.rangeDates = undefined;
     dt.clear();
   }
 
@@ -207,11 +213,23 @@ export class AuditLogsComponent implements OnInit, OnDestroy {
   }
 
   viewDetailAuditLog(auditLog: AuditlogsDto) {
-    // console.log(auditLog);
+    console.log(auditLog);
+
+    this.dynamicDialogRef = this.dialogService.open(DetailAuditlogsComponent, {
+      header: 'Chi tiết nhật ký',
+      width: '800px',
+      maximizable: true,
+      closable: true,
+      modal: true,
+      data: { auditlog: auditLog },
+    });
+
+    this.dynamicDialogRef.onClose.subscribe();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.dynamicDialogRef.close();
   }
 }

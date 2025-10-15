@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using LMSCourse.DTOs.Course;
 using LMSCourse.DTOs.Enrollment;
+using LMSCourse.Models;
 using LMSCourse.Repositories.Interfaces;
 using LMSCourse.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -77,6 +78,35 @@ namespace LMSCourse.Services
             if (enrollment !=null &&  enrollment.Certificate != null) 
                 return true;
             return false;
+        }
+
+        public async Task<EnrollmentDto?> UpdateProgress(int enrollmentId)
+        {
+            var enrollment = await _repo.GetByIdAsync(enrollmentId);
+
+            if (enrollment == null) return null;
+
+            var totalQuizOfCourseEnrolled = await _quizRepo.GetTotalQuizOfCourse(enrollment.CourseId);
+            if (totalQuizOfCourseEnrolled != 0)
+            {
+                var quizzes = await _quizRepo.GetQuizzesByCourseId(enrollment.CourseId);
+
+                int count = 0;
+                foreach (var quiz in quizzes!)
+                {
+                    var userQuiz = await _userQuizRepo.GetUserQuizHasMaxScore(quiz.QuizId, enrollment.UserId);
+
+                    if (userQuiz != null && userQuiz.Score >= quiz.PassMark)
+                    {
+                        count += 1;
+                    }
+                }
+
+                enrollment.Progess = count * 100 / totalQuizOfCourseEnrolled;
+
+            }
+            await _repo.UpdateAsync(enrollment);
+            return _mapper.Map<EnrollmentDto>(enrollment);
         }
 
         public async Task<EnrollmentDto> UpdateStatus(int courseId, int userId)

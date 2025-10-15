@@ -1,10 +1,8 @@
-<p-toast></p-toast>
-
 <div class="flex flex-col gap-4 whitespace-nowrap">
   <!-- Header -->
   <div class="flex justify-between items-center">
     <h1 class="font-black text-2xl">Người dùng</h1>
-    <ng-container *appHasPermission="CodePermission.CreateUsers">
+    <ng-container *appHasPermission="PERMISSION.System.UserManagement.Users.Create">
       <p-button label="Thêm người dùng" (onClick)="newUser()"></p-button>
     </ng-container>
   </div>
@@ -83,9 +81,7 @@
       </tr>
       <tr>
         @if (users().length > 0) {
-        <ng-container *appHasPermission="CodePermission.EditUsers">
-          <th class="w-32 whitespace-nowrap">Thao tác</th>
-        </ng-container>
+        <th class="w-32 whitespace-nowrap">Thao tác</th>
 
         <th pSortableColumn="userName">Tên tài khoản <p-sortIcon field="userName"></p-sortIcon></th>
         <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
@@ -118,17 +114,15 @@
     <!-- Body -->
     <ng-template pTemplate="body" let-user>
       <tr>
-        <ng-container *appHasPermission="CodePermission.EditUsers">
-          <td>
-            <p-menu #menu [model]="menuItems()" [popup]="true" appendTo="body"></p-menu>
-            <p-button
-              (onClick)="setCurrentUser(user, $event, menu)"
-              label="Thao tác"
-              size="small"
-              class="whitespace-nowrap"
-            />
-          </td>
-        </ng-container>
+        <td>
+          <p-menu #menu [model]="menuItems()" [popup]="true" appendTo="body"></p-menu>
+          <p-button
+            (onClick)="setCurrentUser(user, $event, menu)"
+            label="Thao tác"
+            size="small"
+            class="whitespace-nowrap"
+          />
+        </td>
         <td>
           {{ user.userName }}@if (isUserLocked(user)) {
           <span class="text-red-500 text-sm font-semibold" title="Tài khoản đang bị khoá">
@@ -166,7 +160,12 @@
 </div>
 
 <!-- Dialog Reset Password -->
-<p-dialog [modal]="true" [(visible)]="visibleResetPwd" header="Thiết đặt mật khẩu" class="w-[800px]">
+<p-dialog
+  [modal]="true"
+  [(visible)]="visibleResetPwd"
+  header="Thiết đặt mật khẩu"
+  class="w-[800px]"
+>
   <form
     class="flex flex-col gap-2.5 w-[400px] lg:w-[800px]"
     #resetPwdForm="ngForm"
@@ -178,6 +177,7 @@
         inputStyleClass="w-full"
         #newPwd="ngModel"
         [toggleMask]="true"
+        [feedback]="false"
         appPasswordValidator
         name="resetPwd"
         id="resetPwd"

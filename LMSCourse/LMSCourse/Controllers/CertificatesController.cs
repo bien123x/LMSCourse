@@ -1,7 +1,9 @@
 ﻿using LMSCourse.DTOs.Certificate;
 using LMSCourse.Services;
 using LMSCourse.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OnlineCourseConstants;
 using System.Threading.Tasks;
 
 namespace LMSCourse.Controllers
@@ -15,6 +17,7 @@ namespace LMSCourse.Controllers
         {
             _certService = certService;
         }
+
         [HttpPost("generate-certificate")]
         public async Task<IActionResult> GenerateCertificate([FromBody] CertificateDto dto)
         {
@@ -30,6 +33,7 @@ namespace LMSCourse.Controllers
         }
 
         [HttpGet("by-user/{userId:int}")]
+        [Authorize(Policy = PERMISSION.Students.Certificates.Module)]
         public async Task<IActionResult> GetByUserId(int userId)
         {
             var certificateView = await _certService.GetCertificatesByUserId(userId);

@@ -2,15 +2,31 @@ import { Component, inject } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.html',
-  imports: [ButtonModule],
+  imports: [ButtonModule, AutoCompleteModule, FormsModule],
 })
 export class HomeComponent {
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
+
+  value: any;
+
+  items = [1, 11, 2, 3, 4, 5];
+
+  filterItems: number[] = [];
+
+  filterItemsAdvance: number[] = [];
+
+  search(event: any) {
+    console.log(event.query);
+    this.filterItems = this.items.filter((v) => v.toString().indexOf(event.query) == 0);
+  }
+
   confirmDialog(event: Event) {
     this.confirmationService.confirm({
       target: event.target as HTMLElement, // định vị theo button

@@ -1,3 +1,4 @@
+import { PERMISSION } from './../../../core/models/constant';
 import { ChangeDetectorRef, Component, inject, OnInit, signal } from '@angular/core';
 import { CertificateService } from '../../../core/services/certificate.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -8,11 +9,12 @@ import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DatePipe } from '@angular/common';
+import { HasPermissionDirective } from "../../../core/directives/has-permission-directive";
 
 @Component({
   selector: 'app-student-certificates',
   templateUrl: './student-certificates.component.html',
-  imports: [TableModule, ButtonModule, DialogModule, DatePipe],
+  imports: [TableModule, ButtonModule, DialogModule, DatePipe, HasPermissionDirective],
 })
 export class StudentCertificatesComponent implements OnInit {
   private certificateService = inject(CertificateService);
@@ -21,6 +23,7 @@ export class StudentCertificatesComponent implements OnInit {
   private destroy$ = new Subject<void>();
 
   private cd = inject(ChangeDetectorRef);
+  PERMISSION = PERMISSION;
 
   certificates = signal<CertificateViewDto[]>([]);
   visibleViewCertificate = false;

@@ -6,7 +6,6 @@ import { PanelMenuModule } from 'primeng/panelmenu';
 import { MenuItem } from 'primeng/api';
 import { AuthService } from '../../../core/services/auth.service';
 import { Router } from '@angular/router';
-import { CodePermission } from '../../../core/models/constant';
 
 @Component({
   selector: 'app-sidebar',

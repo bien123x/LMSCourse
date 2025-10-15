@@ -24,9 +24,10 @@ namespace LMSCourse.Services
         private readonly ZaloPayOptions _options;
         private readonly IMapper _mapper;
         private readonly IServiceScopeFactory _scopeFactory;
+        private readonly IConfiguration _config;
 
 
-        public PaymentService(IPaymentRepository repo, IOptions<ZaloPayOptions> options, IMapper mapper, IEnrollmentRepository enrollRepo, ICourseRepository courseRepository, IServiceScopeFactory scopeFactory)
+        public PaymentService(IPaymentRepository repo, IOptions<ZaloPayOptions> options, IMapper mapper, IEnrollmentRepository enrollRepo, ICourseRepository courseRepository, IServiceScopeFactory scopeFactory, IConfiguration config)
         {
             _repo = repo;
             _options = options.Value;
@@ -34,13 +35,14 @@ namespace LMSCourse.Services
             _enrollRepo = enrollRepo;
             _courseRepo = courseRepository;
             _scopeFactory = scopeFactory;
+            _config = config;
         }
 
         public async Task<Dictionary<string, object>> CreateOrderAsync(PaymentDto dto)
         {
             var transid = new Random().Next(1000000);
             var app_trans_id = DateTime.Now.ToString("yyMMdd") + "_" + transid;
-            var embeddata = new { redirecturl = "http://localhost:4200/student/payment-result" };
+            var embeddata = new { redirecturl = $"{_config["AppUrls:Frontend"]}/student/payment-result" };
             var items = dto.CourseDtos.Select(c => new
             {
                 CourseId = c.CourseId,
@@ -55,7 +57,7 @@ namespace LMSCourse.Services
             param.Add("app_time", Utils.GetTimeStamp().ToString());
             param.Add("amount", dto.Amount.ToString());
             param.Add("app_trans_id", app_trans_id);
-            param.Add("callback_url", "https://testy-hypnotisable-lorette.ngrok-free.dev/Payment/callback");
+            param.Add("callback_url", $"{_config["AppUrls:Public"]}/Payment/callback");
 
             param.Add("embed_data", JsonConvert.SerializeObject(embeddata));
             param.Add("item", JsonConvert.SerializeObject(items));
@@ -196,7 +198,7 @@ namespace LMSCourse.Services
                         }
                     }
 
-                    Console.WriteLine("✅ Update order status success, app_trans_id = " + dataJson["app_trans_id"]);
+                    Console.WriteLine("Update order status success, app_trans_id = " + dataJson["app_trans_id"]);
                     result["return_code"] = 1;
                     result["return_message"] = "Thanh toán thành công";
                 }
@@ -205,7 +207,6 @@ namespace LMSCourse.Services
             {
                 result["return_code"] = 0; // ZaloPay server sẽ callback lại (tối đa 3 lần)
                 result["return_message"] = ex.Message;
-
             }
 
             return result;

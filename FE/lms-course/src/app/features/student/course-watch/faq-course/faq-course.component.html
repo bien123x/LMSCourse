@@ -1,4 +1,4 @@
-<p-accordion [value]="0">
+<p-accordion [value]="0" class="w-full">
   @for (faqGroup of faqGroups(); track faqGroup.faqGroupId) {
   <p-accordion-panel [value]="faqGroup.faqGroupId">
     <p-accordion-header>{{ faqGroup.title }}</p-accordion-header>

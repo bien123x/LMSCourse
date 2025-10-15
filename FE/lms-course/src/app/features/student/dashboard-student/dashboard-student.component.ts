@@ -1,3 +1,4 @@
+import { PERMISSION } from './../../../core/models/constant';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { EnrollmentService } from '../../../core/services/enrollment.service';
@@ -10,11 +11,12 @@ import { InvoiceComponent } from './invoice/invoice.component';
 import { UserQuizService } from '../../../core/services/user-quiz.service';
 import { LatestQuizDto } from '../../../core/models/quiz-model';
 import { LatestQuizComponent } from './latest-quiz/latest-quiz.component';
+import { HasPermissionDirective } from "../../../core/directives/has-permission-directive";
 
 @Component({
   selector: 'app-dashboard-student',
   templateUrl: './dashboard-student.component.html',
-  imports: [CardModule, CourseEnrolledItemComponent, InvoiceComponent, LatestQuizComponent],
+  imports: [CardModule, CourseEnrolledItemComponent, InvoiceComponent, LatestQuizComponent, HasPermissionDirective],
 })
 export class DashboardStudentComponent implements OnInit {
   private enrollmentService = inject(EnrollmentService);
@@ -26,6 +28,8 @@ export class DashboardStudentComponent implements OnInit {
   courses = signal<CourseDto[]>([]);
   paymentRecent = signal<PaymentDto[]>([]);
   latestQuizzes = signal<LatestQuizDto[]>([]);
+
+  PERMISSION = PERMISSION;
 
   ngOnInit(): void {
     this.enrollmentService.getDashboardEnrolledCoure().subscribe((res) => {

@@ -45,7 +45,7 @@ namespace LMSCourse.Controllers
                 return BadRequest("Tài khoản đã bị khoá!");
 
             if (user.LockoutEndTime != null && user.LockoutEndTime > DateTime.UtcNow)
-                return BadRequest($"Tài khoản đã bị khoá đến {user.LockoutEndTime}!");
+                return BadRequest($"Tài khoản đã bị khoá đến {user.LockoutEndTime?.ToLocalTime():dd/MM/yyyy HH:mm}!");
             else if (user.LockoutEndTime != null)
             {
                 await _userService.SetLockEndTimeAsync(user.UserId, -1);
@@ -134,7 +134,7 @@ namespace LMSCourse.Controllers
                     ";
                     await _emailService.SendEmailAsync(userDto.Data.Email, "Xác thực Email", htmlMessage);
 
-                    return BadRequest(isForceConfirmEmail.Message);
+                    return Ok(isForceConfirmEmail);
                 } else
                 {
                     return Ok(isForceConfirmEmail);

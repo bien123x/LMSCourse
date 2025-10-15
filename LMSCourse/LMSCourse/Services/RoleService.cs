@@ -10,7 +10,7 @@ namespace LMSCourse.Services
     public class RoleService : IRoleService
     {
         private readonly IRoleRepository _roleRepository;
-        private readonly IPermissionRepository _permissionsRepository;
+        //private readonly IPermissionRepository _permissionsRepository;
         private readonly IMapper _mapper;
 
         public RoleService(IRoleRepository roleRepository, IMapper mapper)

@@ -110,8 +110,11 @@ export class PermissionFormComponent implements OnInit {
     // Loại bỏ các quyền bị disable (role-permission)
     const filteredKeys = selected.filter((key) => !this.disabledKeys().includes(key!));
 
-    console.log('User permissions (không gồm role):', filteredKeys);
-    return filteredKeys;
+    const userPermissionsInDisable = this.permissions().filter((key) =>
+      this.disabledKeys().includes(key)
+    );
+
+    return [...filteredKeys, ...userPermissionsInDisable];
   }
 
   close() {

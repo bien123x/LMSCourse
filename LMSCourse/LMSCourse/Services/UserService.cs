@@ -7,6 +7,7 @@ using LMSCourse.Repositories;
 using LMSCourse.Repositories.Interfaces;
 using LMSCourse.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 
@@ -114,12 +115,22 @@ namespace LMSCourse.Services
             return _mapper.Map<IEnumerable<ViewUserDto>>(users);
         }
 
-        public async Task<ViewUserDto> AddUserAsync(UserDto userDto, int addUserId)
+        public async Task<ApiResponse<ViewUserDto>> AddUserAsync(UserDto userDto, int addUserId)
         {
             var user = _mapper.Map<User>(userDto);
             var addUser = await _userRepository.GetByIdAsync(addUserId);
-            if (await _userRepository.IsExistUserNameOrEmail(user.UserName, user.Email) || addUser == null)
-                return null;
+            //if (await _userRepository.IsExistUserNameOrEmail(user.UserName, user.Email) || addUser == null)
+            //    return null;
+
+            if (addUser == null)
+                return ApiResponse<ViewUserDto>.Fail("Người thêm không tồn tại!");
+
+            if (await _userRepository.IsExistUserName(userDto.UserName))
+                return ApiResponse<ViewUserDto>.Fail("Tên đăng nhập đã tồn tại!");
+
+            if (await _userRepository.IsExistEmail(userDto.Email))
+                return ApiResponse<ViewUserDto>.Fail("Email đã tồn tại!");
+
             user.PasswordHash = HashPasswordUser(user, userDto.PasswordHash);
 
             user.UserRoles = new List<UserRole>();
@@ -136,7 +147,7 @@ namespace LMSCourse.Services
             user.ModificationTime = DateTime.UtcNow;
             user.CreatedBy = addUser.Name;
             await _userRepository.AddAsync(user);
-            return _mapper.Map<ViewUserDto>(user);
+            return ApiResponse<ViewUserDto>.Ok(_mapper.Map<ViewUserDto>(user));
         }
 
         public async Task<ViewUserDto> EditUserDto(int userId, EditUserDto editUserDto, int editUserId)
@@ -232,23 +243,27 @@ namespace LMSCourse.Services
             await _userRepository.SaveChangesAsync();
         }
 
-        public async Task<bool> DeleteUser(int userId)
+        public async Task<ApiResponse> DeleteUser(int userId)
         {
             try
             {
-            var user = await _userRepository.GetWithUserRolesAndUserPermissions(userId);
-            if (user == null) return false;
-            user.UserRoles.Clear();
-            user.UserPermissions.Clear();
-            user.Courses.Clear();
-            user.AuditLogs.Clear();
-            await _userRepository.DeleteAsync(user);
-            await _userRepository.SaveChangesAsync();
+                var user = await _userRepository.GetWithUserRolesAndUserPermissions(userId);
+                if (user == null) return ApiResponse.Fail("Người dùng không tồn tại!");
+                user.UserRoles.Clear();
+                user.UserPermissions.Clear();
+                user.Courses.Clear();
+                user.AuditLogs.Clear();
+                await _userRepository.DeleteAsync(user);
+                await _userRepository.SaveChangesAsync();
 
-            } catch(Exception ex)  {
-            
+                return ApiResponse.Ok("Xoá người dùng thành công!");
+            } catch(DbUpdateException dbEx)
+            {
+                return ApiResponse.Fail("Không thể xóa người dùng do lỗi cơ sở dữ liệu (Tồn tại ràng buộc,...). Vui lòng thử lại sau.");
+            } 
+            catch(Exception ex)  {
+                return ApiResponse.Fail("Đã xảy ra lỗi không mong muốn. Vui lòng thử lại sau.");
             }
-            return true;
         }
 
         public async Task<PagedResult<ViewUserDto>> GetPagedUsers(QueryDto query)
@@ -288,7 +303,7 @@ namespace LMSCourse.Services
             if (result == PasswordVerificationResult.Failed)
                 return ApiResponse<ViewUserDto>.Fail("Mật khẩu hiện tại không đúng");
             if (dto.NewPassword != dto.ConfirmNewPassword)
-                return ApiResponse<ViewUserDto>.Fail("Hãy nhập lại mật khẩu mới");
+                return ApiResponse<ViewUserDto>.Fail("Mật khẩu mới không khớp!");
             user.PasswordHash = _passwordHasher.HashPassword(user, dto.NewPassword);
             user.PasswordUpdateTime = DateTime.UtcNow;
 
@@ -354,6 +369,7 @@ namespace LMSCourse.Services
                 if (user.LockoutEndTime != null)
                 {
                     user.LockoutEndTime = null;
+                    user.FailedAccessCount = 0;
                     await _userRepository.UpdateAsync(user);
                     return ApiResponse.Ok($"Đã gỡ khoá cho người dùng {user.Name}");
                 }

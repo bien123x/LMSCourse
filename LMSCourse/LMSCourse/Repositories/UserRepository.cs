@@ -196,5 +196,15 @@ namespace LMSCourse.Repositories
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.TokenEmail == tokenEmail);
         }
+
+        public async Task<bool> IsExistUserName(string userName)
+        {
+            return await _context.Users.AnyAsync(u => u.UserName == userName);
+        }
+
+        public async Task<bool> IsExistEmail(string email)
+        {
+            return await _context.Users.AnyAsync(u => u.Email == email);
+        }
     }
 }

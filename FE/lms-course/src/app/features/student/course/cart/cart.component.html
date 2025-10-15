@@ -32,7 +32,9 @@
       <h3 class="font-bold">Tổng tiền</h3>
       <span>Tất cả khoá học đều đảm bảo hoàn tiền trong 30 ngày</span>
     </div>
-    <span class="self-end lg:self-auto text-red-500">{{ totalPrice | currency:'VND':'symbol'}}</span>
+    <span class="self-end lg:self-auto text-red-500">{{
+      totalPrice | currency : 'VND' : 'symbol'
+    }}</span>
   </div>
 
   <div class="flex justify-end items-center gap-2 m-2">
@@ -43,6 +45,7 @@
       (onClick)="continueShopping()"
     ></p-button>
     <p-button
+      *appHasPermission="PERMISSION.Students.Payments.Checkout"
       [rounded]="true"
       severity="help"
       label="Thanh toán"

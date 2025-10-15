@@ -60,27 +60,9 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.formChangePwd = this.fb.group({
-      nowPassword: [
-        '',
-        {
-          asyncValidators: passwordValidator(this.settingService),
-          updateOn: 'blur',
-        },
-      ],
-      newPassword: [
-        '',
-        {
-          asyncValidators: passwordValidator(this.settingService),
-          updateOn: 'blur',
-        },
-      ],
-      confirmNewPassword: [
-        '',
-        {
-          asyncValidators: passwordValidator(this.settingService),
-          updateOn: 'blur',
-        },
-      ],
+      nowPassword: ['', [Validators.required], passwordValidator(this.settingService)],
+      newPassword: ['', [Validators.required], passwordValidator(this.settingService)],
+      confirmNewPassword: ['', Validators.required],
     });
   }
 
@@ -99,12 +81,7 @@ export class LoginComponent implements OnInit {
           this.userId = res.userId;
           this.visibleDialogChangePwd.set(true);
         } else {
-          // Login thanh cong
-          this.msgService.add({
-            severity: 'success',
-            summary: 'Thành công',
-            detail: `Đăng nhập thành công`,
-          });
+          console.log('vao');
           if (this.authService.hasRole('Admin')) {
             this.router.navigate(['/admin']);
           } else if (this.authService.hasRole('Teacher')) {
@@ -142,6 +119,18 @@ export class LoginComponent implements OnInit {
     });
   }
 
+  get nowPassword() {
+    return this.formChangePwd.get('nowPassword');
+  }
+
+  get newPassword() {
+    return this.formChangePwd.get('newPassword');
+  }
+
+  get confirmNewPassword() {
+    return this.formChangePwd.get('confirmNewPassword');
+  }
+
   changePwdClick() {
     if (this.formChangePwd.valid) {
       console.log(this.formChangePwd.value);
@@ -157,11 +146,22 @@ export class LoginComponent implements OnInit {
         },
         error: (err) => {
           console.log(err);
-          this.msgService.add({
-            severity: 'error',
-            summary: 'Thất bại',
-            detail: err.error.message,
-          });
+          if (err.status && err.status == 400 && err.error?.errors) {
+            const errors = err.error?.errors;
+            Object.keys(errors).forEach((key) => {
+              const keyFirstLower = key.charAt(0).toLowerCase() + key.slice(1);
+              const control = this.formChangePwd.get(keyFirstLower);
+              if (control) {
+                control.setErrors({ serverError: errors[key][0] });
+              }
+            });
+          } else if (err.error) {
+            this.msgService.add({
+              severity: 'error',
+              summary: 'Thất bại',
+              detail: err.error.message,
+            });
+          }
         },
       });
     }

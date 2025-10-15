@@ -1,3 +1,4 @@
+import { PERMISSION } from './../../../../core/models/constant';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CartItemComponent } from './cart-item/cart-item.component';
@@ -5,16 +6,19 @@ import { Router } from '@angular/router';
 import { CartService } from '../../../../core/services/cart.service';
 import { CourseDto } from '../../../../core/models/course-model';
 import { CurrencyPipe } from '@angular/common';
+import { HasPermissionDirective } from "../../../../core/directives/has-permission-directive";
 
 @Component({
   selector: 'app-cart',
   templateUrl: './cart.component.html',
-  imports: [ButtonModule, CartItemComponent, CurrencyPipe],
+  imports: [ButtonModule, CartItemComponent, CurrencyPipe, HasPermissionDirective],
 })
 export class CartComponent implements OnInit {
   private cartService = inject(CartService);
   private router = inject(Router);
   cart = signal<CourseDto[]>([]);
+
+  PERMISSION = PERMISSION;
 
   ngOnInit(): void {
     this.cart.set(this.cartService.cart());

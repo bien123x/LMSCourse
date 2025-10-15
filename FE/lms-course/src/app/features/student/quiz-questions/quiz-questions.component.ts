@@ -237,6 +237,13 @@ export class QuizQuestionsComponent implements OnInit, OnDestroy {
               detail: 'Không qua bài tập!',
             });
           }
+
+          this.enrollmentService.updateProgress(this.enrollment()?.enrollmentId!).subscribe({
+            next: (enrollment) => {
+              this.enrollment.set(enrollment);
+            },
+            error: (err) => {},
+          });
         },
       });
   }

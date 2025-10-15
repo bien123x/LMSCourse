@@ -107,7 +107,7 @@ namespace LMSCourse.Data
                 var userManagement = new Permission
                 {
                     PermissionName = "Quản lý người dùng",
-                    PermissionCode = "UserManagement",
+                    PermissionCode = PERMISSION.System.UserManagement.Module,
                     ParentId = system.PermissionId,
                 };
                 context.Permissions.Add(userManagement);
@@ -117,53 +117,127 @@ namespace LMSCourse.Data
                 var roleGroup = new Permission
                 {
                     PermissionName = "Nhóm quyền",
-                    PermissionCode = "Roles",
+                    PermissionCode = PERMISSION.System.UserManagement.Roles.Module,
                     ParentId = userManagement.PermissionId
                 };
                 context.Permissions.Add(roleGroup);
                 await context.SaveChangesAsync();
 
                 context.Permissions.AddRange(
-                    new Permission { PermissionName = "Xem nhóm quyền", PermissionCode = PERMISSION.System.Roles.View, ParentId = roleGroup.PermissionId },
-                    new Permission { PermissionName = "Tạo nhóm quyền", PermissionCode = PERMISSION.System.Roles.Create, ParentId = roleGroup.PermissionId },
-                    new Permission { PermissionName = "Sửa nhóm quyền", PermissionCode = PERMISSION.System.Roles.Edit, ParentId = roleGroup.PermissionId },
-                    new Permission { PermissionName = "Xoá nhóm quyền", PermissionCode = PERMISSION.System.Roles.Delete, ParentId = roleGroup.PermissionId }
+                    new Permission { PermissionName = "Thay đổi nhóm quyền", PermissionCode = PERMISSION.System.UserManagement.Roles.ChangePermissions, ParentId = roleGroup.PermissionId },
+                    new Permission { PermissionName = "Tạo nhóm quyền", PermissionCode = PERMISSION.System.UserManagement.Roles.Create, ParentId = roleGroup.PermissionId },
+                    new Permission { PermissionName = "Sửa nhóm quyền", PermissionCode = PERMISSION.System.UserManagement.Roles.Edit, ParentId = roleGroup.PermissionId },
+                    new Permission { PermissionName = "Xoá nhóm quyền", PermissionCode = PERMISSION.System.UserManagement.Roles.Delete, ParentId = roleGroup.PermissionId }
                 );
 
                 // Users
-                var userGroup = new Permission { PermissionName = "Người dùng", PermissionCode = "Users", ParentId = userManagement.PermissionId };
+                var userGroup = new Permission { PermissionName = "Người dùng", PermissionCode = PERMISSION.System.UserManagement.Users.Module, ParentId = userManagement.PermissionId };
                 context.Permissions.Add(userGroup); await context.SaveChangesAsync();
 
                 context.Permissions.AddRange(
-                    new Permission { PermissionName = "Xem người dùng", PermissionCode = PERMISSION.System.Users.View, ParentId = userGroup.PermissionId },
-                    new Permission { PermissionName = "Tạo người dùng", PermissionCode = PERMISSION.System.Users.Create, ParentId = userGroup.PermissionId },
-                    new Permission { PermissionName = "Sửa người dùng", PermissionCode = PERMISSION.System.Users.Edit, ParentId = userGroup.PermissionId },
-                    new Permission { PermissionName = "Xoá người dùng", PermissionCode = PERMISSION.System.Users.Delete, ParentId = userGroup.PermissionId }
+                    new Permission { PermissionName = "Tạo người dùng", PermissionCode = PERMISSION.System.UserManagement.Users.Create, ParentId = userGroup.PermissionId },
+                    new Permission { PermissionName = "Sửa người dùng", PermissionCode = PERMISSION.System.UserManagement.Users.Edit, ParentId = userGroup.PermissionId },
+                    new Permission { PermissionName = "Xoá người dùng", PermissionCode = PERMISSION.System.UserManagement.Users.Delete, ParentId = userGroup.PermissionId },
+                    new Permission { PermissionName = "Thay đổi nhóm quyền người dùng", PermissionCode = PERMISSION.System.UserManagement.Users.ChangePermissions, ParentId = userGroup.PermissionId },
+                    new Permission { PermissionName = "Xem chi tiết người dùng", PermissionCode = PERMISSION.System.UserManagement.Users.ViewDetails, ParentId = userGroup.PermissionId },
+                    new Permission { PermissionName = "Thiết đặt mật khẩu người dùng", PermissionCode = PERMISSION.System.UserManagement.Users.ResetPwd, ParentId = userGroup.PermissionId },
+                    new Permission { PermissionName = "Khoá tài khoản người dùng", PermissionCode = PERMISSION.System.UserManagement.Users.LockAccount, ParentId = userGroup.PermissionId },
+                    new Permission { PermissionName = "Gỡ khoá tài khoản người dùng", PermissionCode = PERMISSION.System.UserManagement.Users.UnLockAccount, ParentId = userGroup.PermissionId }
                 );
 
                 var auditLogs = new Permission
                 {
                     PermissionName = "Nhật ký hệ thống",
-                    PermissionCode = "AuditLogs",
+                    PermissionCode = PERMISSION.System.AuditLogs.Module,
                     ParentId = system.PermissionId,
                 };
                 context.Permissions.Add(auditLogs);
                 await context.SaveChangesAsync();
 
                 context.Permissions.AddRange(
-                    new Permission { PermissionName = "Xem nhật ký", PermissionCode = PERMISSION.System.AuditLogs.View, ParentId = auditLogs.PermissionId },
                     new Permission { PermissionName = "Xuất nhật ký", PermissionCode = PERMISSION.System.AuditLogs.Export, ParentId = auditLogs.PermissionId }
                 );
 
                 // Cài đặt
-                var settings = new Permission { PermissionName = "Cài đặt", PermissionCode = "Settings", ParentId = system.PermissionId };
-                context.Permissions.Add(settings); 
+                var settings = new Permission { PermissionName = "Cài đặt", PermissionCode = PERMISSION.System.Settings.Module, ParentId = system.PermissionId };
+                context.Permissions.Add(settings);
                 await context.SaveChangesAsync();
 
                 context.Permissions.AddRange(
-                    new Permission { PermissionName = "Xem cài đặt", PermissionCode = PERMISSION.System.Settings.View, ParentId = settings.PermissionId },
-                    new Permission { PermissionName = "Cập nhật cài đặt", PermissionCode = PERMISSION.System.Settings.Update, ParentId = settings.PermissionId }
-                ); 
+                    new Permission { PermissionName = "Cập nhật cài đặt", PermissionCode = PERMISSION.System.Settings.Edit, ParentId = settings.PermissionId }
+                );
+
+                var student = new Permission
+                {
+                    PermissionName = "Quản lý học sinh",
+                    PermissionCode = PERMISSION.Students.Module,
+                };
+                context.Permissions.Add(student);
+                await context.SaveChangesAsync();
+
+                // Course
+                var courseStudent = new Permission { PermissionName = "Khoá học", PermissionCode = PERMISSION.Students.Courses.Module, ParentId = student.PermissionId };
+                context.Permissions.Add(courseStudent);
+                await context.SaveChangesAsync();
+
+                var courseViewDetail = new Permission { PermissionName = "Xem chi tiết khoá học", PermissionCode = PERMISSION.Students.Courses.ViewDetails.Module, ParentId = courseStudent.PermissionId };
+                context.Permissions.Add(courseViewDetail);
+                await context.SaveChangesAsync();
+
+                context.Permissions.Add(
+                    new Permission { PermissionName = "Thêm vào giỏ hàng", PermissionCode = PERMISSION.Students.Courses.ViewDetails.AddToCart, ParentId = courseViewDetail.PermissionId }
+                );
+
+                var payment = new Permission { PermissionName = "Thanh toán giỏ hàng", PermissionCode = PERMISSION.Students.Payments.Module, ParentId = student.PermissionId };
+                context.Permissions.Add(payment);
+                await context.SaveChangesAsync();
+
+                context.Permissions.AddRange(
+                    new Permission { PermissionName = "Thanh toán", PermissionCode = PERMISSION.Students.Payments.Checkout, ParentId = payment.PermissionId },
+                    new Permission { PermissionName = "Xem lịch sử thanh toán", PermissionCode = PERMISSION.Students.Payments.ViewHistory, ParentId = payment.PermissionId }
+                );
+
+                var enrollment = new Permission { PermissionName = "Ghi danh khoá học", PermissionCode = PERMISSION.Students.Enrollments.Module, ParentId = student.PermissionId };
+                context.Permissions.Add(enrollment);
+                await context.SaveChangesAsync();
+
+                var enrollmentDetail = new Permission { PermissionName = "Xem khoá học", PermissionCode = PERMISSION.Students.Enrollments.ViewDetails.Module, ParentId = enrollment.PermissionId };
+                context.Permissions.Add(enrollmentDetail);
+                await context.SaveChangesAsync();
+
+                context.Permissions.AddRange(
+                    new Permission { PermissionName = "Xem bài học", PermissionCode = PERMISSION.Students.Enrollments.ViewDetails.WatchVideo, ParentId = enrollmentDetail.PermissionId },
+                    new Permission { PermissionName = "Làm bài tập", PermissionCode = PERMISSION.Students.Enrollments.ViewDetails.DoQuiz, ParentId = enrollmentDetail.PermissionId }
+                );
+
+                var certificate = new Permission { PermissionName = "Chứng chỉ", PermissionCode = PERMISSION.Students.Certificates.Module, ParentId = student.PermissionId };
+                context.Permissions.Add(certificate);
+                await context.SaveChangesAsync();
+
+                context.Permissions.AddRange(
+                    new Permission { PermissionName = "Xem chi tiết chứng chỉ", PermissionCode = PERMISSION.Students.Certificates.ViewDetails, ParentId = certificate.PermissionId }
+                );
+
+                await context.SaveChangesAsync();
+            }
+
+            if (!context.UserPermissions.Any(up => up.User.UserName == "admin"))
+            {
+                var permissions = await context.Permissions.ToListAsync();
+
+                var admin = await context.Users.FirstOrDefaultAsync(u => u.UserName == "admin");
+
+                var userPermissions = new List<UserPermission>();
+                foreach (var permission in permissions)
+                {
+                    userPermissions.Add(new UserPermission
+                    {
+                        UserId = admin!.UserId,
+                        PermissionId = permission.PermissionId,
+                    });
+                }
+                await context.UserPermissions.AddRangeAsync(userPermissions);
+
                 await context.SaveChangesAsync();
             }
 
@@ -431,7 +505,7 @@ namespace LMSCourse.Data
             if (!context.Lessons.Any())
             {
                 var courseTopics = context.CourseTopics.ToList();
-                foreach(var courseTopic in courseTopics)
+                foreach (var courseTopic in courseTopics)
                 {
                     context.Lessons.AddRange(
                         new Lesson

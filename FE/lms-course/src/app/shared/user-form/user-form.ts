@@ -15,6 +15,7 @@ import { SettingsService } from '../../core/services/settings.service';
 import { passwordValidator } from '../../core/validators/settings-validator';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputMaskModule } from 'primeng/inputmask';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-user-form',
@@ -40,6 +41,7 @@ export class UserFormComponent implements OnInit {
   private userService = inject(UserService);
   private settingsService = inject(SettingsService);
   private fb = inject(FormBuilder);
+  private msgService = inject(MessageService);
 
   mode = signal<string>('');
   value = signal<number>(0);
@@ -60,14 +62,7 @@ export class UserFormComponent implements OnInit {
         this.userForm = this.fb.group({
           userName: ['', [Validators.required]],
           name: [''],
-          passwordHash: [
-            '',
-            {
-              validators: [Validators.required],
-              asyncValidators: [passwordValidator(this.settingsService)],
-              updateOn: 'blur', // hoặc 'change' nếu muốn check realtime
-            },
-          ],
+          passwordHash: ['', [Validators.required], passwordValidator(this.settingsService)],
           surname: [''],
           email: ['', [Validators.required, Validators.email]],
           phoneNumber: ['', [Validators.required]],
@@ -126,16 +121,73 @@ export class UserFormComponent implements OnInit {
     this.ref.close();
   }
   save() {
+    this.userForm.markAllAsTouched();
     if (this.userForm.valid) {
       if (this.mode() === 'add') {
         this.userDto.set(this.userForm.value);
-        this.ref.close(this.userDto());
+
+        this.userService.addUser(this.userDto()!).subscribe({
+          next: (viewUserDto) => {
+            this.msgService.add({
+              severity: 'success',
+              summary: 'Thành công',
+              detail: 'Đã thêm thông tin người dùng',
+            });
+            this.ref.close(viewUserDto);
+          },
+          error: (err) => {
+            console.log(err);
+            if (err.status && err.status == 400 && err.error?.errors) {
+              console.log('vao');
+              const errors = err.error?.errors;
+              Object.keys(errors).forEach((key) => {
+                const keyFirstLower = key.charAt(0).toLowerCase() + key.slice(1);
+                const control = this.userForm.get(keyFirstLower);
+                if (control) {
+                  control.setErrors({ serverError: errors[key][0] });
+                }
+              });
+            } else if (err.error) {
+              this.msgService.add({
+                severity: 'info',
+                summary: 'Thông tin',
+                detail: err.error,
+              });
+            }
+          },
+        });
       } else if (this.mode() === 'edit') {
         this.editUserDto.set({ ...this.userForm.value, userId: this.viewUser()?.userId });
-        this.ref.close(this.editUserDto());
+
+        this.userService.editUser(this.viewUser()?.userId!, this.editUserDto()!).subscribe({
+          next: (editUserDto) => {
+            this.msgService.add({
+              severity: 'success',
+              summary: 'Thành công',
+              detail: 'Đã sửa thông tin người dùng',
+            });
+            this.ref.close(editUserDto);
+          },
+          error: (err) => {
+            if (err.status && err.status == 400 && err.error?.errors) {
+              const errors = err.error?.errors;
+              Object.keys(errors).forEach((key) => {
+                const keyFirstLower = key.charAt(0).toLowerCase() + key.slice(1);
+                const control = this.userForm.get(keyFirstLower);
+                if (control) {
+                  control.setErrors({ serverError: errors[key][0] });
+                }
+              });
+            } else if (err.error?.message) {
+              this.msgService.add({
+                severity: 'info',
+                summary: 'Thông tin',
+                detail: err.error.message,
+              });
+            }
+          },
+        });
       }
-    } else {
-      this.userForm.markAllAsTouched();
     }
   }
 }
